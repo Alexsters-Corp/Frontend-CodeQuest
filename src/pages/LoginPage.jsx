@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { API_URL } from '../services/api'
@@ -9,7 +9,19 @@ function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
+  const [showErrorToast, setShowErrorToast] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (!error) {
+      setShowErrorToast(false)
+      return
+    }
+
+    setShowErrorToast(true)
+    const timeoutId = setTimeout(() => setShowErrorToast(false), 3500)
+    return () => clearTimeout(timeoutId)
+  }, [error])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -53,41 +65,77 @@ function LoginPage() {
   }
 
   return (
-    <div className="page">
-      <div className="card">
-        <h1>Iniciar sesión</h1>
-        <form onSubmit={handleSubmit} className="form">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-          />
+    <div className="login-home">
+      <div className="login-home__aurora login-home__aurora--one" />
+      <div className="login-home__aurora login-home__aurora--two" />
 
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            required
-            value={formData.password}
-            onChange={handleChange}
-          />
-
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Ingresando...' : 'Ingresar'}
+      {showErrorToast && error && (
+        <div className="login-toast" role="alert" aria-live="assertive">
+          <div className="login-toast__content">
+            <strong>Error de acceso</strong>
+            <span>{error}</span>
+          </div>
+          <button
+            type="button"
+            className="login-toast__close"
+            onClick={() => setShowErrorToast(false)}
+            aria-label="Cerrar notificación"
+          >
+            x
           </button>
-        </form>
+        </div>
+      )}
 
-        {message && <p className="message success">{message}</p>}
-        {error && <p className="message error">{error}</p>}
+      <div className="login-home__shell">
+        <section className="login-panel">
+          <div className="login-panel__card">
+            <div className="login-home__brand login-panel__brand">
+              <span className="login-home__brand-mark">&lt;/&gt;</span>
+              <span className="login-home__brand-text">Ruta de aprendizaje</span>
+            </div>
 
-        <p>
-          ¿No tienes cuenta? <Link to="/registro">Regístrate</Link>
-        </p>
+            <span className="login-panel__kicker">Acceso</span>
+            <h2>Iniciar sesión</h2>
+            <p className="login-panel__subtitle">
+              Accede a tu cuenta para retomar tus módulos, revisar tu progreso y continuar tu ruta de estudio.
+            </p>
+
+            <form onSubmit={handleSubmit} className="form login-panel__form">
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+                placeholder="tu@email.com"
+              />
+
+              <label htmlFor="password">Contraseña</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                required
+                value={formData.password}
+                onChange={handleChange}
+                placeholder="Tu contraseña"
+              />
+
+              <button className="login-panel__submit" type="submit" disabled={isLoading}>
+                {isLoading ? 'Ingresando...' : 'Entrar al panel'}
+              </button>
+            </form>
+
+            {message && <p className="message success">{message}</p>}
+
+            <div className="login-panel__footer">
+              <span>¿Todavía no tienes cuenta?</span>
+              <Link to="/registro">Crear cuenta</Link>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )
