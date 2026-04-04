@@ -17,9 +17,9 @@ function HomePage() {
           </div>
 
           <nav className="homepage__nav">
-            <a href="#como-funciona">Como funciona</a>
-            <a href="#beneficios">Beneficios</a>
-            <a href="#ruta">Ruta</a>
+          <a onClick={() => document.getElementById('como-funciona').scrollIntoView({ behavior: 'smooth' })} style={{ cursor: 'pointer' }}>Como funciona</a>
+          <a onClick={() => document.getElementById('beneficios').scrollIntoView({ behavior: 'smooth' })} style={{ cursor: 'pointer' }}>Beneficios</a>
+          <a onClick={() => document.getElementById('ruta').scrollIntoView({ behavior: 'smooth' })} style={{ cursor: 'pointer' }}>Ruta</a>
           </nav>
 
           <div className="homepage__actions">
@@ -30,7 +30,7 @@ function HomePage() {
               className="homepage__action homepage__action--primary"
               to={isAuthenticated ? '/dashboard' : '/registro'}
             >
-              {isAuthenticated ? 'Ir al dashboard' : 'Crear cuenta'}
+              {isAuthenticated ? 'Entrar' : 'Crear cuenta'}
             </Link>
           </div>
         </header>
@@ -43,15 +43,6 @@ function HomePage() {
               Empieza con un diagnostico, desbloquea modulos segun tu conocimiento y sigue tu avance
               desde un panel pensado para estudiar con foco.
             </p>
-
-            <div className="homepage__cta-row">
-              <Link className="homepage__cta homepage__cta--primary" to={isAuthenticated ? '/dashboard' : '/registro'}>
-                {isAuthenticated ? 'Continuar aprendizaje' : 'Empezar ahora'}
-              </Link>
-              <Link className="homepage__cta homepage__cta--secondary" to="/login">
-                Ya tengo cuenta
-              </Link>
-            </div>
 
             <div className="homepage__mini-stats">
               <div className="homepage__mini-stat">

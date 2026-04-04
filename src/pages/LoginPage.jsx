@@ -9,19 +9,36 @@ function LoginPage() {
   const [formData, setFormData] = useState({ email: '', password: '' })
   const [message, setMessage] = useState('')
   const [error, setError] = useState('')
-  const [showErrorToast, setShowErrorToast] = useState(false)
+  const [toastState, setToastState] = useState('hidden')
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     if (!error) {
-      setShowErrorToast(false)
+      setToastState('hidden')
       return
     }
 
-    setShowErrorToast(true)
-    const timeoutId = setTimeout(() => setShowErrorToast(false), 3500)
+    setToastState('visible')
+    const timeoutId = setTimeout(() => setToastState('leaving'), 3200)
     return () => clearTimeout(timeoutId)
   }, [error])
+
+  useEffect(() => {
+    if (toastState !== 'leaving') {
+      return
+    }
+
+    const timeoutId = setTimeout(() => {
+      setToastState('hidden')
+      setError('')
+    }, 300)
+
+    return () => clearTimeout(timeoutId)
+  }, [toastState])
+
+  const closeToast = () => {
+    setToastState((current) => (current === 'hidden' ? 'hidden' : 'leaving'))
+  }
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -69,20 +86,28 @@ function LoginPage() {
       <div className="login-home__aurora login-home__aurora--one" />
       <div className="login-home__aurora login-home__aurora--two" />
 
-      {showErrorToast && error && (
-        <div className="login-toast" role="alert" aria-live="assertive">
+      {toastState !== 'hidden' && error && (
+        <div
+          className={`login-toast ${toastState === 'leaving' ? 'login-toast--leaving' : ''}`}
+          role="alert"
+          aria-live="assertive"
+        >
+          <span className="login-toast__icon" aria-hidden="true">
+            !
+          </span>
           <div className="login-toast__content">
-            <strong>Error de acceso</strong>
+            <strong>Ups, no se pudo iniciar sesión</strong>
             <span>{error}</span>
           </div>
           <button
             type="button"
             className="login-toast__close"
-            onClick={() => setShowErrorToast(false)}
+            onClick={closeToast}
             aria-label="Cerrar notificación"
           >
             x
           </button>
+          <span className="login-toast__progress" aria-hidden="true" />
         </div>
       )}
 
@@ -123,8 +148,12 @@ function LoginPage() {
                 placeholder="Tu contraseña"
               />
 
+              <Link className="login-panel__forgot-link" to="/forgot-password">
+                ¿Olvidaste tu contraseña?
+              </Link>
+
               <button className="login-panel__submit" type="submit" disabled={isLoading}>
-                {isLoading ? 'Ingresando...' : 'Entrar al panel'}
+                {isLoading ? 'Ingresando...' : 'Entrar'}
               </button>
             </form>
 
