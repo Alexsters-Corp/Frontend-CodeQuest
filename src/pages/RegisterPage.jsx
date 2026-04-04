@@ -57,52 +57,66 @@ function RegisterPage() {
   }
 
   return (
-    <div className="page">
-      <div className="card">
-        <h1>Registro</h1>
-        <form onSubmit={handleSubmit} className="form">
-          <label htmlFor="nombre">Nombre</label>
-          <input
-            id="nombre"
-            name="nombre"
-            type="text"
-            required
-            value={formData.nombre}
-            onChange={handleChange}
-          />
+    <div className="login-home">
+      <div className="login-home__aurora login-home__aurora--one" />
+      <div className="login-home__aurora login-home__aurora--two" />
 
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            value={formData.email}
-            onChange={handleChange}
-          />
+      <div className="login-home__shell">
+        <section className="login-panel">
+          <div className="login-panel__card">
+            <div className="login-home__brand login-panel__brand">
+              <span className="login-home__brand-mark">&lt;/&gt;</span>
+              <span className="login-home__brand-text">Ruta de aprendizaje</span>
+            </div>           
+            <h2>Crea tu cuenta</h2>
+            <p className="login-panel__subtitle">Empieza tu ruta de aprendizaje hoy.</p>
 
-          <label htmlFor="password">Contraseña</label>
-          <input
-            id="password"
-            name="password"
-            type="password"
-            minLength={6}
-            required
-            value={formData.password}
-            onChange={handleChange}
-          />
+            <form onSubmit={handleSubmit} className="form login-panel__form">
+              <label htmlFor="nombre">Nombre</label>
+              <input
+                id="nombre"
+                name="nombre"
+                type="text"
+                required
+                value={formData.nombre}
+                onChange={handleChange}
+              />
 
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Guardando...' : 'Crear cuenta'}
-          </button>
-        </form>
+              <label htmlFor="email">Email</label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                required
+                value={formData.email}
+                onChange={handleChange}
+              />
 
-        {message && <p className="message success">{message}</p>}
-        {error && <p className="message error">{error}</p>}
+              <label htmlFor="password">Contraseña</label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                minLength={6}
+                required
+                value={formData.password}
+                onChange={handleChange}
+              />
 
-        <p>
-          ¿Ya tienes cuenta? <Link to="/login">Inicia sesión</Link>
-        </p>
+              <button type="submit" className="login-panel__submit" disabled={isLoading}>
+                {isLoading ? 'Guardando...' : 'Crear cuenta'}
+              </button>
+            </form>
+
+            {message && <p className="message success">{message}</p>}
+            {error && <p className="message error">{error}</p>}
+
+            <div className="login-panel__footer">
+              <span>¿Ya tienes cuenta?</span>
+              <Link to="/login">Inicia sesión</Link>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
   )

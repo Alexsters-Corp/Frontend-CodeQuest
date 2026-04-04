@@ -1,10 +1,9 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
+import Navbar from '../components/Navbar'
 import { apiFetch } from '../services/api'
 
 function DashboardPage() {
-  const { user, logout } = useAuth()
   const navigate = useNavigate()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -27,11 +26,6 @@ function DashboardPage() {
     }
   }
 
-  const handleLogout = () => {
-    logout()
-    navigate('/login')
-  }
-
   const handleLanguageClick = (lang) => {
     localStorage.setItem('selectedLanguageId', lang.lenguaje_id)
     if (!lang.diagnostico_completado) {
@@ -43,15 +37,7 @@ function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <header className="dashboard-header">
-        <div>
-          <p className="dashboard-eyebrow">Hola, {user?.nombre || 'Estudiante'}</p>
-          <h1>Panel de aprendizaje</h1>
-        </div>
-        <button onClick={handleLogout} className="dashboard-logout-btn">
-          Cerrar sesión
-        </button>
-      </header>
+      <Navbar title="Panel de aprendizaje" />
 
       <section className="dashboard-stats">
         <article className="stat-card">
