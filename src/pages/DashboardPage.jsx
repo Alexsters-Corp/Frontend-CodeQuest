@@ -3,6 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
 import { apiFetch } from '../services/api'
 
+function isHttpUrl(value) {
+  return typeof value === 'string' && /^https?:\/\//i.test(value)
+}
+
+function renderLanguageIcon(icon, label) {
+  if (isHttpUrl(icon)) {
+    return <img className="lang-icon-image" src={icon} alt={`Logo de ${label}`} loading="lazy" />
+  }
+
+  return <span className="lang-icon-text">{icon || '💻'}</span>
+}
+
 function DashboardPage() {
   const navigate = useNavigate()
   const [overview, setOverview] = useState(null)
@@ -78,7 +90,7 @@ function DashboardPage() {
                 onClick={() => handleLanguageClick(lang)}
                 type="button"
               >
-                <span className="lang-icon">{lang.icono}</span>
+                <span className="lang-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
                 <span className="lang-name">{lang.nombre}</span>
                 {lang.diagnostico_completado ? (
                   <div className="lang-progress">

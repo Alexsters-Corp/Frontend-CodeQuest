@@ -1043,7 +1043,22 @@ a {
 }
 
 .language-icon {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.language-icon-image {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.language-icon-text {
   font-size: 2rem;
+  line-height: 1;
 }
 
 .language-name {
@@ -1531,7 +1546,22 @@ a {
 }
 
 .module-icon {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.module-icon-image {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+}
+
+.module-icon-text {
   font-size: 1.8rem;
+  line-height: 1;
 }
 
 .module-info h2 {
@@ -2060,7 +2090,22 @@ a {
 }
 
 .lang-icon {
+  width: 48px;
+  height: 48px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lang-icon-image {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+.lang-icon-text {
   font-size: 2rem;
+  line-height: 1;
 }
 
 .lang-name {
