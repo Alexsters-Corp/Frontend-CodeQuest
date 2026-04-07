@@ -3,6 +3,18 @@ import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import { apiFetch } from '../services/api'
 
+function isHttpUrl(value) {
+  return typeof value === 'string' && /^https?:\/\//i.test(value)
+}
+
+function renderLanguageIcon(icon, label) {
+  if (isHttpUrl(icon)) {
+    return <img className="language-icon-image" src={icon} alt={`Logo de ${label}`} loading="lazy" />
+  }
+
+  return <span className="language-icon-text">{icon || '💻'}</span>
+}
+
 function OnboardingLanguagePage() {
   const [languages, setLanguages] = useState([])
   const [selected, setSelected] = useState(null)
@@ -53,7 +65,7 @@ function OnboardingLanguagePage() {
               onClick={() => setSelected(lang.id)}
               type="button"
             >
-              <span className="language-icon">{lang.icono}</span>
+              <span className="language-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
               <span className="language-name">{lang.nombre}</span>
             </button>
           ))}

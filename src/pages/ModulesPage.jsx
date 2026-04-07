@@ -2,6 +2,18 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { apiFetch } from '../services/api'
 
+function isHttpUrl(value) {
+  return typeof value === 'string' && /^https?:\/\//i.test(value)
+}
+
+function renderModuleIcon(icon, fallback, label) {
+  if (isHttpUrl(icon)) {
+    return <img className="module-icon-image" src={icon} alt={`Logo de ${label}`} loading="lazy" />
+  }
+
+  return <span className="module-icon-text">{icon || fallback}</span>
+}
+
 function ModulesPage() {
   const navigate = useNavigate()
   const [modules, setModules] = useState([])
@@ -121,7 +133,9 @@ function ModulesPage() {
                 disabled={mod.estado === 'bloqueado'}
               >
                 <div className="module-info">
-                  <span className="module-icon">{mod.icono || statusIcon(mod.estado)}</span>
+                  <span className="module-icon">
+                    {renderModuleIcon(mod.icono, statusIcon(mod.estado), mod.nombre)}
+                  </span>
                   <div>
                     <h2>
                       {mod.numero}. {mod.nombre}
