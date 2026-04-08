@@ -21,6 +21,8 @@ function ModulesPage() {
   const [lessons, setLessons] = useState({})
   const [loading, setLoading] = useState(true)
   const [loadingLessons, setLoadingLessons] = useState(null)
+  const [loadError, setLoadError] = useState('')
+  const [lessonErrors, setLessonErrors] = useState({})
 
   const languageId = localStorage.getItem('selectedLanguageId')
 
@@ -34,19 +36,27 @@ function ModulesPage() {
 
   const loadModules = async () => {
     setLoading(true)
+    setLoadError('')
+
     try {
       const res = await apiFetch(`/api/lessons/modules?languageId=${languageId}`)
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+
       if (res.ok) {
         setModules(data)
+
         // Auto-expandir el módulo en progreso
         const inProgress = data.find((m) => m.estado === 'en_progreso')
         if (inProgress) {
           toggleModule(inProgress.id)
         }
+      } else {
+        setModules([])
+        setLoadError(data.message || 'No fue posible cargar los módulos.')
       }
-    } catch (e) {
-      console.error(e)
+    } catch (error) {
+      setModules([])
+      setLoadError(error.message || 'No fue posible cargar los módulos.')
     } finally {
       setLoading(false)
     }
@@ -61,14 +71,27 @@ function ModulesPage() {
 
     if (!lessons[moduleId]) {
       setLoadingLessons(moduleId)
+      setLessonErrors((prev) => ({ ...prev, [moduleId]: '' }))
+
       try {
         const res = await apiFetch(`/api/lessons/module/${moduleId}`)
+        const data = await res.json().catch(() => ({}))
+
         if (res.ok) {
-          const data = await res.json()
           setLessons((prev) => ({ ...prev, [moduleId]: data }))
+        } else {
+          setLessons((prev) => ({ ...prev, [moduleId]: [] }))
+          setLessonErrors((prev) => ({
+            ...prev,
+            [moduleId]: data.message || 'No fue posible cargar las lecciones del módulo.',
+          }))
         }
-      } catch (e) {
-        console.error(e)
+      } catch (error) {
+        setLessons((prev) => ({ ...prev, [moduleId]: [] }))
+        setLessonErrors((prev) => ({
+          ...prev,
+          [moduleId]: error.message || 'No fue posible cargar las lecciones del módulo.',
+        }))
       } finally {
         setLoadingLessons(null)
       }
@@ -124,6 +147,17 @@ function ModulesPage() {
         </div>
 
         <div className="modules-list">
+          {loadError && <p className="modules-error-message">{loadError}</p>}
+
+          {!loadError && modules.length === 0 && (
+            <div className="modules-empty-state">
+              <p>Aún no hay módulos disponibles para este lenguaje.</p>
+              <button onClick={() => navigate('/dashboard')} type="button">
+                Volver al Dashboard
+              </button>
+            </div>
+          )}
+
           {modules.map((mod) => (
             <div key={mod.id} className={`module-card module-${mod.estado}`}>
               <button
@@ -167,6 +201,12 @@ function ModulesPage() {
                 <div className="module-lessons">
                   {loadingLessons === mod.id ? (
                     <p className="lessons-loading">Cargando lecciones...</p>
+                  ) : lessonErrors[mod.id] ? (
+                    <p className="modules-error-message">{lessonErrors[mod.id]}</p>
+                  ) : (lessons[mod.id] || []).length === 0 ? (
+                    <p className="lessons-empty-message">
+                      Este módulo aún no tiene lecciones publicadas.
+                    </p>
                   ) : (
                     (lessons[mod.id] || []).map((lesson) => (
                       <div

@@ -1091,6 +1091,39 @@ a {
   cursor: not-allowed;
 }
 
+.onboarding-error-message {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.onboarding-loading-message {
+  grid-column: 1 / -1;
+  margin: 0;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.onboarding-retry-btn {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid #bfdbfe;
+  border-radius: 10px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-weight: 600;
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.onboarding-retry-btn:hover {
+  background: #dbeafe;
+}
+
 /* Tour slides */
 
 .tour-container {
@@ -1471,6 +1504,34 @@ a {
   color: #6b7280;
 }
 
+.modules-error-message {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+  font-size: 0.9rem;
+}
+
+.modules-empty-state {
+  text-align: center;
+  padding: 22px 18px;
+  border-radius: 12px;
+  border: 1px dashed #d1d5db;
+  color: #6b7280;
+  background: #fff;
+}
+
+.modules-empty-state p {
+  margin: 0 0 10px;
+}
+
+.modules-empty-state button {
+  margin-top: 0;
+  padding: 10px 16px;
+}
+
 .modules-container {
   max-width: 700px;
   margin: 0 auto;
@@ -1623,6 +1684,16 @@ a {
   text-align: center;
   padding: 12px;
   font-size: 0.85rem;
+}
+
+.lessons-empty-message {
+  margin: 0;
+  padding: 12px;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  background: #f9fafb;
 }
 
 .lesson-item {
