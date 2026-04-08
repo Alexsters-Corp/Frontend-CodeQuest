@@ -10,6 +10,7 @@ function DiagnosticTestPage() {
   const [result, setResult] = useState(null)
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
+  const [error, setError] = useState('')
   const navigate = useNavigate()
 
   const languageId = localStorage.getItem('selectedLanguageId')
@@ -24,19 +25,19 @@ function DiagnosticTestPage() {
 
   const startDiagnostic = async () => {
     setLoading(true)
+    setError('')
+
     try {
       const res = await apiFetch(`/api/diagnostic/start?languageId=${languageId}`)
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+
       if (res.ok) {
         setQuestion(data.question)
       } else {
-        // Ya completó el diagnóstico o error
-        if (data.message?.includes('Ya completaste')) {
-          navigate('/dashboard')
-        }
+        setError(data.message || 'No fue posible iniciar el diagnóstico.')
       }
-    } catch (e) {
-      console.error(e)
+    } catch (submitError) {
+      setError(submitError.message || 'No fue posible iniciar el diagnóstico.')
     } finally {
       setLoading(false)
     }
@@ -44,8 +45,10 @@ function DiagnosticTestPage() {
 
   const handleSubmitAnswer = async () => {
     if (selectedAnswer === null || !question) return
+
     setSubmitting(true)
     setFeedback(null)
+    setError('')
 
     try {
       const res = await apiFetch('/api/diagnostic/answer', {
@@ -57,7 +60,11 @@ function DiagnosticTestPage() {
         }),
       })
 
-      const data = await res.json()
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        throw new Error(data.message || 'No fue posible evaluar la respuesta.')
+      }
 
       if (data.finished) {
         // Finalizar y guardar resultado
@@ -65,7 +72,12 @@ function DiagnosticTestPage() {
           method: 'POST',
           body: JSON.stringify({ languageId: Number(languageId) }),
         })
-        const finishData = await finishRes.json()
+        const finishData = await finishRes.json().catch(() => ({}))
+
+        if (!finishRes.ok) {
+          throw new Error(finishData.message || 'No fue posible finalizar el diagnóstico.')
+        }
+
         setResult(finishData.result || data.result)
       } else {
         setFeedback({
@@ -74,8 +86,8 @@ function DiagnosticTestPage() {
           questionsAnswered: data.questionsAnswered,
         })
       }
-    } catch (e) {
-      console.error(e)
+    } catch (submitError) {
+      setError(submitError.message || 'No fue posible evaluar la respuesta.')
     } finally {
       setSubmitting(false)
     }
@@ -152,7 +164,7 @@ function DiagnosticTestPage() {
     return (
       <div className="diagnostic-page">
         <div className="diagnostic-loading">
-          <p>No hay preguntas disponibles.</p>
+          <p>{error || 'No hay preguntas disponibles.'}</p>
           <button onClick={handleFinish} type="button">Volver</button>
         </div>
       </div>
@@ -183,6 +195,8 @@ function DiagnosticTestPage() {
             </pre>
           )}
         </div>
+
+        {error && <p className="onboarding-error-message">{error}</p>}
 
         <div className="diagnostic-options">
           {options.map((option, idx) => (

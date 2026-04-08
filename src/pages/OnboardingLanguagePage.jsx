@@ -18,31 +18,65 @@ function renderLanguageIcon(icon, label) {
 function OnboardingLanguagePage() {
   const [languages, setLanguages] = useState([])
   const [selected, setSelected] = useState(null)
+  const [loadingLanguages, setLoadingLanguages] = useState(true)
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState('')
+  const [submitError, setSubmitError] = useState('')
   const navigate = useNavigate()
   const { user } = useAuth()
 
+  const loadLanguages = async () => {
+    setLoadingLanguages(true)
+    setLoadError('')
+
+    try {
+      const res = await apiFetch('/api/languages')
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        throw new Error(data.message || 'No fue posible cargar los lenguajes.')
+      }
+
+      const list = Array.isArray(data.languages) ? data.languages : []
+      setLanguages(list)
+
+      if (list.length === 0) {
+        setLoadError('No hay lenguajes disponibles en este momento.')
+      }
+    } catch (error) {
+      setLoadError(error.message || 'No fue posible cargar los lenguajes.')
+      setLanguages([])
+    } finally {
+      setLoadingLanguages(false)
+    }
+  }
+
   useEffect(() => {
-    apiFetch('/api/languages')
-      .then((r) => r.json())
-      .then((data) => setLanguages(data.languages || data))
-      .catch(() => {})
+    loadLanguages()
   }, [])
 
   const handleContinue = async () => {
     if (!selected) return
+
+    setSubmitError('')
     setLoading(true)
+
     try {
       const res = await apiFetch('/api/languages/select', {
         method: 'POST',
         body: JSON.stringify({ languageId: selected }),
       })
-      if (res.ok) {
-        localStorage.setItem('selectedLanguageId', selected)
-        navigate('/onboarding/tour')
+
+      const data = await res.json().catch(() => ({}))
+
+      if (!res.ok) {
+        throw new Error(data.message || 'No fue posible guardar tu selección.')
       }
-    } catch (e) {
-      console.error(e)
+
+      localStorage.setItem('selectedLanguageId', String(selected))
+      navigate('/onboarding/tour')
+    } catch (error) {
+      setSubmitError(error.message || 'No fue posible guardar tu selección.')
     } finally {
       setLoading(false)
     }
@@ -57,24 +91,37 @@ function OnboardingLanguagePage() {
           <p>¿Qué lenguaje de programación quieres aprender?</p>
         </div>
 
+        {loadError && <p className="onboarding-error-message">{loadError}</p>}
+        {submitError && <p className="onboarding-error-message">{submitError}</p>}
+
         <div className="language-grid">
-          {languages.map((lang) => (
-            <button
-              key={lang.id}
-              className={`language-card ${selected === lang.id ? 'language-selected' : ''}`}
-              onClick={() => setSelected(lang.id)}
-              type="button"
-            >
-              <span className="language-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
-              <span className="language-name">{lang.nombre}</span>
-            </button>
-          ))}
+          {loadingLanguages ? (
+            <p className="onboarding-loading-message">Cargando lenguajes...</p>
+          ) : (
+            languages.map((lang) => (
+              <button
+                key={lang.id}
+                className={`language-card ${selected === lang.id ? 'language-selected' : ''}`}
+                onClick={() => setSelected(lang.id)}
+                type="button"
+              >
+                <span className="language-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
+                <span className="language-name">{lang.nombre}</span>
+              </button>
+            ))
+          )}
         </div>
+
+        {!loadingLanguages && languages.length === 0 && (
+          <button className="onboarding-retry-btn" onClick={loadLanguages} type="button">
+            Reintentar carga de lenguajes
+          </button>
+        )}
 
         <button
           className="onboarding-continue-btn"
           onClick={handleContinue}
-          disabled={!selected || loading}
+          disabled={!selected || loading || loadingLanguages || languages.length === 0}
           type="button"
         >
           {loading ? 'Guardando...' : 'Continuar'}
