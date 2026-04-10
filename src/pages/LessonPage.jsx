@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { apiFetch } from '../services/api'
+import { getLessonContent, submitLessonExercise } from '../services/learningApi'
 
 function LessonPage() {
   const { lessonId } = useParams()
@@ -23,12 +23,9 @@ function LessonPage() {
   const loadLesson = async () => {
     setLoading(true)
     try {
-      const res = await apiFetch(`/api/lessons/${lessonId}`)
-      const data = await res.json()
-      if (res.ok) {
-        setLesson(data.lesson)
-        setExercises(data.exercises)
-      }
+      const data = await getLessonContent(Number(lessonId))
+      setLesson(data.lesson)
+      setExercises(data.exercises)
     } catch (e) {
       console.error(e)
     } finally {
@@ -48,14 +45,11 @@ function LessonPage() {
         : selectedAnswer
 
     try {
-      const res = await apiFetch('/api/lessons/exercise/submit', {
-        method: 'POST',
-        body: JSON.stringify({
-          exerciseId: currentExercise.id,
-          answer,
-        }),
+      const data = await submitLessonExercise({
+        lessonId: Number(lessonId),
+        exerciseId: currentExercise.id,
+        answer,
       })
-      const data = await res.json()
       setFeedback(data)
       if (data.isCorrect) {
         setXpEarned((prev) => prev + (data.xpGained || 0))
@@ -158,9 +152,7 @@ function LessonPage() {
 
           <div className="lesson-actions">
             <button className="lesson-start-btn" onClick={handleStartExercises} type="button">
-              {exercises.length > 0
-                ? `Empezar ejercicios (${exercises.length})`
-                : 'Completar lección'}
+              {exercises.length > 0 ? 'Empezar ejercicios' : 'Completar lección'}
             </button>
           </div>
         </div>

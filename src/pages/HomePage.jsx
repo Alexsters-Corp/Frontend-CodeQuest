@@ -40,14 +40,14 @@ function HomePage() {
             <span className="homepage__eyebrow">Plataforma de aprendizaje para programacion</span>
             <h1>Aprende un lenguaje con una ruta clara, medible y adaptada a tu nivel.</h1>
             <p className="homepage__lead">
-              Empieza con un diagnostico, desbloquea modulos segun tu conocimiento y sigue tu avance
+              Elige tu lenguaje, desbloquea modulos segun tu progreso y sigue tu avance
               desde un panel pensado para estudiar con foco.
             </p>
 
             <div className="homepage__mini-stats">
               <div className="homepage__mini-stat">
-                <strong>Diagnostico inicial</strong>
-                <span>Determina desde donde empezar.</span>
+                <strong>Inicio guiado</strong>
+                <span>Selecciona lenguaje y ruta en segundos.</span>
               </div>
               <div className="homepage__mini-stat">
                 <strong>Modulos guiados</strong>
@@ -66,7 +66,7 @@ function HomePage() {
             <span className="homepage__feature-tag">Personalizado</span>
             <h3>Empiezas segun tu nivel real</h3>
             <p>
-              El diagnostico evita que arranques desde cero si ya tienes base y tambien evita saltos
+              La ruta sugerida evita que arranques desde cero si ya tienes base y tambien evita saltos
               demasiado grandes.
             </p>
           </article>
@@ -101,8 +101,8 @@ function HomePage() {
             </article>
             <article className="homepage__step-card">
               <strong>02</strong>
-              <h3>Completa el diagnostico</h3>
-              <p>La plataforma mide tu nivel y ajusta tu punto de partida.</p>
+              <h3>Selecciona tu ruta</h3>
+              <p>El sistema te propone una ruta inicial y guarda tu progreso por lenguaje.</p>
             </article>
             <article className="homepage__step-card" id="ruta">
               <strong>03</strong>

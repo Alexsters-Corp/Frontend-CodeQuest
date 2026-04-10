@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
-import { apiFetch } from '../services/api'
+import {
+  clearSelectedLanguageId,
+  deleteLanguageSelection,
+  getDashboardOverview,
+  getSelectedLanguageId,
+  setSelectedLanguageId,
+} from '../services/learningApi'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -19,6 +25,12 @@ function DashboardPage() {
   const navigate = useNavigate()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
+  const [deleteLanguageNameInput, setDeleteLanguageNameInput] = useState('')
+  const [deleteActionInput, setDeleteActionInput] = useState('')
+  const [deleteProgressInput, setDeleteProgressInput] = useState('')
+  const [deleteSubmitting, setDeleteSubmitting] = useState(false)
+  const [deleteError, setDeleteError] = useState('')
 
   useEffect(() => {
     loadOverview()
@@ -26,11 +38,8 @@ function DashboardPage() {
 
   const loadOverview = async () => {
     try {
-      const res = await apiFetch('/api/progress/overview')
-      if (res.ok) {
-        const data = await res.json()
-        setOverview(data)
-      }
+      const data = await getDashboardOverview()
+      setOverview(data)
     } catch (e) {
       console.error(e)
     } finally {
@@ -39,11 +48,67 @@ function DashboardPage() {
   }
 
   const handleLanguageClick = (lang) => {
-    localStorage.setItem('selectedLanguageId', lang.lenguaje_id)
+    setSelectedLanguageId(lang.lenguaje_id)
+
     if (!lang.diagnostico_completado) {
       navigate('/diagnostic')
     } else {
       navigate('/modules')
+    }
+  }
+
+  const openDeleteDialog = (lang) => {
+    setDeleteDialogLanguage(lang)
+    setDeleteLanguageNameInput('')
+    setDeleteActionInput('')
+    setDeleteProgressInput('')
+    setDeleteError('')
+  }
+
+  const closeDeleteDialog = () => {
+    if (deleteSubmitting) {
+      return
+    }
+
+    setDeleteDialogLanguage(null)
+    setDeleteLanguageNameInput('')
+    setDeleteActionInput('')
+    setDeleteProgressInput('')
+    setDeleteError('')
+  }
+
+  const isDeleteConfirmationValid =
+    deleteDialogLanguage &&
+    deleteLanguageNameInput.trim() === deleteDialogLanguage.nombre &&
+    deleteActionInput.trim().toUpperCase() === 'ELIMINAR' &&
+    deleteProgressInput.trim().toUpperCase() === 'ELIMINAR TODO MI PROGRESO'
+
+  const handleConfirmDeleteLanguage = async () => {
+    if (!deleteDialogLanguage || !isDeleteConfirmationValid) {
+      return
+    }
+
+    setDeleteSubmitting(true)
+    setDeleteError('')
+
+    try {
+      await deleteLanguageSelection({
+        languageId: deleteDialogLanguage.lenguaje_id,
+        confirmationText: deleteActionInput,
+        confirmationLanguageName: deleteLanguageNameInput,
+        confirmProgressText: deleteProgressInput,
+      })
+
+      if (getSelectedLanguageId() === deleteDialogLanguage.lenguaje_id) {
+        clearSelectedLanguageId()
+      }
+
+      await loadOverview()
+      closeDeleteDialog()
+    } catch (error) {
+      setDeleteError(error.message || 'No fue posible eliminar el lenguaje.')
+    } finally {
+      setDeleteSubmitting(false)
     }
   }
 
@@ -84,35 +149,47 @@ function DashboardPage() {
         ) : overview?.languages?.length > 0 ? (
           <div className="language-cards-row">
             {overview.languages.map((lang) => (
-              <button
+              <div
                 key={lang.lenguaje_id}
                 className="dashboard-lang-card"
-                onClick={() => handleLanguageClick(lang)}
-                type="button"
               >
-                <span className="lang-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
-                <span className="lang-name">{lang.nombre}</span>
-                {lang.diagnostico_completado ? (
-                  <div className="lang-progress">
-                    <div className="lang-progress-bar">
-                      <div
-                        className="lang-progress-fill"
-                        style={{
-                          width: `${lang.modulosTotal > 0 ? (lang.modulosCompletados / lang.modulosTotal) * 100 : 0}%`,
-                        }}
-                      />
+                <button
+                  className="lang-remove-btn"
+                  onClick={() => openDeleteDialog(lang)}
+                  type="button"
+                >
+                  Eliminar
+                </button>
+
+                <button
+                  className="lang-open-btn"
+                  onClick={() => handleLanguageClick(lang)}
+                  type="button"
+                >
+                  <span className="lang-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
+                  <span className="lang-name">{lang.nombre}</span>
+                  {lang.diagnostico_completado ? (
+                    <div className="lang-progress">
+                      <div className="lang-progress-bar">
+                        <div
+                          className="lang-progress-fill"
+                          style={{
+                            width: `${lang.modulosTotal > 0 ? (lang.modulosCompletados / lang.modulosTotal) * 100 : 0}%`,
+                          }}
+                        />
+                      </div>
+                      <span className="lang-progress-text">
+                        {lang.modulosCompletados}/{lang.modulosTotal} módulos
+                      </span>
                     </div>
-                    <span className="lang-progress-text">
-                      {lang.modulosCompletados}/{lang.modulosTotal} módulos
-                    </span>
-                  </div>
-                ) : (
-                  <span className="lang-diagnostic-badge">Diagnóstico pendiente</span>
-                )}
-                <span className="lang-level-badge">
-                  {lang.nivel_diagnostico || 'Sin evaluar'}
-                </span>
-              </button>
+                  ) : (
+                    <span className="lang-diagnostic-badge">Diagnóstico pendiente</span>
+                  )}
+                  <span className="lang-level-badge">
+                    {lang.nivel_diagnostico || 'Sin evaluar'}
+                  </span>
+                </button>
+              </div>
             ))}
           </div>
         ) : (
@@ -164,6 +241,72 @@ function DashboardPage() {
             })}
           </div>
         </section>
+      )}
+
+      {deleteDialogLanguage && (
+        <div className="language-delete-overlay" role="dialog" aria-modal="true">
+          <div className="language-delete-modal">
+            <h3>Eliminar lenguaje</h3>
+            <p>
+              Esta acción eliminará la ruta seleccionada y el progreso asociado a{' '}
+              <strong>{deleteDialogLanguage.nombre}</strong>.
+            </p>
+            <p className="language-delete-help">
+              Confirma en tres pasos para evitar borrados accidentales.
+            </p>
+
+            <label htmlFor="delete-language-name">Escribe el nombre exacto del lenguaje</label>
+            <input
+              id="delete-language-name"
+              type="text"
+              value={deleteLanguageNameInput}
+              onChange={(event) => setDeleteLanguageNameInput(event.target.value)}
+              placeholder={deleteDialogLanguage.nombre}
+              disabled={deleteSubmitting}
+            />
+
+            <label htmlFor="delete-language-action">Escribe ELIMINAR</label>
+            <input
+              id="delete-language-action"
+              type="text"
+              value={deleteActionInput}
+              onChange={(event) => setDeleteActionInput(event.target.value)}
+              placeholder="ELIMINAR"
+              disabled={deleteSubmitting}
+            />
+
+            <label htmlFor="delete-language-progress">Escribe ELIMINAR TODO MI PROGRESO</label>
+            <input
+              id="delete-language-progress"
+              type="text"
+              value={deleteProgressInput}
+              onChange={(event) => setDeleteProgressInput(event.target.value)}
+              placeholder="ELIMINAR TODO MI PROGRESO"
+              disabled={deleteSubmitting}
+            />
+
+            {deleteError && <p className="language-delete-error">{deleteError}</p>}
+
+            <div className="language-delete-actions">
+              <button
+                className="language-delete-cancel"
+                onClick={closeDeleteDialog}
+                type="button"
+                disabled={deleteSubmitting}
+              >
+                Cancelar
+              </button>
+              <button
+                className="language-delete-confirm"
+                onClick={handleConfirmDeleteLanguage}
+                type="button"
+                disabled={!isDeleteConfirmationValid || deleteSubmitting}
+              >
+                {deleteSubmitting ? 'Eliminando...' : 'Eliminar lenguaje'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   )

@@ -1,109 +1,128 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { apiFetch } from '../services/api'
+import {
+  finishDiagnosticExam,
+  getSelectedLanguageId,
+  startDiagnosticExam,
+} from '../services/learningApi'
 
 function DiagnosticTestPage() {
-  const [question, setQuestion] = useState(null)
-  const [selectedAnswer, setSelectedAnswer] = useState(null)
-  const [feedback, setFeedback] = useState(null)
-  const [questionsAnswered, setQuestionsAnswered] = useState(0)
-  const [result, setResult] = useState(null)
+  const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
-  const navigate = useNavigate()
+  const [exam, setExam] = useState(null)
+  const [result, setResult] = useState(null)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [answers, setAnswers] = useState({})
 
-  const languageId = localStorage.getItem('selectedLanguageId')
+  const currentQuestion = useMemo(() => {
+    if (!exam?.questions?.length) return null
+    return exam.questions[currentIndex] || null
+  }, [exam, currentIndex])
 
   useEffect(() => {
+    loadDiagnostic()
+  }, [navigate])
+
+  const loadDiagnostic = async () => {
+    const languageId = getSelectedLanguageId()
+
     if (!languageId) {
-      navigate('/dashboard')
+      navigate('/onboarding/language', { replace: true })
       return
     }
-    startDiagnostic()
-  }, [])
 
-  const startDiagnostic = async () => {
     setLoading(true)
     setError('')
 
     try {
-      const res = await apiFetch(`/api/diagnostic/start?languageId=${languageId}`)
-      const data = await res.json().catch(() => ({}))
+      const payload = await startDiagnosticExam(languageId)
 
-      if (res.ok) {
-        setQuestion(data.question)
+      if (payload.alreadyCompleted) {
+        setResult(payload.result)
+        setExam(null)
       } else {
-        setError(data.message || 'No fue posible iniciar el diagnóstico.')
+        setExam(payload)
+        setResult(null)
       }
-    } catch (submitError) {
-      setError(submitError.message || 'No fue posible iniciar el diagnóstico.')
+    } catch (loadError) {
+      setError(loadError.message || 'No fue posible cargar el diagnóstico.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleSubmitAnswer = async () => {
-    if (selectedAnswer === null || !question) return
+  const handlePickOption = (optionIndex) => {
+    if (!currentQuestion) return
+
+    setAnswers((prev) => ({
+      ...prev,
+      [currentQuestion.id]: optionIndex,
+    }))
+  }
+
+  const handleSubmitDiagnostic = async () => {
+    if (!exam?.attemptId) {
+      setError('No se encontró un intento diagnóstico válido.')
+      return
+    }
+
+    const answersPayload = (exam.questions || []).map((question) => ({
+      questionId: question.id,
+      selectedOption: answers[question.id],
+    }))
+
+    if (answersPayload.some((item) => !Number.isInteger(item.selectedOption))) {
+      setError('Debes responder todas las preguntas antes de finalizar.')
+      return
+    }
 
     setSubmitting(true)
-    setFeedback(null)
     setError('')
 
     try {
-      const res = await apiFetch('/api/diagnostic/answer', {
-        method: 'POST',
-        body: JSON.stringify({
-          languageId: Number(languageId),
-          questionId: question.id,
-          answer: selectedAnswer,
-        }),
+      const payload = await finishDiagnosticExam({
+        attemptId: exam.attemptId,
+        answers: answersPayload,
       })
 
-      const data = await res.json().catch(() => ({}))
-
-      if (!res.ok) {
-        throw new Error(data.message || 'No fue posible evaluar la respuesta.')
-      }
-
-      if (data.finished) {
-        // Finalizar y guardar resultado
-        const finishRes = await apiFetch('/api/diagnostic/finish', {
-          method: 'POST',
-          body: JSON.stringify({ languageId: Number(languageId) }),
-        })
-        const finishData = await finishRes.json().catch(() => ({}))
-
-        if (!finishRes.ok) {
-          throw new Error(finishData.message || 'No fue posible finalizar el diagnóstico.')
-        }
-
-        setResult(finishData.result || data.result)
-      } else {
-        setFeedback({
-          isCorrect: data.isCorrect,
-          nextQuestion: data.question,
-          questionsAnswered: data.questionsAnswered,
-        })
-      }
+      setResult(payload)
+      setExam(null)
     } catch (submitError) {
-      setError(submitError.message || 'No fue posible evaluar la respuesta.')
+      setError(submitError.message || 'No fue posible finalizar el diagnóstico.')
     } finally {
       setSubmitting(false)
     }
   }
 
-  const handleNextQuestion = () => {
-    if (feedback?.nextQuestion) {
-      setQuestion(feedback.nextQuestion)
-      setQuestionsAnswered(feedback.questionsAnswered)
+  const handleNext = () => {
+    if (!exam?.questions?.length || !currentQuestion) {
+      return
     }
-    setSelectedAnswer(null)
-    setFeedback(null)
+
+    if (!Number.isInteger(answers[currentQuestion.id])) {
+      setError('Selecciona una opción para continuar.')
+      return
+    }
+
+    setError('')
+
+    if (currentIndex < exam.questions.length - 1) {
+      setCurrentIndex((prev) => prev + 1)
+      return
+    }
+
+    handleSubmitDiagnostic()
   }
 
-  const handleFinish = () => {
-    navigate('/dashboard')
+  const handleBack = () => {
+    if (currentIndex === 0) {
+      navigate('/dashboard')
+      return
+    }
+
+    setCurrentIndex((prev) => prev - 1)
   }
 
   if (loading) {
@@ -111,142 +130,120 @@ function DiagnosticTestPage() {
       <div className="diagnostic-page">
         <div className="diagnostic-loading">
           <div className="spinner" />
-          <p>Preparando tu test diagnóstico...</p>
+          <p>Preparando tu diagnóstico...</p>
         </div>
       </div>
     )
   }
 
-  // Pantalla de resultado
   if (result) {
     return (
       <div className="diagnostic-page">
         <div className="diagnostic-result">
-          <div className="result-icon">
-            {result.nivel === 'avanzado' ? '🏆' : result.nivel === 'intermedio' ? '🎯' : '🌱'}
-          </div>
-          <h1>¡Diagnóstico completado!</h1>
+          <div className="result-icon">🎯</div>
+          <h1>Diagnóstico completado</h1>
+
           <div className="result-level">
-            <span className={`level-badge level-${result.nivel}`}>
-              {result.nivel.charAt(0).toUpperCase() + result.nivel.slice(1)}
+            <span className={`level-badge level-${result.assignedLevel || 'principiante'}`}>
+              Nivel {result.assignedLevel || 'principiante'}
             </span>
           </div>
+
           <div className="result-stats">
             <div className="result-stat">
-              <span className="stat-number">{result.correctas}</span>
+              <span className="stat-number">{result.correctAnswers || 0}</span>
               <span className="stat-label">Correctas</span>
             </div>
             <div className="result-stat">
-              <span className="stat-number">{result.total}</span>
-              <span className="stat-label">Total</span>
+              <span className="stat-number">{result.totalQuestions || 0}</span>
+              <span className="stat-label">Preguntas</span>
             </div>
             <div className="result-stat">
-              <span className="stat-number">{result.puntuacion}%</span>
-              <span className="stat-label">Puntuación</span>
+              <span className="stat-number">{Math.round(result.scorePercentage || 0)}%</span>
+              <span className="stat-label">Puntaje</span>
             </div>
           </div>
-          <p className="result-description">
-            {result.nivel === 'avanzado'
-              ? 'Tienes un nivel avanzado. Hemos desbloqueado los primeros módulos para que vayas directo a lo que necesitas.'
-              : result.nivel === 'intermedio'
-                ? 'Tienes una base sólida. Hemos ajustado tu ruta de aprendizaje para que avances desde tu nivel.'
-                : 'Empezaremos desde los fundamentos. ¡No te preocupes, cada experto fue principiante!'}
-          </p>
-          <button className="diagnostic-finish-btn" onClick={handleFinish} type="button">
-            Ir al Dashboard
+
+          {result.assignedPath?.nombre && (
+            <p className="result-description">
+              Te ubicamos en: <strong>{result.assignedPath.nombre}</strong>
+            </p>
+          )}
+
+          <button className="diagnostic-finish-btn" onClick={() => navigate('/modules')} type="button">
+            Ir a mis módulos
           </button>
         </div>
       </div>
     )
   }
 
-  if (!question) {
+  if (!exam || !currentQuestion) {
     return (
       <div className="diagnostic-page">
         <div className="diagnostic-loading">
-          <p>{error || 'No hay preguntas disponibles.'}</p>
-          <button onClick={handleFinish} type="button">Volver</button>
+          <p>{error || 'No se pudo iniciar el diagnóstico.'}</p>
+          <button className="diagnostic-finish-btn" onClick={() => navigate('/dashboard')} type="button">
+            Volver al dashboard
+          </button>
         </div>
       </div>
     )
   }
 
-  const options = question.opciones || []
+  const selectedOption = answers[currentQuestion.id]
+  const progressPercent = ((currentIndex + 1) / exam.questions.length) * 100
 
   return (
     <div className="diagnostic-page">
       <div className="diagnostic-container">
         <div className="diagnostic-header">
-          <span className="diagnostic-step">Pregunta {questionsAnswered + 1}</span>
+          <span className="diagnostic-step">
+            Pregunta {currentIndex + 1} de {exam.questions.length}
+          </span>
           <div className="diagnostic-progress-bar">
-            <div
-              className="diagnostic-progress-fill"
-              style={{ width: `${Math.min(((questionsAnswered + 1) / 10) * 100, 100)}%` }}
-            />
+            <div className="diagnostic-progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
-          <span className="diagnostic-difficulty">Nivel {question.dificultad}/10</span>
+          <span className="diagnostic-difficulty">Nivel: {currentQuestion.level}</span>
         </div>
 
         <div className="diagnostic-question">
-          <h2>{question.enunciado}</h2>
-          {question.codigo && (
-            <pre className="diagnostic-code">
-              <code>{question.codigo}</code>
-            </pre>
-          )}
+          <h2>{currentQuestion.prompt}</h2>
+
+          <div className="diagnostic-options">
+            {currentQuestion.options.map((option, idx) => (
+              <button
+                key={`${currentQuestion.id}-${idx}`}
+                className={`diagnostic-option ${selectedOption === idx ? 'selected' : ''}`}
+                onClick={() => handlePickOption(idx)}
+                type="button"
+                disabled={submitting}
+              >
+                <span className="option-letter">{String.fromCharCode(65 + idx)}</span>
+                <span>{option}</span>
+              </button>
+            ))}
+          </div>
         </div>
 
-        {error && <p className="onboarding-error-message">{error}</p>}
-
-        <div className="diagnostic-options">
-          {options.map((option, idx) => (
-            <button
-              key={idx}
-              className={`diagnostic-option ${
-                selectedAnswer === option ? 'selected' : ''
-              } ${
-                feedback
-                  ? selectedAnswer === option
-                    ? feedback.isCorrect
-                      ? 'correct'
-                      : 'incorrect'
-                    : ''
-                  : ''
-              }`}
-              onClick={() => !feedback && setSelectedAnswer(option)}
-              type="button"
-              disabled={!!feedback}
-            >
-              <span className="option-letter">{String.fromCharCode(65 + idx)}</span>
-              <span className="option-text">{option}</span>
-            </button>
-          ))}
-        </div>
-
-        {feedback && (
-          <div className={`diagnostic-feedback ${feedback.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`}>
-            {feedback.isCorrect ? '¡Correcto! 🎉' : 'Incorrecto ✗'}
+        {error && (
+          <div className="diagnostic-feedback feedback-incorrect">
+            <strong>{error}</strong>
           </div>
         )}
 
-        {!feedback ? (
-          <button
-            className="diagnostic-submit-btn"
-            onClick={handleSubmitAnswer}
-            disabled={selectedAnswer === null || submitting}
-            type="button"
-          >
-            {submitting ? 'Evaluando...' : 'Comprobar'}
+        <div className="diagnostic-actions">
+          <button className="diagnostic-back-btn" onClick={handleBack} type="button" disabled={submitting}>
+            {currentIndex === 0 ? 'Volver' : 'Pregunta anterior'}
           </button>
-        ) : (
-          <button
-            className="diagnostic-next-btn"
-            onClick={handleNextQuestion}
-            type="button"
-          >
-            Siguiente pregunta →
+          <button className="diagnostic-next-btn" onClick={handleNext} type="button" disabled={submitting}>
+            {submitting
+              ? 'Finalizando...'
+              : currentIndex === exam.questions.length - 1
+                ? 'Finalizar diagnóstico'
+                : 'Siguiente pregunta'}
           </button>
-        )}
+        </div>
       </div>
     </div>
   )

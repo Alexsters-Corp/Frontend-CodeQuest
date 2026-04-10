@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { apiFetch } from '../services/api'
+import { listAvailableLanguages, selectLanguage } from '../services/learningApi'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -30,14 +30,7 @@ function OnboardingLanguagePage() {
     setLoadError('')
 
     try {
-      const res = await apiFetch('/api/languages')
-      const data = await res.json().catch(() => ({}))
-
-      if (!res.ok) {
-        throw new Error(data.message || 'No fue posible cargar los lenguajes.')
-      }
-
-      const list = Array.isArray(data.languages) ? data.languages : []
+      const list = await listAvailableLanguages()
       setLanguages(list)
 
       if (list.length === 0) {
@@ -62,18 +55,7 @@ function OnboardingLanguagePage() {
     setLoading(true)
 
     try {
-      const res = await apiFetch('/api/languages/select', {
-        method: 'POST',
-        body: JSON.stringify({ languageId: selected }),
-      })
-
-      const data = await res.json().catch(() => ({}))
-
-      if (!res.ok) {
-        throw new Error(data.message || 'No fue posible guardar tu selección.')
-      }
-
-      localStorage.setItem('selectedLanguageId', String(selected))
+      await selectLanguage(selected)
       navigate('/onboarding/tour')
     } catch (error) {
       setSubmitError(error.message || 'No fue posible guardar tu selección.')

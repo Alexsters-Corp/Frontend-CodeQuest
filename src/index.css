@@ -1399,6 +1399,37 @@ a {
   cursor: not-allowed;
 }
 
+.diagnostic-actions {
+  display: grid;
+  grid-template-columns: minmax(140px, 180px) 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.diagnostic-back-btn {
+  padding: 14px 16px;
+  border: 1px solid #d1d5db;
+  border-radius: 12px;
+  background: #fff;
+  color: #374151;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  margin-top: 0;
+}
+
+.diagnostic-back-btn:hover:not(:disabled) {
+  border-color: #a5b4fc;
+  background: #eef2ff;
+  color: #312e81;
+}
+
+.diagnostic-back-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .diagnostic-next-btn {
   width: 100%;
   padding: 14px;
@@ -1416,6 +1447,11 @@ a {
 .diagnostic-next-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 4px 12px rgba(88, 204, 2, 0.3);
+}
+
+.diagnostic-next-btn:disabled {
+  opacity: 0.8;
+  cursor: not-allowed;
 }
 
 /* Diagnostic Result */
@@ -1486,6 +1522,17 @@ a {
   color: #6b7280;
   line-height: 1.6;
   margin-bottom: 28px;
+}
+
+@media (max-width: 640px) {
+  .diagnostic-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .diagnostic-back-btn,
+  .diagnostic-next-btn {
+    width: 100%;
+  }
 }
 
 /* ============================================
@@ -2140,24 +2187,52 @@ a {
 .dashboard-lang-card {
   flex-shrink: 0;
   width: 160px;
-  padding: 18px 16px;
+  padding: 10px;
   border: 2px solid #e5e7eb;
   border-radius: 14px;
   background: #fff;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.lang-open-btn {
+  width: 100%;
+  border: none;
+  background: transparent;
   color: #1f2937;
   cursor: pointer;
   text-align: center;
-  transition: all 0.2s;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 8px;
+  padding: 8px 6px 4px;
   margin-top: 0;
 }
 
 .dashboard-lang-card:hover {
   border-color: #4f46e5;
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+}
+
+.lang-remove-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #fecaca;
+  background: #fff1f2;
+  color: #be123c;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  cursor: pointer;
+  margin: 0 0 4px auto;
+}
+
+.lang-remove-btn:hover {
+  background: #ffe4e6;
+  border-color: #fda4af;
 }
 
 .lang-icon {
@@ -2244,6 +2319,108 @@ a {
   color: #9ca3af;
   text-align: center;
   padding: 20px;
+}
+
+.language-delete-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 16px;
+}
+
+.language-delete-modal {
+  width: 100%;
+  max-width: 520px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 18px 44px rgba(2, 6, 23, 0.35);
+}
+
+.language-delete-modal h3 {
+  margin: 0 0 8px;
+  color: #111827;
+  font-size: 1.25rem;
+}
+
+.language-delete-modal p {
+  margin: 0 0 10px;
+  color: #374151;
+  line-height: 1.45;
+}
+
+.language-delete-help {
+  color: #6b7280;
+  font-size: 0.9rem;
+}
+
+.language-delete-modal label {
+  display: block;
+  margin-top: 10px;
+  margin-bottom: 6px;
+  font-size: 0.84rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.language-delete-modal input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  outline: none;
+}
+
+.language-delete-modal input:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+.language-delete-error {
+  margin-top: 10px;
+  color: #b91c1c;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+}
+
+.language-delete-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.language-delete-cancel,
+.language-delete-confirm {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 0;
+}
+
+.language-delete-cancel {
+  background: #e5e7eb;
+  color: #374151;
+}
+
+.language-delete-confirm {
+  background: #dc2626;
+  color: #fff;
+}
+
+.language-delete-confirm:disabled {
+  background: #fca5a5;
+  cursor: not-allowed;
 }
 
 /* Achievements */

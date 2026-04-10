@@ -1,9 +1,16 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { apiFetch } from '../services/api'
+import { getModulesByLanguage, getSelectedLanguageId, listLessonsByModule } from '../services/learningApi'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
+}
+
+function normalizeSearchText(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
 }
 
 function renderModuleIcon(icon, fallback, label) {
@@ -24,7 +31,7 @@ function ModulesPage() {
   const [loadError, setLoadError] = useState('')
   const [lessonErrors, setLessonErrors] = useState({})
 
-  const languageId = localStorage.getItem('selectedLanguageId')
+  const languageId = getSelectedLanguageId()
 
   useEffect(() => {
     if (!languageId) {
@@ -32,29 +39,27 @@ function ModulesPage() {
       return
     }
     loadModules()
-  }, [languageId])
+  }, [languageId, navigate])
 
   const loadModules = async () => {
     setLoading(true)
     setLoadError('')
 
     try {
-      const res = await apiFetch(`/api/lessons/modules?languageId=${languageId}`)
-      const data = await res.json().catch(() => ({}))
+      const data = await getModulesByLanguage(Number(languageId))
+      setModules(data)
 
-      if (res.ok) {
-        setModules(data)
-
-        // Auto-expandir el módulo en progreso
-        const inProgress = data.find((m) => m.estado === 'en_progreso')
-        if (inProgress) {
-          toggleModule(inProgress.id)
-        }
-      } else {
-        setModules([])
-        setLoadError(data.message || 'No fue posible cargar los módulos.')
+      // Auto-expandir el módulo en progreso
+      const inProgress = data.find((m) => m.estado === 'en_progreso')
+      if (inProgress) {
+        toggleModule(inProgress.id)
       }
     } catch (error) {
+      if (normalizeSearchText(error.message).includes('diagnostico')) {
+        navigate('/diagnostic')
+        return
+      }
+
       setModules([])
       setLoadError(error.message || 'No fue posible cargar los módulos.')
     } finally {
@@ -74,18 +79,8 @@ function ModulesPage() {
       setLessonErrors((prev) => ({ ...prev, [moduleId]: '' }))
 
       try {
-        const res = await apiFetch(`/api/lessons/module/${moduleId}`)
-        const data = await res.json().catch(() => ({}))
-
-        if (res.ok) {
-          setLessons((prev) => ({ ...prev, [moduleId]: data }))
-        } else {
-          setLessons((prev) => ({ ...prev, [moduleId]: [] }))
-          setLessonErrors((prev) => ({
-            ...prev,
-            [moduleId]: data.message || 'No fue posible cargar las lecciones del módulo.',
-          }))
-        }
+        const data = await listLessonsByModule(moduleId)
+        setLessons((prev) => ({ ...prev, [moduleId]: data }))
       } catch (error) {
         setLessons((prev) => ({ ...prev, [moduleId]: [] }))
         setLessonErrors((prev) => ({
