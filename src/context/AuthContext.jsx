@@ -23,6 +23,11 @@ export function AuthProvider({ children }) {
     setUser(userData)
   }, [])
 
+  const updateUser = useCallback((userData) => {
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
+  }, [])
+
   // Validar el token al montar la app
   useEffect(() => {
     const token = localStorage.getItem('accessToken')
@@ -51,9 +56,10 @@ export function AuthProvider({ children }) {
       loading,
       isAuthenticated: !!user,
       saveSession,
+      updateUser,
       logout,
     }),
-    [user, loading, saveSession, logout]
+    [user, loading, saveSession, updateUser, logout]
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

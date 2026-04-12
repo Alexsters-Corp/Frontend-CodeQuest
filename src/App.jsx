@@ -17,6 +17,7 @@ import LessonPage from './pages/LessonPage'
 import UnauthorizedPage from './pages/UnauthorizedPage'
 import InstructorDashboardPage from './pages/InstructorDashboardPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
+import ProfileEditPage from './pages/ProfileEditPage'
 
 function App() {
   return (
@@ -100,6 +101,14 @@ function App() {
           element={
             <PrivateRoute>
               <LessonPage />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/profile/edit"
+          element={
+            <PrivateRoute>
+              <ProfileEditPage />
             </PrivateRoute>
           }
         />

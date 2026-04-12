@@ -10,7 +10,11 @@ const ROLE_LABELS = {
   admin: 'Administrador',
 }
 
-function Navbar({ title = 'Panel de aprendizaje' }) {
+function Navbar({
+  title = 'Panel de aprendizaje',
+  profileActionLabel,
+  profileActionTo,
+}) {
   const { user, logout } = useAuth()
   const { role, isInstructor, isAdmin } = useRole()
   const navigate = useNavigate()
@@ -18,6 +22,8 @@ function Navbar({ title = 'Panel de aprendizaje' }) {
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
   const roleLabel = ROLE_LABELS[role] || 'Estudiante'
+  const resolvedProfileActionLabel = profileActionLabel || 'Editar perfil'
+  const resolvedProfileActionTo = profileActionTo || '/profile/edit'
 
   const navigateTo = (path) => {
     if (location.pathname !== path) {
@@ -51,14 +57,6 @@ function Navbar({ title = 'Panel de aprendizaje' }) {
       </div>
 
       <div className="dashboard-header-actions">
-        <button
-          onClick={() => navigateTo('/dashboard')}
-          className={`dashboard-nav-btn ${location.pathname.startsWith('/dashboard') ? 'dashboard-nav-btn--active' : ''}`}
-          type="button"
-        >
-          Dashboard
-        </button>
-
         {(isInstructor || isAdmin) && (
           <button
             onClick={() => navigateTo('/instructor')}
@@ -78,6 +76,14 @@ function Navbar({ title = 'Panel de aprendizaje' }) {
             Admin
           </button>
         )}
+
+        <button
+          onClick={() => navigateTo(resolvedProfileActionTo)}
+          className={`dashboard-nav-btn ${location.pathname.startsWith('/profile') ? 'dashboard-nav-btn--active' : ''}`}
+          type="button"
+        >
+          {resolvedProfileActionLabel}
+        </button>
 
         <button
           onClick={handleLogout}
