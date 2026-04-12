@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 import { AuthProvider } from './context/AuthContext'
 import PrivateRoute from './components/PrivateRoute'
 import PublicRoute from './components/PublicRoute'
+import RoleGuard from './components/guards/RoleGuard'
 import DashboardPage from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -13,6 +14,9 @@ import OnboardingTourPage from './pages/OnboardingTourPage'
 import DiagnosticTestPage from './pages/DiagnosticTestPage'
 import ModulesPage from './pages/ModulesPage'
 import LessonPage from './pages/LessonPage'
+import UnauthorizedPage from './pages/UnauthorizedPage'
+import InstructorDashboardPage from './pages/InstructorDashboardPage'
+import AdminDashboardPage from './pages/AdminDashboardPage'
 
 function App() {
   return (
@@ -99,6 +103,27 @@ function App() {
             </PrivateRoute>
           }
         />
+        <Route
+          path="/instructor"
+          element={
+            <PrivateRoute>
+              <RoleGuard allowedRoles={['instructor', 'admin']}>
+                <InstructorDashboardPage />
+              </RoleGuard>
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <PrivateRoute>
+              <RoleGuard allowedRoles={['admin']}>
+                <AdminDashboardPage />
+              </RoleGuard>
+            </PrivateRoute>
+          }
+        />
+        <Route path="/unauthorized" element={<UnauthorizedPage />} />
         <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </AuthProvider>

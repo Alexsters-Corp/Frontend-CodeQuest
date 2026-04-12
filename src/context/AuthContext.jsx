@@ -1,20 +1,32 @@
-import { createContext, useContext, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AuthContext } from './auth-context'
 import { apiFetch } from '../services/api'
-
-const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('user')
     return stored ? JSON.parse(stored) : null
   })
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(() => Boolean(localStorage.getItem('accessToken')))
+
+  const logout = useCallback(() => {
+    localStorage.removeItem('accessToken')
+    localStorage.removeItem('refreshToken')
+    localStorage.removeItem('user')
+    setUser(null)
+  }, [])
+
+  const saveSession = useCallback(({ accessToken, refreshToken, user: userData }) => {
+    localStorage.setItem('accessToken', accessToken)
+    localStorage.setItem('refreshToken', refreshToken)
+    localStorage.setItem('user', JSON.stringify(userData))
+    setUser(userData)
+  }, [])
 
   // Validar el token al montar la app
   useEffect(() => {
     const token = localStorage.getItem('accessToken')
     if (!token) {
-      setLoading(false)
       return
     }
 
@@ -31,43 +43,18 @@ export function AuthProvider({ children }) {
       })
       .catch(() => logout())
       .finally(() => setLoading(false))
-  }, [])
+  }, [logout])
 
-  /**
-   * Guarda tokens y datos del usuario tras login/register.
-   */
-  function saveSession({ accessToken, refreshToken, user: userData }) {
-    localStorage.setItem('accessToken', accessToken)
-    localStorage.setItem('refreshToken', refreshToken)
-    localStorage.setItem('user', JSON.stringify(userData))
-    setUser(userData)
-  }
-
-  /**
-   * Limpia la sesión completa.
-   */
-  function logout() {
-    localStorage.removeItem('accessToken')
-    localStorage.removeItem('refreshToken')
-    localStorage.removeItem('user')
-    setUser(null)
-  }
-
-  const value = {
-    user,
-    loading,
-    isAuthenticated: !!user,
-    saveSession,
-    logout,
-  }
+  const value = useMemo(
+    () => ({
+      user,
+      loading,
+      isAuthenticated: !!user,
+      saveSession,
+      logout,
+    }),
+    [user, loading, saveSession, logout]
+  )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext)
-  if (!context) {
-    throw new Error('useAuth debe usarse dentro de un AuthProvider')
-  }
-  return context
 }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   finishDiagnosticExam,
@@ -21,11 +21,7 @@ function DiagnosticTestPage() {
     return exam.questions[currentIndex] || null
   }, [exam, currentIndex])
 
-  useEffect(() => {
-    loadDiagnostic()
-  }, [navigate])
-
-  const loadDiagnostic = async () => {
+  const loadDiagnostic = useCallback(async () => {
     const languageId = getSelectedLanguageId()
 
     if (!languageId) {
@@ -51,7 +47,11 @@ function DiagnosticTestPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [navigate])
+
+  useEffect(() => {
+    loadDiagnostic()
+  }, [loadDiagnostic])
 
   const handlePickOption = (optionIndex) => {
     if (!currentQuestion) return
