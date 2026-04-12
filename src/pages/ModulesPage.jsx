@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getModulesByLanguage, getSelectedLanguageId, listLessonsByModule } from '../services/learningApi'
 
@@ -30,20 +30,46 @@ function ModulesPage() {
   const [loadingLessons, setLoadingLessons] = useState(null)
   const [loadError, setLoadError] = useState('')
   const [lessonErrors, setLessonErrors] = useState({})
+  const loadedModulesRef = useRef(new Set())
 
   const languageId = getSelectedLanguageId()
 
-  useEffect(() => {
-    if (!languageId) {
-      navigate('/dashboard')
+  const loadLessonsForModule = useCallback(async (moduleId) => {
+    const normalizedId = Number(moduleId)
+    if (!normalizedId) {
       return
     }
-    loadModules()
-  }, [languageId, navigate])
 
-  const loadModules = async () => {
+    if (loadedModulesRef.current.has(normalizedId)) {
+      return
+    }
+
+    loadedModulesRef.current.add(normalizedId)
+    setLoadingLessons(normalizedId)
+    setLessonErrors((prev) => ({ ...prev, [normalizedId]: '' }))
+
+    try {
+      const data = await listLessonsByModule(normalizedId)
+      setLessons((prev) => ({ ...prev, [normalizedId]: data }))
+    } catch (error) {
+      loadedModulesRef.current.delete(normalizedId)
+      setLessons((prev) => ({ ...prev, [normalizedId]: [] }))
+      setLessonErrors((prev) => ({
+        ...prev,
+        [normalizedId]: error.message || 'No fue posible cargar las lecciones del módulo.',
+      }))
+    } finally {
+      setLoadingLessons((current) => (current === normalizedId ? null : current))
+    }
+  }, [])
+
+  const loadModules = useCallback(async () => {
     setLoading(true)
     setLoadError('')
+    setLessons({})
+    setLessonErrors({})
+    setExpandedModule(null)
+    loadedModulesRef.current.clear()
 
     try {
       const data = await getModulesByLanguage(Number(languageId))
@@ -52,7 +78,8 @@ function ModulesPage() {
       // Auto-expandir el módulo en progreso
       const inProgress = data.find((m) => m.estado === 'en_progreso')
       if (inProgress) {
-        toggleModule(inProgress.id)
+        setExpandedModule(inProgress.id)
+        await loadLessonsForModule(inProgress.id)
       }
     } catch (error) {
       if (normalizeSearchText(error.message).includes('diagnostico')) {
@@ -65,32 +92,25 @@ function ModulesPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [languageId, loadLessonsForModule, navigate])
+
+  useEffect(() => {
+    if (!languageId) {
+      navigate('/dashboard')
+      return
+    }
+
+    loadModules()
+  }, [languageId, loadModules, navigate])
 
   const toggleModule = async (moduleId) => {
     if (expandedModule === moduleId) {
       setExpandedModule(null)
       return
     }
+
     setExpandedModule(moduleId)
-
-    if (!lessons[moduleId]) {
-      setLoadingLessons(moduleId)
-      setLessonErrors((prev) => ({ ...prev, [moduleId]: '' }))
-
-      try {
-        const data = await listLessonsByModule(moduleId)
-        setLessons((prev) => ({ ...prev, [moduleId]: data }))
-      } catch (error) {
-        setLessons((prev) => ({ ...prev, [moduleId]: [] }))
-        setLessonErrors((prev) => ({
-          ...prev,
-          [moduleId]: error.message || 'No fue posible cargar las lecciones del módulo.',
-        }))
-      } finally {
-        setLoadingLessons(null)
-      }
-    }
+    await loadLessonsForModule(moduleId)
   }
 
   const statusIcon = (estado) => {

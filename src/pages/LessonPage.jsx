@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { getLessonContent, submitLessonExercise } from '../services/learningApi'
 
@@ -16,11 +16,7 @@ function LessonPage() {
   const [loading, setLoading] = useState(true)
   const [xpEarned, setXpEarned] = useState(0)
 
-  useEffect(() => {
-    loadLesson()
-  }, [lessonId])
-
-  const loadLesson = async () => {
+  const loadLesson = useCallback(async () => {
     setLoading(true)
     try {
       const data = await getLessonContent(Number(lessonId))
@@ -31,7 +27,11 @@ function LessonPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [lessonId])
+
+  useEffect(() => {
+    loadLesson()
+  }, [loadLesson])
 
   const currentExercise = exercises[currentExerciseIdx]
 
