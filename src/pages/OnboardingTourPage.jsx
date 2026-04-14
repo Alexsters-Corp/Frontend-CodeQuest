@@ -1,35 +1,37 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-
-const slides = [
-  {
-    emoji: '💻',
-    title: 'Aprende haciendo',
-    description:
-      'Cada lección combina teoría breve con ejercicios prácticos de código real. Nada de solo leer: vas a escribir código desde el primer minuto.',
-  },
-  {
-    emoji: '⭐',
-    title: 'Gana XP y sube de nivel',
-    description:
-      'Completa ejercicios para ganar puntos de experiencia. Mantén tu racha diaria y compite en ligas semanales con otros estudiantes.',
-  },
-  {
-    emoji: '🎯',
-    title: 'A tu ritmo',
-    description:
-      'La plataforma se adapta a tu nivel. Si ya sabes algo, no lo repetirás. Avanza rápido donde dominas y profundiza donde necesitas.',
-  },
-]
+import MotionPage from '../components/MotionPage'
+import { useLanguage } from '../context/useLanguage'
+import { notifyInfo, notifySuccess } from '../utils/notify'
 
 function OnboardingTourPage() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const navigate = useNavigate()
+  const { t } = useLanguage()
+
+  const slides = useMemo(() => ([
+    {
+      emoji: '💻',
+      title: t('onboarding.slide1.title'),
+      description: t('onboarding.slide1.description'),
+    },
+    {
+      emoji: '⭐',
+      title: t('onboarding.slide2.title'),
+      description: t('onboarding.slide2.description'),
+    },
+    {
+      emoji: '🎯',
+      title: t('onboarding.slide3.title'),
+      description: t('onboarding.slide3.description'),
+    },
+  ]), [t])
 
   const isLast = currentSlide === slides.length - 1
 
   const handleNext = () => {
     if (isLast) {
+      notifySuccess(t('onboarding.tourCompleted'))
       navigate('/diagnostic')
     } else {
       setCurrentSlide((prev) => prev + 1)
@@ -37,17 +39,18 @@ function OnboardingTourPage() {
   }
 
   const handleSkip = () => {
+    notifyInfo(t('onboarding.tourSkipped'))
     navigate('/diagnostic')
   }
 
   const slide = slides[currentSlide]
 
   return (
-    <div className="onboarding-page">
+    <MotionPage className="onboarding-page" delay={0.06}>
       <div className="onboarding-container tour-container">
         <div className="tour-skip">
           <button onClick={handleSkip} className="tour-skip-btn" type="button">
-            Saltar
+            {t('onboarding.skip')}
           </button>
         </div>
 
@@ -67,10 +70,10 @@ function OnboardingTourPage() {
         </div>
 
         <button className="onboarding-continue-btn" onClick={handleNext} type="button">
-          {isLast ? '¡Empezar a aprender!' : 'Siguiente'}
+          {isLast ? t('onboarding.startLearning') : t('common.next')}
         </button>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 

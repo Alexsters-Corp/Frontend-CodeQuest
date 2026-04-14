@@ -1,30 +1,20 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
 import {
   createInstructorClass,
   getClassAnalytics,
   listInstructorClasses,
 } from '../services/rbacApi'
-
-const DATE_FORMATTER = new Intl.DateTimeFormat('es-CO', {
-  dateStyle: 'medium',
-  timeStyle: 'short',
-})
-
-function formatDate(value) {
-  if (!value) {
-    return 'Sin fecha'
-  }
-
-  const date = new Date(value)
-  return Number.isNaN(date.getTime()) ? 'Sin fecha' : DATE_FORMATTER.format(date)
-}
+import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 function InstructorDashboardPage() {
   const navigate = useNavigate()
   const { role } = useRole()
+  const { formatDate, t } = useLanguage()
 
   const [classes, setClasses] = useState([])
   const [loading, setLoading] = useState(true)
@@ -39,35 +29,39 @@ function InstructorDashboardPage() {
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [analyticsError, setAnalyticsError] = useState('')
 
-  useEffect(() => {
-    loadClasses()
-  }, [])
-
   const selectedClass = useMemo(
     () => classes.find((item) => Number(item.id) === Number(selectedClassId)) || null,
     [classes, selectedClassId]
   )
 
-  async function loadClasses() {
+  const loadClasses = useCallback(async () => {
     setLoading(true)
     setError('')
     try {
       const payload = await listInstructorClasses()
       setClasses(payload)
     } catch (requestError) {
-      setError(requestError.message || 'No fue posible cargar las clases.')
+      const message = requestError.message || t('instructor.loadError')
+      setError(message)
+      notifyError(message)
       setClasses([])
     } finally {
       setLoading(false)
     }
-  }
+  }, [t])
+
+  useEffect(() => {
+    loadClasses()
+  }, [loadClasses])
 
   async function handleCreateClass(event) {
     event.preventDefault()
 
     const trimmedName = String(newClassName || '').trim()
     if (trimmedName.length < 3) {
-      setError('El nombre de la clase debe tener al menos 3 caracteres.')
+      const message = t('instructor.nameMin')
+      setError(message)
+      notifyInfo(message)
       return
     }
 
@@ -83,8 +77,11 @@ function InstructorDashboardPage() {
       setNewClassName('')
       setNewClassDescription('')
       await loadClasses()
+      notifySuccess(t('instructor.createSuccess'))
     } catch (requestError) {
-      setError(requestError.message || 'No fue posible crear la clase.')
+      const message = requestError.message || t('instructor.createError')
+      setError(message)
+      notifyError(message)
     } finally {
       setCreatingClass(false)
     }
@@ -100,73 +97,75 @@ function InstructorDashboardPage() {
       const payload = await getClassAnalytics(classId)
       setAnalytics(payload)
     } catch (requestError) {
-      setAnalyticsError(requestError.message || 'No fue posible cargar analytics de la clase.')
+      const message = requestError.message || t('instructor.analyticsError')
+      setAnalyticsError(message)
+      notifyError(message)
     } finally {
       setAnalyticsLoading(false)
     }
   }
 
   return (
-    <div className="rbac-page">
-      <Navbar title="Panel de instructor" />
+    <MotionPage className="rbac-page" delay={0.06}>
+      <Navbar title={t('instructor.title')} />
 
       <div className="rbac-header">
         <div>
-          <p className="rbac-kicker">Panel por rol</p>
-          <h1>Instructor</h1>
+          <p className="rbac-kicker">{t('route.rolePanel')}</p>
+          <h1>{t('instructor.header')}</h1>
           <p className="rbac-subtitle">
-            Gestiona tus clases y revisa métricas de progreso de estudiantes.
+            {t('instructor.subtitle')}
           </p>
         </div>
         <div className="rbac-actions-inline">
-          <span className="rbac-role-chip">Rol actual: {role}</span>
+          <span className="rbac-role-chip">{t('instructor.currentRole', { role })}</span>
           <button type="button" onClick={() => navigate('/dashboard')}>
-            Volver al dashboard
+            {t('instructor.backDashboard')}
           </button>
         </div>
       </div>
 
       <section className="rbac-card">
-        <h2>Crear clase</h2>
+        <h2>{t('instructor.createClass')}</h2>
         <form className="rbac-form" onSubmit={handleCreateClass}>
-          <label htmlFor="class-name">Nombre</label>
+          <label htmlFor="class-name">{t('instructor.className')}</label>
           <input
             id="class-name"
             value={newClassName}
             onChange={(event) => setNewClassName(event.target.value)}
-            placeholder="Ejemplo: Backend 2025 - Grupo A"
+            placeholder={t('instructor.classNamePlaceholder')}
             disabled={creatingClass}
           />
 
-          <label htmlFor="class-description">Descripción (opcional)</label>
+          <label htmlFor="class-description">{t('instructor.classDescription')}</label>
           <input
             id="class-description"
             value={newClassDescription}
             onChange={(event) => setNewClassDescription(event.target.value)}
-            placeholder="Notas para identificar el grupo"
+            placeholder={t('instructor.classDescriptionPlaceholder')}
             disabled={creatingClass}
           />
 
           <button type="submit" disabled={creatingClass}>
-            {creatingClass ? 'Creando...' : 'Crear clase'}
+            {creatingClass ? t('instructor.creating') : t('instructor.createClass')}
           </button>
         </form>
       </section>
 
       <section className="rbac-card">
         <div className="rbac-section-head">
-          <h2>Mis clases</h2>
+          <h2>{t('instructor.myClasses')}</h2>
           <button type="button" onClick={loadClasses} disabled={loading}>
-            {loading ? 'Actualizando...' : 'Actualizar'}
+            {loading ? t('instructor.refreshing') : t('common.update')}
           </button>
         </div>
 
         {error && <p className="rbac-error">{error}</p>}
 
-        {!error && loading && <p>Cargando clases...</p>}
+        {!error && loading && <p>{t('common.loading')}</p>}
 
         {!loading && classes.length === 0 && (
-          <p className="rbac-muted">No tienes clases creadas todavía.</p>
+          <p className="rbac-muted">{t('instructor.noClasses')}</p>
         )}
 
         {classes.length > 0 && (
@@ -174,11 +173,11 @@ function InstructorDashboardPage() {
             <table className="rbac-table">
               <thead>
                 <tr>
-                  <th>Clase</th>
-                  <th>Estudiantes</th>
-                  <th>Rutas asignadas</th>
-                  <th>Creación</th>
-                  <th>Acciones</th>
+                  <th>{t('instructor.table.class')}</th>
+                  <th>{t('instructor.table.students')}</th>
+                  <th>{t('instructor.table.paths')}</th>
+                  <th>{t('instructor.table.created')}</th>
+                  <th>{t('instructor.table.actions')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -190,7 +189,7 @@ function InstructorDashboardPage() {
                     </td>
                     <td>{Number(item.students_total || 0)}</td>
                     <td>{Number(item.assigned_paths_total || 0)}</td>
-                    <td>{formatDate(item.created_at)}</td>
+                    <td>{formatDate(item.created_at, { dateStyle: 'medium', timeStyle: 'short' }) || t('instructor.noDate')}</td>
                     <td>
                       <button
                         type="button"
@@ -198,8 +197,8 @@ function InstructorDashboardPage() {
                         disabled={analyticsLoading && Number(selectedClassId) === Number(item.id)}
                       >
                         {analyticsLoading && Number(selectedClassId) === Number(item.id)
-                          ? 'Cargando...'
-                          : 'Ver analytics'}
+                          ? t('common.loading')
+                          : t('instructor.viewAnalytics')}
                       </button>
                     </td>
                   </tr>
@@ -212,28 +211,28 @@ function InstructorDashboardPage() {
 
       {selectedClass && (
         <section className="rbac-card">
-          <h2>Analytics de {selectedClass.name}</h2>
+          <h2>{t('instructor.analyticsOf', { name: selectedClass.name })}</h2>
 
           {analyticsError && <p className="rbac-error">{analyticsError}</p>}
-          {analyticsLoading && <p>Cargando analytics...</p>}
+          {analyticsLoading && <p>{t('instructor.loadingAnalytics')}</p>}
 
           {!analyticsLoading && analytics && (
             <>
               <div className="rbac-metric-grid">
                 <article>
-                  <p>Estudiantes activos</p>
+                  <p>{t('instructor.metric.activeStudents')}</p>
                   <strong>{Number(analytics.summary?.students_total || 0)}</strong>
                 </article>
                 <article>
-                  <p>Lecciones completadas</p>
+                  <p>{t('instructor.metric.completedLessons')}</p>
                   <strong>{Number(analytics.summary?.completed_lessons_total || 0)}</strong>
                 </article>
                 <article>
-                  <p>Lecciones iniciadas</p>
+                  <p>{t('instructor.metric.startedLessons')}</p>
                   <strong>{Number(analytics.summary?.lessons_started_total || 0)}</strong>
                 </article>
                 <article>
-                  <p>Señal promedio</p>
+                  <p>{t('instructor.metric.avgSignal')}</p>
                   <strong>{Number(analytics.summary?.progress_signal_avg || 0)}%</strong>
                 </article>
               </div>
@@ -242,11 +241,11 @@ function InstructorDashboardPage() {
                 <table className="rbac-table">
                   <thead>
                     <tr>
-                      <th>Estudiante</th>
-                      <th>Email</th>
-                      <th>Completadas</th>
-                      <th>Iniciadas</th>
-                      <th>XP</th>
+                      <th>{t('instructor.table.student')}</th>
+                      <th>{t('instructor.table.email')}</th>
+                      <th>{t('instructor.table.completed')}</th>
+                      <th>{t('instructor.table.started')}</th>
+                      <th>{t('instructor.table.xp')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -262,7 +261,7 @@ function InstructorDashboardPage() {
                       ))
                     ) : (
                       <tr>
-                        <td colSpan={5}>No hay estudiantes activos en esta clase.</td>
+                        <td colSpan={5}>{t('instructor.noActiveStudents')}</td>
                       </tr>
                     )}
                   </tbody>
@@ -272,7 +271,7 @@ function InstructorDashboardPage() {
           )}
         </section>
       )}
-    </div>
+    </MotionPage>
   )
 }
 

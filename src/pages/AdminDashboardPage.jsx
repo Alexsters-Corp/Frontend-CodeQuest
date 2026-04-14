@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
 import { getAdminAnalytics, listAdminUsers, updateAdminUser } from '../services/rbacApi'
+import { notifyError, notifySuccess } from '../utils/notify'
 
 const ALLOWED_ROLES = ['user', 'instructor', 'admin']
 
@@ -19,6 +22,7 @@ function buildDrafts(users) {
 function AdminDashboardPage() {
   const navigate = useNavigate()
   const { role } = useRole()
+  const { t } = useLanguage()
 
   const [users, setUsers] = useState([])
   const [drafts, setDrafts] = useState({})
@@ -67,7 +71,9 @@ function AdminDashboardPage() {
       setUsers(payload)
       setDrafts(buildDrafts(payload))
     } catch (requestError) {
-      setUsersError(requestError.message || 'No fue posible consultar usuarios.')
+      const message = requestError.message || t('admin.usersLoadError')
+      setUsersError(message)
+      notifyError(message)
       setUsers([])
       setDrafts({})
     } finally {
@@ -82,7 +88,9 @@ function AdminDashboardPage() {
       const payload = await getAdminAnalytics()
       setAnalytics(payload)
     } catch (requestError) {
-      setAnalyticsError(requestError.message || 'No fue posible cargar analytics globales.')
+      const message = requestError.message || t('admin.analyticsLoadError')
+      setAnalyticsError(message)
+      notifyError(message)
       setAnalytics(null)
     } finally {
       setAnalyticsLoading(false)
@@ -144,70 +152,73 @@ function AdminDashboardPage() {
       }
 
       await loadAnalytics()
+      notifySuccess(t('admin.userUpdated'))
     } catch (requestError) {
-      setUsersError(requestError.message || 'No fue posible actualizar el usuario.')
+      const message = requestError.message || t('admin.userUpdateError')
+      setUsersError(message)
+      notifyError(message)
     } finally {
       setSavingUserId(null)
     }
   }
 
   return (
-    <div className="rbac-page">
-      <Navbar title="Panel de administración" />
+    <MotionPage className="rbac-page" delay={0.06}>
+      <Navbar title={t('admin.title')} />
 
       <div className="rbac-header">
         <div>
-          <p className="rbac-kicker">Panel por rol</p>
-          <h1>Administrador</h1>
+          <p className="rbac-kicker">{t('route.rolePanel')}</p>
+          <h1>{t('admin.header')}</h1>
           <p className="rbac-subtitle">
-            Gestiona usuarios y revisa indicadores globales de la plataforma.
+            {t('admin.subtitle')}
           </p>
         </div>
         <div className="rbac-actions-inline">
-          <span className="rbac-role-chip">Rol actual: {role}</span>
+          <span className="rbac-role-chip">{t('admin.currentRole', { role })}</span>
           <button type="button" onClick={() => navigate('/dashboard')}>
-            Volver al dashboard
+            {t('admin.backDashboard')}
           </button>
         </div>
       </div>
 
       <section className="rbac-card">
         <div className="rbac-section-head">
-          <h2>Analytics globales</h2>
+          <h2>{t('admin.globalAnalytics')}</h2>
           <button type="button" onClick={loadAnalytics} disabled={analyticsLoading}>
-            {analyticsLoading ? 'Actualizando...' : 'Actualizar analytics'}
+            {analyticsLoading ? t('admin.updatingAnalytics') : t('admin.updateAnalytics')}
           </button>
         </div>
 
         {analyticsError && <p className="rbac-error">{analyticsError}</p>}
-        {analyticsLoading && <p>Cargando analytics globales...</p>}
+        {analyticsLoading && <p>{t('admin.loadingAnalytics')}</p>}
 
         {!analyticsLoading && analytics && (
           <div className="rbac-metric-grid rbac-metric-grid--admin">
             <article>
-              <p>Usuarios totales</p>
+              <p>{t('admin.metric.totalUsers')}</p>
               <strong>{Number(analytics.users?.users_total || 0)}</strong>
             </article>
             <article>
-              <p>Usuarios activos</p>
+              <p>{t('admin.metric.activeUsers')}</p>
               <strong>{Number(analytics.users?.users_active || 0)}</strong>
             </article>
             <article>
-              <p>Instructores</p>
+              <p>{t('admin.metric.instructors')}</p>
               <strong>{Number(analytics.users?.users_role_instructor || 0)}</strong>
             </article>
             <article>
-              <p>Administradores</p>
+              <p>{t('admin.metric.admins')}</p>
               <strong>{Number(analytics.users?.users_role_admin || 0)}</strong>
             </article>
             <article>
-              <p>Rutas activas</p>
+              <p>{t('admin.metric.activePaths')}</p>
               <strong>
                 {Number(analytics.learning?.learning_paths_active || 0)} / {Number(analytics.learning?.learning_paths_total || 0)}
               </strong>
             </article>
             <article>
-              <p>Lecciones completadas</p>
+              <p>{t('admin.metric.completedLessons')}</p>
               <strong>{Number(analytics.learning?.lessons_completed_total || 0)}</strong>
             </article>
           </div>
@@ -216,9 +227,9 @@ function AdminDashboardPage() {
 
       <section className="rbac-card">
         <div className="rbac-section-head">
-          <h2>Moderación de usuarios</h2>
+          <h2>{t('admin.userModeration')}</h2>
           <button type="button" onClick={loadUsers} disabled={usersLoading}>
-            {usersLoading ? 'Consultando...' : 'Buscar'}
+            {usersLoading ? t('admin.updatingUsers') : t('admin.search')}
           </button>
         </div>
 
@@ -226,41 +237,41 @@ function AdminDashboardPage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Buscar por nombre o email"
+            placeholder={t('admin.searchPlaceholder')}
           />
 
           <select value={roleFilter} onChange={(event) => setRoleFilter(event.target.value)}>
-            <option value="">Todos los roles</option>
+            <option value="">{t('admin.allRoles')}</option>
             <option value="user">user</option>
             <option value="instructor">instructor</option>
             <option value="admin">admin</option>
           </select>
 
           <select value={statusFilter} onChange={(event) => setStatusFilter(event.target.value)}>
-            <option value="">Todos los estados</option>
-            <option value="active">Activos</option>
-            <option value="inactive">Inactivos</option>
+            <option value="">{t('admin.allStatuses')}</option>
+            <option value="active">{t('admin.active')}</option>
+            <option value="inactive">{t('admin.inactive')}</option>
           </select>
         </div>
 
         {usersError && <p className="rbac-error">{usersError}</p>}
         {dirtyUsers.length > 0 && (
-          <p className="rbac-warning">Hay {dirtyUsers.length} usuario(s) con cambios pendientes.</p>
+          <p className="rbac-warning">{t('admin.pendingChanges', { count: dirtyUsers.length })}</p>
         )}
 
-        {!usersError && usersLoading && <p>Cargando usuarios...</p>}
-        {!usersLoading && users.length === 0 && <p className="rbac-muted">No se encontraron usuarios.</p>}
+        {!usersError && usersLoading && <p>{t('admin.loadingUsers')}</p>}
+        {!usersLoading && users.length === 0 && <p className="rbac-muted">{t('admin.noUsers')}</p>}
 
         {users.length > 0 && (
           <div className="rbac-table-wrap">
             <table className="rbac-table">
               <thead>
                 <tr>
-                  <th>Usuario</th>
-                  <th>Email</th>
-                  <th>Rol</th>
-                  <th>Activo</th>
-                  <th>Acción</th>
+                  <th>{t('admin.table.user')}</th>
+                  <th>{t('admin.table.email')}</th>
+                  <th>{t('admin.table.role')}</th>
+                  <th>{t('admin.table.active')}</th>
+                  <th>{t('admin.table.action')}</th>
                 </tr>
               </thead>
               <tbody>
@@ -272,7 +283,7 @@ function AdminDashboardPage() {
                   return (
                     <tr key={user.id}>
                       <td>
-                        <strong>{user.nombre || 'Sin nombre'}</strong>
+                        <strong>{user.nombre || t('admin.noName')}</strong>
                         <p className="rbac-cell-note">ID: {user.id}</p>
                       </td>
                       <td>{user.email}</td>
@@ -295,7 +306,7 @@ function AdminDashboardPage() {
                             checked={Boolean(draft.is_active)}
                             onChange={(event) => handleDraftChange(user.id, { is_active: event.target.checked })}
                           />
-                          {draft.is_active ? 'Sí' : 'No'}
+                          {draft.is_active ? t('common.yes') : t('common.no')}
                         </label>
                       </td>
                       <td>
@@ -304,7 +315,7 @@ function AdminDashboardPage() {
                           onClick={() => handleSaveUser(user)}
                           disabled={!hasChanges || savingUserId === user.id}
                         >
-                          {savingUserId === user.id ? 'Guardando...' : 'Guardar'}
+                          {savingUserId === user.id ? t('admin.saving') : t('admin.save')}
                         </button>
                       </td>
                     </tr>
@@ -315,7 +326,7 @@ function AdminDashboardPage() {
           </div>
         )}
       </section>
-    </div>
+    </MotionPage>
   )
 }
 
