@@ -1,16 +1,18 @@
 import PropTypes from 'prop-types'
 import { Navigate } from 'react-router-dom'
 import { useAuth } from '../../context/useAuth'
+import { useLanguage } from '../../context/useLanguage'
 import { normalizeRole } from '../../utils/permissions'
 
 function RoleGuard({ children, allowedRoles }) {
   const { user, loading } = useAuth()
+  const { t } = useLanguage()
 
   if (loading) {
     return (
       <div className="page">
         <div className="card" style={{ textAlign: 'center' }}>
-          <p>Cargando...</p>
+          <p>{t('route.loading')}</p>
         </div>
       </div>
     )
