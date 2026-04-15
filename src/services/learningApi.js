@@ -170,3 +170,21 @@ export async function submitLessonExercise({ lessonId, exerciseId, answer }) {
     }
   )
 }
+
+export async function submitLessonSolution({ lessonId, code, languageId, correctCount, totalExercises, isRetry }) {
+  const normalizedLessonId = parsePositiveInt(lessonId)
+  if (!normalizedLessonId) {
+    throw new Error('La lección solicitada no es válida.')
+  }
+
+  return requestJson(`/api/learning/lessons/${normalizedLessonId}/submit`, {
+    method: 'POST',
+    body: JSON.stringify({
+      code: String(code || ''),
+      language_id: languageId || null,
+      correct_count: Number(correctCount) || 0,
+      total_exercises: Number(totalExercises) || 0,
+      is_retry: Boolean(isRetry),
+    }),
+  })
+}

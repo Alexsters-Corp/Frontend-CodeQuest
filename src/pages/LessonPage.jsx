@@ -1,20 +1,28 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { getLessonContent, submitLessonExercise } from '../services/learningApi'
+import { getLessonContent, submitLessonExercise, submitLessonSolution } from '../services/learningApi'
+
+// Bonus XP que se otorga por completar la lección perfecta en un reintento
+const RETRY_BONUS_XP = 20
 
 function LessonPage() {
   const { lessonId } = useParams()
   const navigate = useNavigate()
   const [lesson, setLesson] = useState(null)
   const [exercises, setExercises] = useState([])
-  const [currentStep, setCurrentStep] = useState('theory') // theory | exercise
+  const [currentStep, setCurrentStep] = useState('theory') // theory | exercise | completed
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [codeAnswer, setCodeAnswer] = useState('')
   const [feedback, setFeedback] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
+
+  // Estado del intento actual
   const [xpEarned, setXpEarned] = useState(0)
+  const [errorsInAttempt, setErrorsInAttempt] = useState(0)
+  const [isRetry, setIsRetry] = useState(false)
+  const [bonusAwarded, setBonusAwarded] = useState(false)
 
   const loadLesson = useCallback(async () => {
     setLoading(true)
@@ -33,6 +41,22 @@ function LessonPage() {
     loadLesson()
   }, [loadLesson])
 
+  const resetAttempt = () => {
+    setCurrentExerciseIdx(0)
+    setSelectedAnswer(null)
+    setCodeAnswer('')
+    setFeedback(null)
+    setXpEarned(0)
+    setErrorsInAttempt(0)
+    setBonusAwarded(false)
+  }
+
+  const handleRetryLesson = () => {
+    resetAttempt()
+    setIsRetry(true)
+    setCurrentStep('exercise')
+  }
+
   const currentExercise = exercises[currentExerciseIdx]
 
   const handleSubmitExercise = async () => {
@@ -50,9 +74,11 @@ function LessonPage() {
         exerciseId: currentExercise.id,
         answer,
       })
+
       setFeedback(data)
-      if (data.isCorrect) {
-        setXpEarned((prev) => prev + (data.xpGained || 0))
+
+      if (!data.isCorrect) {
+        setErrorsInAttempt((prev) => prev + 1)
       }
     } catch (e) {
       console.error(e)
@@ -61,19 +87,42 @@ function LessonPage() {
     }
   }
 
-  const handleNextExercise = () => {
-    if (currentExerciseIdx < exercises.length - 1) {
+  const handleNextExercise = async () => {
+    const isLastExercise = currentExerciseIdx >= exercises.length - 1
+
+    if (!isLastExercise) {
       setCurrentExerciseIdx((prev) => prev + 1)
       setSelectedAnswer(null)
       setCodeAnswer('')
       setFeedback(null)
-    } else {
-      // Lección completada
-      setCurrentStep('completed')
+      return
     }
+
+    // Último ejercicio — registrar intento completo y calcular XP
+    const correctCount   = exercises.length - errorsInAttempt
+    const wasPerfect     = errorsInAttempt === 0
+
+    try {
+      const result = await submitLessonSolution({
+        lessonId: Number(lessonId),
+        code: 'lesson:completed',
+        languageId: lesson?.lenguaje_id || null,
+        correctCount,
+        totalExercises: exercises.length,
+        isRetry,
+      })
+      const earned = result?.xpEarned || 0
+      setXpEarned(earned)
+      if (isRetry && wasPerfect && earned > 0) setBonusAwarded(true)
+    } catch (e) {
+      console.error('No se pudo registrar el intento:', e)
+    }
+
+    setCurrentStep('completed')
   }
 
   const handleStartExercises = () => {
+    resetAttempt()
     if (exercises.length > 0) {
       setCurrentStep('exercise')
     } else {
@@ -105,19 +154,50 @@ function LessonPage() {
 
   // Pantalla de lección completada
   if (currentStep === 'completed') {
+    const wasPerfect = errorsInAttempt === 0
+
     return (
       <div className="lesson-page">
         <div className="lesson-completed">
-          <div className="completed-icon">🎉</div>
+          <div className="completed-icon">{wasPerfect ? '🏆' : '🎉'}</div>
           <h1>¡Lección completada!</h1>
           <h2>{lesson.titulo}</h2>
+
           <div className="completed-xp">
             <span className="xp-icon">⭐</span>
             <span>+{xpEarned} XP</span>
           </div>
-          <button className="lesson-back-btn" onClick={() => navigate('/dashboard')} type="button">
-            Volver al Dashboard
-          </button>
+
+          {bonusAwarded && (
+            <div className="completed-bonus">
+              <span className="bonus-icon">🔥</span>
+              <span>¡Reintento perfecto! +{RETRY_BONUS_XP} XP bonus</span>
+            </div>
+          )}
+
+          {isRetry && !wasPerfect && (
+            <p className="completed-hint">
+              Tuviste {errorsInAttempt} error{errorsInAttempt > 1 ? 'es' : ''}.
+              ¡Repite la lección sin errores para ganar el bonus!
+            </p>
+          )}
+
+          <div className="completed-actions">
+            <button
+              className="lesson-retry-btn"
+              onClick={handleRetryLesson}
+              type="button"
+            >
+              🔄 Repetir lección
+            </button>
+            <button
+              className="lesson-back-btn"
+              onClick={() => navigate('/dashboard')}
+              type="button"
+            >
+              Volver al Dashboard
+            </button>
+          </div>
         </div>
       </div>
     )
@@ -125,6 +205,8 @@ function LessonPage() {
 
   // Teoría
   if (currentStep === 'theory') {
+    const alreadyCompleted = exercises.length > 0 && exercises[0]?.resuelto === true
+
     return (
       <div className="lesson-page">
         <div className="lesson-container">
@@ -137,23 +219,33 @@ function LessonPage() {
 
           <h1 className="lesson-title">{lesson.titulo}</h1>
 
-          {lesson.contenido_teoria && (
+          {alreadyCompleted && (
+            <div className="lesson-completed-badge">
+              ✅ Ya completaste esta lección
+            </div>
+          )}
+
+          {lesson.contenido_teoria ? (
             <div
               className="lesson-theory"
               dangerouslySetInnerHTML={{ __html: lesson.contenido_teoria }}
             />
-          )}
-
-          {!lesson.contenido_teoria && (
+          ) : (
             <div className="lesson-theory">
               <p>{lesson.descripcion}</p>
             </div>
           )}
 
           <div className="lesson-actions">
-            <button className="lesson-start-btn" onClick={handleStartExercises} type="button">
-              {exercises.length > 0 ? 'Empezar ejercicios' : 'Completar lección'}
-            </button>
+            {alreadyCompleted ? (
+              <button className="lesson-start-btn lesson-retry-btn" onClick={handleRetryLesson} type="button">
+                🔄 Repetir lección
+              </button>
+            ) : (
+              <button className="lesson-start-btn" onClick={handleStartExercises} type="button">
+                {exercises.length > 0 ? 'Empezar ejercicios' : 'Completar lección'}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -170,6 +262,9 @@ function LessonPage() {
           <span className="exercise-progress">
             Ejercicio {currentExerciseIdx + 1} de {exercises.length}
           </span>
+          {isRetry && (
+            <span className="exercise-retry-badge">🔄 Reintento</span>
+          )}
           <div className="exercise-progress-bar">
             <div
               className="exercise-progress-fill"
