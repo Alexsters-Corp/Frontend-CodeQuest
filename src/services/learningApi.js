@@ -2,7 +2,10 @@ import { apiFetch } from './api'
 
 const STORAGE_KEYS = {
   selectedLanguageId: 'selectedLanguageId',
+  favoriteLessons: 'favoriteLessons',
 }
+
+const FAVORITES_UPDATED_EVENT = 'cq:favorites:updated'
 
 async function requestJson(endpoint, options = {}) {
   const response = await apiFetch(endpoint, options)
@@ -169,4 +172,87 @@ export async function submitLessonExercise({ lessonId, exerciseId, answer }) {
       body: JSON.stringify({ answer: String(answer || '') }),
     }
   )
+}
+
+function readFavoriteLessons() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEYS.favoriteLessons)
+    if (!raw) {
+      return []
+    }
+
+    const parsed = JSON.parse(raw)
+    return Array.isArray(parsed) ? parsed : []
+  } catch (_error) {
+    return []
+  }
+}
+
+function writeFavoriteLessons(favorites) {
+  localStorage.setItem(STORAGE_KEYS.favoriteLessons, JSON.stringify(favorites))
+
+  if (typeof window !== 'undefined') {
+    window.dispatchEvent(new CustomEvent(FAVORITES_UPDATED_EVENT))
+  }
+}
+
+export function getFavoritesUpdatedEventName() {
+  return FAVORITES_UPDATED_EVENT
+}
+
+export function isLessonFavorite(lessonId) {
+  const normalizedLessonId = parsePositiveInt(lessonId)
+  if (!normalizedLessonId) {
+    return false
+  }
+
+  const favorites = readFavoriteLessons()
+  return favorites.some((item) => Number(item.lessonId) === normalizedLessonId)
+}
+
+export function listFavoriteLessons() {
+  const favorites = readFavoriteLessons()
+  return favorites
+    .slice()
+    .sort((a, b) => {
+      const aTime = new Date(a.favoritedAt || 0).getTime()
+      const bTime = new Date(b.favoritedAt || 0).getTime()
+      return bTime - aTime
+    })
+}
+
+export async function toggleLessonFavorite({
+  lessonId,
+  lessonTitle,
+  lessonDescription,
+  moduleId,
+  moduleName,
+  xpReward,
+}) {
+  const normalizedLessonId = parsePositiveInt(lessonId)
+  if (!normalizedLessonId) {
+    throw new Error('La lección seleccionada no es válida.')
+  }
+
+  const favorites = readFavoriteLessons()
+  const existingIndex = favorites.findIndex((item) => Number(item.lessonId) === normalizedLessonId)
+
+  if (existingIndex >= 0) {
+    const next = favorites.filter((item) => Number(item.lessonId) !== normalizedLessonId)
+    writeFavoriteLessons(next)
+    return { favorite: false }
+  }
+
+  const entry = {
+    lessonId: normalizedLessonId,
+    lessonTitle: String(lessonTitle || ''),
+    lessonDescription: String(lessonDescription || ''),
+    moduleId: parsePositiveInt(moduleId),
+    moduleName: String(moduleName || ''),
+    xpReward: Number(xpReward || 0),
+    favoritedAt: new Date().toISOString(),
+  }
+
+  writeFavoriteLessons([...favorites, entry])
+  return { favorite: true }
 }

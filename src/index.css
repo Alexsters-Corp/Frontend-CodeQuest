@@ -144,6 +144,66 @@ button {
   line-height: 1.6;
 }
 
+.navbar-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  margin-bottom: 8px;
+}
+
+.profile-header-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.profile-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.profile-back-btn {
+  margin-top: 0;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  color: #0f172a;
+  padding: 9px 12px;
+  font-size: 0.86rem;
+  font-weight: 600;
+}
+
+.profile-back-btn:hover {
+  background: #e2e8f0;
+}
+
+.profile-settings-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  color: #0f172a;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.profile-settings-btn:hover {
+  background: #e2e8f0;
+}
+
 .profile-edit-loading {
   margin: 16px 0 0;
   color: #6b7280;
@@ -158,11 +218,92 @@ button {
 
 .profile-edit-form label {
   font-weight: 600;
-  color: #1f2937;
+  color: #eef5ff;
 }
 
 .profile-edit-form input {
   margin-bottom: 6px;
+}
+
+.profile-date-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: center;
+}
+
+.profile-date-row input[type='date'] {
+  margin-bottom: 0;
+}
+
+.profile-date-picker-btn {
+  margin-top: 0;
+  width: 42px;
+  height: 42px;
+  border-radius: 10px;
+  border: 1px solid var(--cq-border);
+  background: rgba(9, 18, 33, 0.72);
+  color: #e8eef8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.profile-date-picker-btn:hover:not(:disabled) {
+  border-color: rgba(16, 185, 129, 0.46);
+  background: rgba(13, 25, 45, 0.92);
+}
+
+.profile-icon-list {
+  margin: 4px 0 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.profile-photo-preview {
+  width: 88px;
+  height: 88px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #f8fafc;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin: 4px 0 10px;
+}
+
+.profile-photo-preview span {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.profile-icon-chip {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid #d1d5db;
+  background: #cbd5e1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+}
+
+button.profile-icon-chip {
+  cursor: pointer;
+}
+
+button.profile-icon-chip:hover {
+  background: #e5e7eb;
+}
+
+.profile-icon-chip.active {
+  background: #f8fafc;
+  border-color: #22c55e;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.18);
 }
 
 .profile-edit-message {
@@ -432,6 +573,62 @@ button {
   text-align: center;
 }
 
+.onboarding-top-actions {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.onboarding-back-btn {
+  margin-top: 0;
+  min-width: 0;
+  height: 42px;
+  padding: 0 12px;
+  border: 1px solid rgba(148, 163, 184, 0.32);
+  border-radius: 14px;
+  background: rgba(11, 20, 37, 0.76);
+  color: #dbe7f5;
+  font-size: 0.98rem;
+  font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  line-height: 1;
+  box-shadow: 0 8px 22px rgba(2, 8, 23, 0.18);
+}
+
+.onboarding-back-btn:hover:not(:disabled) {
+  border-color: rgba(16, 185, 129, 0.42);
+  background: rgba(16, 185, 129, 0.14);
+  color: #a7f3d0;
+}
+
+.onboarding-back-btn__icon {
+  width: 20px;
+  height: 20px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: -1px;
+}
+
+.onboarding-back-btn__svg {
+  width: 100%;
+  height: 100%;
+  fill: #afbec2;
+  stroke: #0b0f14;
+  stroke-width: 1.6;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.onboarding-back-btn__text {
+  font-size: 0.95rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+}
+
 .onboarding-header {
   margin-bottom: 28px;
 }
@@ -637,6 +834,14 @@ button {
 
   .onboarding-container {
     padding: 28px 20px;
+  }
+
+  .onboarding-top-actions {
+    margin-bottom: 10px;
+  }
+
+  .onboarding-back-btn {
+    min-width: 52px;
   }
 }
 
@@ -3209,10 +3414,101 @@ button:disabled {
 
 .lesson-item {
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
   align-items: center;
   column-gap: 12px;
   row-gap: 8px;
+}
+
+.lesson-favorite-btn {
+  margin: 0;
+  min-height: 36px;
+  min-width: 36px;
+  padding: 0;
+  border-radius: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.38);
+  background: rgba(10, 18, 34, 0.68);
+  color: #cbd5e1;
+  font-size: 1.05rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lesson-favorite-btn:hover {
+  border-color: rgba(16, 185, 129, 0.45);
+  color: #facc15;
+}
+
+.lesson-favorite-btn.active {
+  color: #facc15;
+  border-color: rgba(250, 204, 21, 0.52);
+  background: rgba(71, 50, 8, 0.48);
+}
+
+.favorites-card {
+  display: grid;
+  gap: 14px;
+}
+
+.favorites-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.favorites-header-row h2 {
+  margin: 0;
+}
+
+.favorites-empty {
+  display: grid;
+  gap: 10px;
+}
+
+.favorites-empty p {
+  margin: 0;
+  color: #c5d3e6;
+}
+
+.favorites-list {
+  display: grid;
+  gap: 10px;
+}
+
+.favorite-item {
+  border: 1px solid var(--cq-border);
+  border-radius: 12px;
+  background: rgba(11, 20, 37, 0.66);
+  padding: 12px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+}
+
+.favorite-item-main h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+
+.favorite-item-main p {
+  margin: 0;
+  color: #afc4de;
+}
+
+.favorite-item-meta {
+  margin-top: 8px;
+  display: inline-flex;
+  gap: 10px;
+  color: #9fb4cc;
+  font-size: 0.84rem;
+}
+
+.favorite-item-actions {
+  display: grid;
+  align-content: center;
+  gap: 8px;
 }
 
 .lesson-info {

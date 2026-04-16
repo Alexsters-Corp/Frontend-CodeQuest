@@ -81,6 +81,26 @@ function OnboardingLanguagePage() {
   return (
     <MotionPage className="onboarding-page" delay={0.06}>
       <div className="onboarding-container">
+        <div className="onboarding-top-actions">
+          <button
+            className="onboarding-back-btn"
+            onClick={() => navigate('/dashboard')}
+            type="button"
+            aria-label={t('onboarding.backDashboard')}
+          >
+            <span className="onboarding-back-btn__icon" aria-hidden="true">
+              <svg
+                className="onboarding-back-btn__svg"
+                viewBox="4 3 22 18"
+                focusable="false"
+              >
+                <path d="M13.2 3.7L5.1 11.8L13.2 19.9C14 20.7 15.4 20.2 15.4 19V15.2H22.1C24 15.2 25.5 13.7 25.5 11.8C25.5 9.9 24 8.4 22.1 8.4H15.4V4.6C15.4 3.4 14 2.9 13.2 3.7Z" />
+              </svg>
+            </span>
+            <span className="onboarding-back-btn__text">{t('common.back')}</span>
+          </button>
+        </div>
+
         <div className="onboarding-header">
           <span className="onboarding-step">{t('onboarding.step', { current: 1, total: 2 })}</span>
           <h1>{t('onboarding.welcome', { name: user?.nombre || '' })}</h1>
