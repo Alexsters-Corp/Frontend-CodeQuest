@@ -1,45 +1,44 @@
 import { useNavigate } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
 import { useAuth } from '../context/useAuth'
+import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
-
-const ROLE_LABELS = {
-  user: 'Estudiante',
-  instructor: 'Instructor',
-  admin: 'Administrador',
-}
 
 function UnauthorizedPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { role } = useRole()
-  const roleLabel = ROLE_LABELS[role] || 'Usuario'
+  const { t } = useLanguage()
+  const roleLabel = ['user', 'instructor', 'admin'].includes(role)
+    ? t(`roles.${role}`)
+    : t('roles.unknown')
 
   return (
-    <div className="page">
-      <div className="card unauthorized-card">
-        <h1>Acceso denegado</h1>
+    <MotionPage className="page" delay={0.05}>
+      <div className="card unauthorized-card unauthorized-card--modern">
+        <h1>{t('unauthorized.title')}</h1>
         <p>
-          No tienes permisos suficientes para ingresar a esta sección.
+          {t('unauthorized.message')}
         </p>
 
         {user && (
           <p className="unauthorized-role-note">
-            Sesión activa: <strong>{user.nombre || user.email}</strong> ({roleLabel})
+            {t('unauthorized.activeSession')}: <strong>{user.nombre || user.email}</strong> ({roleLabel})
           </p>
         )}
 
         <div className="unauthorized-actions">
           <button type="button" onClick={() => navigate('/dashboard')}>
-            Ir al dashboard
+            {t('unauthorized.gotoDashboard')}
           </button>
           {!user && (
             <button type="button" onClick={() => navigate('/login')}>
-              Ir a iniciar sesión
+              {t('unauthorized.gotoLogin')}
             </button>
           )}
         </div>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 
