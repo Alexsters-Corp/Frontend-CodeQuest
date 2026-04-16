@@ -1,23 +1,23 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import { useAuth } from '../context/useAuth'
+import { useLanguage } from '../context/useLanguage'
 import { apiFetch } from '../services/api'
+import { notifyError, notifySuccess } from '../utils/notify'
 
 function ProfileEditPage() {
   const navigate = useNavigate()
   const { updateUser } = useAuth()
+  const { t } = useLanguage()
   const [form, setForm] = useState({ nombre: '', email: '' })
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
   const [errorMessage, setErrorMessage] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
 
-  useEffect(() => {
-    loadProfile()
-  }, [])
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     setLoading(true)
     setErrorMessage('')
 
@@ -26,7 +26,7 @@ function ProfileEditPage() {
       const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
-        throw new Error(data.message || 'No fue posible cargar tu perfil.')
+        throw new Error(data.message || t('profile.loadError'))
       }
 
       const user = data.user || {}
@@ -35,11 +35,17 @@ function ProfileEditPage() {
         email: user.email || '',
       })
     } catch (error) {
-      setErrorMessage(error.message || 'No fue posible cargar tu perfil.')
+      const message = error.message || t('profile.loadError')
+      setErrorMessage(message)
+      notifyError(message)
     } finally {
       setLoading(false)
     }
-  }
+  }, [t])
+
+  useEffect(() => {
+    loadProfile()
+  }, [loadProfile])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -74,7 +80,7 @@ function ProfileEditPage() {
 
       const data = await response.json().catch(() => ({}))
       if (!response.ok) {
-        throw new Error(data.message || 'No fue posible actualizar tu perfil.')
+        throw new Error(data.message || t('profile.updateError'))
       }
 
       updateUser(data.user)
@@ -82,33 +88,37 @@ function ProfileEditPage() {
         nombre: data.user?.nombre || '',
         email: data.user?.email || '',
       })
-      setSuccessMessage(data.message || 'Perfil actualizado exitosamente.')
+      const message = data.message || t('profile.updateSuccess')
+      setSuccessMessage(message)
+      notifySuccess(message)
     } catch (error) {
-      setErrorMessage(error.message || 'No fue posible actualizar tu perfil.')
+      const message = error.message || t('profile.updateError')
+      setErrorMessage(message)
+      notifyError(message)
     } finally {
       setSaving(false)
     }
   }
 
   return (
-    <div className="dashboard-page">
+    <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar
-        title="Editar perfil"
-        profileActionLabel="Volver al dashboard"
+        title={t('profile.title')}
+        profileActionLabel={t('profile.backDashboard')}
         profileActionTo="/dashboard"
       />
 
       <section className="profile-edit-card">
         <div className="profile-edit-header">
-          <h2>Tu información de perfil</h2>
-          <p>Mantén tus datos actualizados para personalizar tu experiencia en CodeQuest.</p>
+          <h2>{t('profile.infoTitle')}</h2>
+          <p>{t('profile.infoDescription')}</p>
         </div>
 
         {loading ? (
-          <p className="profile-edit-loading">Cargando perfil...</p>
+          <p className="profile-edit-loading">{t('common.loadingProfile')}</p>
         ) : (
           <form className="profile-edit-form" onSubmit={handleSubmit}>
-            <label htmlFor="profile-nombre">Nombre</label>
+            <label htmlFor="profile-nombre">{t('profile.name')}</label>
             <input
               id="profile-nombre"
               name="nombre"
@@ -119,7 +129,7 @@ function ProfileEditPage() {
               required
             />
 
-            <label htmlFor="profile-email">Correo electrónico</label>
+            <label htmlFor="profile-email">{t('profile.email')}</label>
             <input
               id="profile-email"
               name="email"
@@ -140,16 +150,16 @@ function ProfileEditPage() {
                 onClick={() => navigate('/dashboard')}
                 disabled={saving}
               >
-                Volver
+                {t('common.back')}
               </button>
               <button type="submit" className="profile-save-btn" disabled={saving}>
-                {saving ? 'Guardando...' : 'Guardar cambios'}
+                {saving ? t('common.saving') : t('profile.save')}
               </button>
             </div>
           </form>
         )}
       </section>
-    </div>
+    </MotionPage>
   )
 }
 

@@ -1,6 +1,7 @@
 import { Navigate } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { useAuth } from '../context/useAuth'
+import { useLanguage } from '../context/useLanguage'
 
 /**
  * Envuelve rutas que requieren autenticación.
@@ -8,12 +9,13 @@ import { useAuth } from '../context/useAuth'
  */
 function PrivateRoute({ children }) {
   const { isAuthenticated, loading } = useAuth()
+  const { t } = useLanguage()
 
   if (loading) {
     return (
       <div className="page">
         <div className="card" style={{ textAlign: 'center' }}>
-          <p>Cargando...</p>
+          <p>{t('route.loading')}</p>
         </div>
       </div>
     )

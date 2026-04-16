@@ -1,17 +1,17 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
+import { useLanguage } from '../context/useLanguage'
 import { API_URL } from '../services/api'
+import { notifyError, notifySuccess } from '../utils/notify'
 
 function ForgotPasswordPage() {
+  const { t } = useLanguage()
   const [email, setEmail] = useState('')
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setMessage('')
-    setError('')
     setIsLoading(true)
 
     try {
@@ -26,51 +26,56 @@ function ForgotPasswordPage() {
       const data = await response.json().catch(() => ({}))
 
       if (!response.ok) {
-        throw new Error(data.message || 'No fue posible procesar la solicitud.')
+        throw new Error(data.message || t('auth.forgot.error'))
       }
 
-      setMessage('Si el correo existe, te enviamos un enlace para restablecer la contraseña.')
+      notifySuccess(t('auth.forgot.success'))
       setEmail('')
     } catch (submitError) {
-      setError(submitError.message)
+      notifyError(submitError.message || t('auth.forgot.error'))
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="page">
-      <div className="card">
-        <h1>Recuperar contraseña</h1>
-        <p className="message">
-          Ingresa tu correo y te enviaremos un enlace para restablecer tu contraseña.
-        </p>
+    <MotionPage className="auth-page" delay={0.05}>
+      <div className="auth-layout auth-layout--single">
+        <section className="auth-panel auth-panel--single">
+          <div className="auth-panel__brand">
+            <span>&lt;/&gt;</span>
+            <strong>CodeQuest</strong>
+          </div>
 
-        <form onSubmit={handleSubmit} className="form">
-          <label htmlFor="email">Email</label>
-          <input
-            id="email"
-            name="email"
-            type="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            placeholder="tu@email.com"
-          />
+          <h2>{t('auth.forgot.title')}</h2>
+          <p className="auth-panel__subtitle">
+            {t('auth.forgot.subtitle')}
+          </p>
 
-          <button type="submit" disabled={isLoading}>
-            {isLoading ? 'Enviando...' : 'Enviar enlace'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="form auth-panel__form">
+            <label htmlFor="email">{t('auth.email')}</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              placeholder="dev@codequest.io"
+            />
 
-        {message && <p className="message success">{message}</p>}
-        {error && <p className="message error">{error}</p>}
+            <button className="auth-panel__submit ui-jitter" type="submit" disabled={isLoading}>
+              {isLoading ? t('auth.forgot.submitting') : t('auth.forgot.submit')}
+            </button>
+          </form>
 
-        <p>
-          Volver a <Link to="/login">iniciar sesión</Link>
-        </p>
+          <div className="auth-panel__footer">
+            <span>{t('auth.forgot.backPrompt')}</span>
+            <Link to="/login">{t('auth.register.link')}</Link>
+          </div>
+        </section>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 

@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
+import { useLanguage } from '../context/useLanguage'
 import { getModulesByLanguage, getSelectedLanguageId, listLessonsByModule } from '../services/learningApi'
+import { notifyError, notifyInfo } from '../utils/notify'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -23,6 +26,7 @@ function renderModuleIcon(icon, fallback, label) {
 
 function ModulesPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [modules, setModules] = useState([])
   const [expandedModule, setExpandedModule] = useState(null)
   const [lessons, setLessons] = useState({})
@@ -54,14 +58,16 @@ function ModulesPage() {
     } catch (error) {
       loadedModulesRef.current.delete(normalizedId)
       setLessons((prev) => ({ ...prev, [normalizedId]: [] }))
+      const message = error.message || t('modules.lessonsError')
       setLessonErrors((prev) => ({
         ...prev,
-        [normalizedId]: error.message || 'No fue posible cargar las lecciones del módulo.',
+        [normalizedId]: message,
       }))
+      notifyError(message)
     } finally {
       setLoadingLessons((current) => (current === normalizedId ? null : current))
     }
-  }, [])
+  }, [t])
 
   const loadModules = useCallback(async () => {
     setLoading(true)
@@ -83,16 +89,19 @@ function ModulesPage() {
       }
     } catch (error) {
       if (normalizeSearchText(error.message).includes('diagnostico')) {
+        notifyInfo(t('modules.diagnosticRequired'))
         navigate('/diagnostic')
         return
       }
 
       setModules([])
-      setLoadError(error.message || 'No fue posible cargar los módulos.')
+      const message = error.message || t('modules.loadError')
+      setLoadError(message)
+      notifyError(message)
     } finally {
       setLoading(false)
     }
-  }, [languageId, loadLessonsForModule, navigate])
+  }, [languageId, loadLessonsForModule, navigate, t])
 
   useEffect(() => {
     if (!languageId) {
@@ -130,35 +139,35 @@ function ModulesPage() {
     switch (estado) {
       case 'completado':
       case 'completada':
-        return 'Completado'
+        return t('modules.status.completed')
       case 'en_progreso':
-        return 'En progreso'
+        return t('modules.status.inProgress')
       case 'disponible':
-        return 'Disponible'
+        return t('modules.status.available')
       default:
-        return 'Bloqueado'
+        return t('modules.status.blocked')
     }
   }
 
   if (loading) {
     return (
-      <div className="modules-page">
+      <MotionPage className="modules-page" delay={0.06}>
         <div className="modules-loading">
           <div className="spinner" />
-          <p>Cargando módulos...</p>
+          <p>{t('modules.loading')}</p>
         </div>
-      </div>
+      </MotionPage>
     )
   }
 
   return (
-    <div className="modules-page">
+    <MotionPage className="modules-page" delay={0.06}>
       <div className="modules-container">
         <div className="modules-header">
           <button className="modules-back" onClick={() => navigate('/dashboard')} type="button">
-            ← Dashboard
+            ← {t('modules.back')}
           </button>
-          <h1>Ruta de Aprendizaje</h1>
+          <h1>{t('modules.title')}</h1>
         </div>
 
         <div className="modules-list">
@@ -166,9 +175,9 @@ function ModulesPage() {
 
           {!loadError && modules.length === 0 && (
             <div className="modules-empty-state">
-              <p>Aún no hay módulos disponibles para este lenguaje.</p>
+              <p>{t('modules.empty')}</p>
               <button onClick={() => navigate('/dashboard')} type="button">
-                Volver al Dashboard
+                {t('modules.backDashboard')}
               </button>
             </div>
           )}
@@ -215,12 +224,12 @@ function ModulesPage() {
               {expandedModule === mod.id && (
                 <div className="module-lessons">
                   {loadingLessons === mod.id ? (
-                    <p className="lessons-loading">Cargando lecciones...</p>
+                    <p className="lessons-loading">{t('modules.lessonsLoading')}</p>
                   ) : lessonErrors[mod.id] ? (
                     <p className="modules-error-message">{lessonErrors[mod.id]}</p>
                   ) : (lessons[mod.id] || []).length === 0 ? (
                     <p className="lessons-empty-message">
-                      Este módulo aún no tiene lecciones publicadas.
+                      {t('modules.noLessons')}
                     </p>
                   ) : (
                     (lessons[mod.id] || []).map((lesson) => (
@@ -241,10 +250,10 @@ function ModulesPage() {
                           disabled={lesson.estado === 'bloqueado'}
                         >
                           {lesson.estado === 'completada'
-                            ? 'Repetir'
+                            ? t('modules.repeat')
                             : lesson.estado === 'bloqueado'
                               ? '🔒'
-                              : 'Empezar'}
+                              : t('modules.start')}
                         </button>
                       </div>
                     ))
@@ -255,7 +264,7 @@ function ModulesPage() {
           ))}
         </div>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 

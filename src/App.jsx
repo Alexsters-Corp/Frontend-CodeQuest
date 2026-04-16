@@ -1,8 +1,11 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext'
+import { LanguageProvider } from './context/LanguageContext'
 import PrivateRoute from './components/PrivateRoute'
 import PublicRoute from './components/PublicRoute'
 import RoleGuard from './components/guards/RoleGuard'
+import LanguageSwitcher from './components/LanguageSwitcher'
 import DashboardPage from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -21,121 +24,136 @@ import ProfileEditPage from './pages/ProfileEditPage'
 
 function App() {
   return (
-    <AuthProvider>
-      <Routes>
-        <Route path="/" element={<HomePage />} />
-        <Route
-          path="/login"
-          element={
-            <PublicRoute>
-              <LoginPage />
-            </PublicRoute>
-          }
+    <LanguageProvider>
+      <AuthProvider>
+        <LanguageSwitcher />
+
+        <Toaster
+          position="top-right"
+          richColors
+          closeButton
+          theme="dark"
+          toastOptions={{
+            className: 'cq-toast',
+            descriptionClassName: 'cq-toast-description',
+          }}
         />
-        <Route
-          path="/registro"
-          element={
-            <PublicRoute>
-              <RegisterPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/forgot-password"
-          element={
-            <PublicRoute>
-              <ForgotPasswordPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/reset-password"
-          element={
-            <PublicRoute>
-              <ResetPasswordPage />
-            </PublicRoute>
-          }
-        />
-        <Route
-          path="/onboarding/language"
-          element={
-            <PrivateRoute>
-              <OnboardingLanguagePage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/onboarding/tour"
-          element={
-            <PrivateRoute>
-              <OnboardingTourPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <DashboardPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/diagnostic"
-          element={
-            <PrivateRoute>
-              <DiagnosticTestPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/modules"
-          element={
-            <PrivateRoute>
-              <ModulesPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/lesson/:lessonId"
-          element={
-            <PrivateRoute>
-              <LessonPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/profile/edit"
-          element={
-            <PrivateRoute>
-              <ProfileEditPage />
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/instructor"
-          element={
-            <PrivateRoute>
-              <RoleGuard allowedRoles={['instructor', 'admin']}>
-                <InstructorDashboardPage />
-              </RoleGuard>
-            </PrivateRoute>
-          }
-        />
-        <Route
-          path="/admin"
-          element={
-            <PrivateRoute>
-              <RoleGuard allowedRoles={['admin']}>
-                <AdminDashboardPage />
-              </RoleGuard>
-            </PrivateRoute>
-          }
-        />
-        <Route path="/unauthorized" element={<UnauthorizedPage />} />
-        <Route path="*" element={<Navigate to="/dashboard" replace />} />
-      </Routes>
-    </AuthProvider>
+
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route
+            path="/login"
+            element={
+              <PublicRoute>
+                <LoginPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/registro"
+            element={
+              <PublicRoute>
+                <RegisterPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/reset-password"
+            element={
+              <PublicRoute>
+                <ResetPasswordPage />
+              </PublicRoute>
+            }
+          />
+          <Route
+            path="/onboarding/language"
+            element={
+              <PrivateRoute>
+                <OnboardingLanguagePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/onboarding/tour"
+            element={
+              <PrivateRoute>
+                <OnboardingTourPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <PrivateRoute>
+                <DashboardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/diagnostic"
+            element={
+              <PrivateRoute>
+                <DiagnosticTestPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/modules"
+            element={
+              <PrivateRoute>
+                <ModulesPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/lesson/:lessonId"
+            element={
+              <PrivateRoute>
+                <LessonPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile/edit"
+            element={
+              <PrivateRoute>
+                <ProfileEditPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/instructor"
+            element={
+              <PrivateRoute>
+                <RoleGuard allowedRoles={['instructor', 'admin']}>
+                  <InstructorDashboardPage />
+                </RoleGuard>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <PrivateRoute>
+                <RoleGuard allowedRoles={['admin']}>
+                  <AdminDashboardPage />
+                </RoleGuard>
+              </PrivateRoute>
+            }
+          />
+          <Route path="/unauthorized" element={<UnauthorizedPage />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </AuthProvider>
+    </LanguageProvider>
   )
 }
 

@@ -1,18 +1,20 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { useLanguage } from '../context/useLanguage'
+import MotionPage from '../components/MotionPage'
 import { API_URL } from '../services/api'
+import { notifyError, notifySuccess } from '../utils/notify'
 
 function RegisterPage() {
   const navigate = useNavigate()
   const { saveSession } = useAuth()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
     password: '',
   })
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleChange = (event) => {
@@ -22,8 +24,6 @@ function RegisterPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setMessage('')
-    setError('')
     setIsLoading(true)
 
     try {
@@ -38,7 +38,7 @@ function RegisterPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.message || 'No fue posible registrar el usuario.')
+        throw new Error(data.message || t('auth.register.error'))
       }
 
       saveSession({
@@ -47,78 +47,90 @@ function RegisterPage() {
         user: data.user,
       })
 
-      setMessage('¡Cuenta creada! Redirigiendo...')
+      notifySuccess(t('auth.register.success'))
       setTimeout(() => navigate('/dashboard'), 400)
     } catch (submitError) {
-      setError(submitError.message)
+      notifyError(submitError.message || t('auth.register.error'))
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="login-home">
-      <div className="login-home__aurora login-home__aurora--one" />
-      <div className="login-home__aurora login-home__aurora--two" />
+    <MotionPage className="auth-page" delay={0.05}>
+      <div className="auth-layout auth-layout--register">
+        <section className="auth-visual">
+          <span className="auth-visual__badge">{t('auth.register.visualBadge')}</span>
+          <h1>
+            {t('auth.register.visualTitle1')}
+            <em>{t('auth.register.visualTitle2')}</em>
+          </h1>
+          <p>
+            {t('auth.register.visualDescription')}
+          </p>
+          <div className="auth-visual__chips">
+            <span>{t('auth.register.chip1')}</span>
+            <span>{t('auth.register.chip2')}</span>
+            <span>{t('auth.register.chip3')}</span>
+          </div>
+        </section>
 
-      <div className="login-home__shell">
-        <section className="login-panel">
-          <div className="login-panel__card">
-            <div className="login-home__brand login-panel__brand">
-              <span className="login-home__brand-mark">&lt;/&gt;</span>
-              <span className="login-home__brand-text">Ruta de aprendizaje</span>
-            </div>           
-            <h2>Crea tu cuenta</h2>
-            <p className="login-panel__subtitle">Empieza tu ruta de aprendizaje hoy.</p>
+        <section className="auth-panel">
+          <div className="auth-panel__brand">
+            <span>&lt;/&gt;</span>
+            <strong>CodeQuest</strong>
+          </div>
 
-            <form onSubmit={handleSubmit} className="form login-panel__form">
-              <label htmlFor="nombre">Nombre</label>
-              <input
-                id="nombre"
-                name="nombre"
-                type="text"
-                required
-                value={formData.nombre}
-                onChange={handleChange}
-              />
+          <h2>{t('auth.register.title')}</h2>
+          <p className="auth-panel__subtitle">{t('auth.register.subtitle')}</p>
 
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-              />
+          <form onSubmit={handleSubmit} className="form auth-panel__form">
+            <label htmlFor="nombre">{t('auth.register.name')}</label>
+            <input
+              id="nombre"
+              name="nombre"
+              type="text"
+              required
+              value={formData.nombre}
+              onChange={handleChange}
+              placeholder="Alex Dev"
+            />
 
-              <label htmlFor="password">Contraseña</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                minLength={6}
-                required
-                value={formData.password}
-                onChange={handleChange}
-              />
+            <label htmlFor="email">{t('auth.email')}</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="dev@codequest.io"
+            />
 
-              <button type="submit" className="login-panel__submit" disabled={isLoading}>
-                {isLoading ? 'Guardando...' : 'Crear cuenta'}
-              </button>
-            </form>
+            <label htmlFor="password">{t('auth.password')}</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              minLength={6}
+              required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="Minimum 6 chars"
+            />
 
-            {message && <p className="message success">{message}</p>}
-            {error && <p className="message error">{error}</p>}
+            <button type="submit" className="auth-panel__submit ui-jitter" disabled={isLoading}>
+              {isLoading ? t('auth.register.submitting') : t('auth.register.submit')}
+            </button>
+          </form>
 
-            <div className="login-panel__footer">
-              <span>¿Ya tienes cuenta?</span>
-              <Link to="/login">Inicia sesión</Link>
-            </div>
+          <div className="auth-panel__footer">
+            <span>{t('auth.register.prompt')}</span>
+            <Link to="/login">{t('auth.register.link')}</Link>
           </div>
         </section>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 

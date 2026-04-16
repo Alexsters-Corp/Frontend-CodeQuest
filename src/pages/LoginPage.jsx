@@ -1,44 +1,17 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { useLanguage } from '../context/useLanguage'
+import MotionPage from '../components/MotionPage'
 import { API_URL } from '../services/api'
+import { notifyError, notifySuccess } from '../utils/notify'
 
 function LoginPage() {
   const navigate = useNavigate()
   const { saveSession } = useAuth()
+  const { t } = useLanguage()
   const [formData, setFormData] = useState({ email: '', password: '' })
-  const [message, setMessage] = useState('')
-  const [error, setError] = useState('')
-  const [toastState, setToastState] = useState('hidden')
   const [isLoading, setIsLoading] = useState(false)
-
-  useEffect(() => {
-    if (!error) {
-      setToastState('hidden')
-      return
-    }
-
-    setToastState('visible')
-    const timeoutId = setTimeout(() => setToastState('leaving'), 3200)
-    return () => clearTimeout(timeoutId)
-  }, [error])
-
-  useEffect(() => {
-    if (toastState !== 'leaving') {
-      return
-    }
-
-    const timeoutId = setTimeout(() => {
-      setToastState('hidden')
-      setError('')
-    }, 300)
-
-    return () => clearTimeout(timeoutId)
-  }, [toastState])
-
-  const closeToast = () => {
-    setToastState((current) => (current === 'hidden' ? 'hidden' : 'leaving'))
-  }
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -47,8 +20,6 @@ function LoginPage() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
-    setMessage('')
-    setError('')
     setIsLoading(true)
 
     try {
@@ -63,7 +34,7 @@ function LoginPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.message || 'No fue posible iniciar sesión.')
+        throw new Error(data.message || t('auth.login.error'))
       }
 
       saveSession({
@@ -72,101 +43,82 @@ function LoginPage() {
         user: data.user,
       })
 
-      setMessage('Inicio de sesión exitoso.')
+      notifySuccess(t('auth.login.success'))
       setTimeout(() => navigate('/dashboard'), 400)
     } catch (submitError) {
-      setError(submitError.message)
+      notifyError(submitError.message || t('auth.login.error'))
     } finally {
       setIsLoading(false)
     }
   }
 
   return (
-    <div className="login-home">
-      <div className="login-home__aurora login-home__aurora--one" />
-      <div className="login-home__aurora login-home__aurora--two" />
-
-      {toastState !== 'hidden' && error && (
-        <div
-          className={`login-toast ${toastState === 'leaving' ? 'login-toast--leaving' : ''}`}
-          role="alert"
-          aria-live="assertive"
-        >
-          <span className="login-toast__icon" aria-hidden="true">
-            !
-          </span>
-          <div className="login-toast__content">
-            <strong>Ups, no se pudo iniciar sesión</strong>
-            <span>{error}</span>
+    <MotionPage className="auth-page" delay={0.04}>
+      <div className="auth-layout">
+        <section className="auth-visual">
+          <span className="auth-visual__badge">{t('auth.login.visualBadge')}</span>
+          <h1>
+            {t('auth.login.visualTitle1')}
+            <em>{t('auth.login.visualTitle2')}</em>
+          </h1>
+          <p>
+            {t('auth.login.visualDescription')}
+          </p>
+          <div className="auth-visual__chips">
+            <span>{t('auth.login.chip1')}</span>
+            <span>{t('auth.login.chip2')}</span>
+            <span>{t('auth.login.chip3')}</span>
           </div>
-          <button
-            type="button"
-            className="login-toast__close"
-            onClick={closeToast}
-            aria-label="Cerrar notificación"
-          >
-            x
-          </button>
-          <span className="login-toast__progress" aria-hidden="true" />
-        </div>
-      )}
+        </section>
 
-      <div className="login-home__shell">
-        <section className="login-panel">
-          <div className="login-panel__card">
-            <div className="login-home__brand login-panel__brand">
-              <span className="login-home__brand-mark">&lt;/&gt;</span>
-              <span className="login-home__brand-text">Ruta de aprendizaje</span>
-            </div>
+        <section className="auth-panel">
+          <div className="auth-panel__brand">
+            <span>&lt;/&gt;</span>
+            <strong>CodeQuest</strong>
+          </div>
 
-            <span className="login-panel__kicker">Acceso</span>
-            <h2>Iniciar sesión</h2>
-            <p className="login-panel__subtitle">
-              Accede a tu cuenta para retomar tus módulos, revisar tu progreso y continuar tu ruta de estudio.
-            </p>
+          <h2>{t('auth.login.title')}</h2>
+          <p className="auth-panel__subtitle">{t('auth.login.subtitle')}</p>
 
-            <form onSubmit={handleSubmit} className="form login-panel__form">
-              <label htmlFor="email">Email</label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
-                placeholder="tu@email.com"
-              />
+          <form onSubmit={handleSubmit} className="form auth-panel__form">
+            <label htmlFor="email">{t('auth.email')}</label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="dev@codequest.io"
+            />
 
-              <label htmlFor="password">Contraseña</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Tu contraseña"
-              />
+            <label htmlFor="password">{t('auth.password')}</label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+            />
 
-              <Link className="login-panel__forgot-link" to="/forgot-password">
-                ¿Olvidaste tu contraseña?
-              </Link>
+            <Link className="auth-panel__link" to="/forgot-password">
+              {t('auth.forgot')}
+            </Link>
 
-              <button className="login-panel__submit" type="submit" disabled={isLoading}>
-                {isLoading ? 'Ingresando...' : 'Entrar'}
-              </button>
-            </form>
+            <button className="auth-panel__submit ui-jitter" type="submit" disabled={isLoading}>
+              {isLoading ? t('auth.login.submitting') : t('auth.login.submit')}
+            </button>
+          </form>
 
-            {message && <p className="message success">{message}</p>}
-
-            <div className="login-panel__footer">
-              <span>¿Todavía no tienes cuenta?</span>
-              <Link to="/registro">Crear cuenta</Link>
-            </div>
+          <div className="auth-panel__footer">
+            <span>{t('auth.signup.prompt')}</span>
+            <Link to="/registro">{t('auth.signup.link')}</Link>
           </div>
         </section>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 

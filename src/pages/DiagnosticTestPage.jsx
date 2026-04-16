@@ -1,13 +1,17 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
+import { useLanguage } from '../context/useLanguage'
 import {
   finishDiagnosticExam,
   getSelectedLanguageId,
   startDiagnosticExam,
 } from '../services/learningApi'
+import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 function DiagnosticTestPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
   const [error, setError] = useState('')
@@ -25,6 +29,7 @@ function DiagnosticTestPage() {
     const languageId = getSelectedLanguageId()
 
     if (!languageId) {
+      notifyInfo(t('diagnostic.selectLanguageFirst'))
       navigate('/onboarding/language', { replace: true })
       return
     }
@@ -43,11 +48,13 @@ function DiagnosticTestPage() {
         setResult(null)
       }
     } catch (loadError) {
-      setError(loadError.message || 'No fue posible cargar el diagnóstico.')
+      const message = loadError.message || t('diagnostic.loadError')
+      setError(message)
+      notifyError(message)
     } finally {
       setLoading(false)
     }
-  }, [navigate])
+  }, [navigate, t])
 
   useEffect(() => {
     loadDiagnostic()
@@ -64,7 +71,9 @@ function DiagnosticTestPage() {
 
   const handleSubmitDiagnostic = async () => {
     if (!exam?.attemptId) {
-      setError('No se encontró un intento diagnóstico válido.')
+      const message = t('diagnostic.invalidAttempt')
+      setError(message)
+      notifyError(message)
       return
     }
 
@@ -74,7 +83,9 @@ function DiagnosticTestPage() {
     }))
 
     if (answersPayload.some((item) => !Number.isInteger(item.selectedOption))) {
-      setError('Debes responder todas las preguntas antes de finalizar.')
+      const message = t('diagnostic.answerAll')
+      setError(message)
+      notifyInfo(message)
       return
     }
 
@@ -89,8 +100,11 @@ function DiagnosticTestPage() {
 
       setResult(payload)
       setExam(null)
+      notifySuccess(t('diagnostic.finishSuccess'))
     } catch (submitError) {
-      setError(submitError.message || 'No fue posible finalizar el diagnóstico.')
+      const message = submitError.message || t('diagnostic.finishError')
+      setError(message)
+      notifyError(message)
     } finally {
       setSubmitting(false)
     }
@@ -102,7 +116,9 @@ function DiagnosticTestPage() {
     }
 
     if (!Number.isInteger(answers[currentQuestion.id])) {
-      setError('Selecciona una opción para continuar.')
+      const message = t('diagnostic.pickOption')
+      setError(message)
+      notifyInfo(message)
       return
     }
 
@@ -125,69 +141,87 @@ function DiagnosticTestPage() {
     setCurrentIndex((prev) => prev - 1)
   }
 
+  const resolveLevelLabel = (level) => {
+    const normalized = String(level || 'principiante').toLowerCase()
+
+    if (normalized === 'principiante' || normalized === 'beginner') {
+      return t('diagnostic.levelValue.principiante')
+    }
+
+    if (normalized === 'intermedio' || normalized === 'intermediate') {
+      return t('diagnostic.levelValue.intermedio')
+    }
+
+    if (normalized === 'avanzado' || normalized === 'advanced') {
+      return t('diagnostic.levelValue.avanzado')
+    }
+
+    return level
+  }
+
   if (loading) {
     return (
-      <div className="diagnostic-page">
+      <MotionPage className="diagnostic-page" delay={0.05}>
         <div className="diagnostic-loading">
           <div className="spinner" />
-          <p>Preparando tu diagnóstico...</p>
+          <p>{t('diagnostic.loading')}</p>
         </div>
-      </div>
+      </MotionPage>
     )
   }
 
   if (result) {
     return (
-      <div className="diagnostic-page">
+      <MotionPage className="diagnostic-page" delay={0.06}>
         <div className="diagnostic-result">
           <div className="result-icon">🎯</div>
-          <h1>Diagnóstico completado</h1>
+          <h1>{t('diagnostic.completed')}</h1>
 
           <div className="result-level">
             <span className={`level-badge level-${result.assignedLevel || 'principiante'}`}>
-              Nivel {result.assignedLevel || 'principiante'}
+              {t('diagnostic.level', { level: resolveLevelLabel(result.assignedLevel || 'principiante') })}
             </span>
           </div>
 
           <div className="result-stats">
             <div className="result-stat">
               <span className="stat-number">{result.correctAnswers || 0}</span>
-              <span className="stat-label">Correctas</span>
+              <span className="stat-label">{t('diagnostic.correct')}</span>
             </div>
             <div className="result-stat">
               <span className="stat-number">{result.totalQuestions || 0}</span>
-              <span className="stat-label">Preguntas</span>
+              <span className="stat-label">{t('diagnostic.questions')}</span>
             </div>
             <div className="result-stat">
               <span className="stat-number">{Math.round(result.scorePercentage || 0)}%</span>
-              <span className="stat-label">Puntaje</span>
+              <span className="stat-label">{t('diagnostic.score')}</span>
             </div>
           </div>
 
           {result.assignedPath?.nombre && (
             <p className="result-description">
-              Te ubicamos en: <strong>{result.assignedPath.nombre}</strong>
+              {t('diagnostic.placedIn')}: <strong>{result.assignedPath.nombre}</strong>
             </p>
           )}
 
           <button className="diagnostic-finish-btn" onClick={() => navigate('/modules')} type="button">
-            Ir a mis módulos
+            {t('diagnostic.gotoModules')}
           </button>
         </div>
-      </div>
+      </MotionPage>
     )
   }
 
   if (!exam || !currentQuestion) {
     return (
-      <div className="diagnostic-page">
+      <MotionPage className="diagnostic-page" delay={0.06}>
         <div className="diagnostic-loading">
-          <p>{error || 'No se pudo iniciar el diagnóstico.'}</p>
+          <p>{error || t('diagnostic.startError')}</p>
           <button className="diagnostic-finish-btn" onClick={() => navigate('/dashboard')} type="button">
-            Volver al dashboard
+            {t('diagnostic.backDashboard')}
           </button>
         </div>
-      </div>
+      </MotionPage>
     )
   }
 
@@ -195,16 +229,16 @@ function DiagnosticTestPage() {
   const progressPercent = ((currentIndex + 1) / exam.questions.length) * 100
 
   return (
-    <div className="diagnostic-page">
+    <MotionPage className="diagnostic-page" delay={0.06}>
       <div className="diagnostic-container">
         <div className="diagnostic-header">
           <span className="diagnostic-step">
-            Pregunta {currentIndex + 1} de {exam.questions.length}
+            {t('diagnostic.questionProgress', { current: currentIndex + 1, total: exam.questions.length })}
           </span>
           <div className="diagnostic-progress-bar">
             <div className="diagnostic-progress-fill" style={{ width: `${progressPercent}%` }} />
           </div>
-          <span className="diagnostic-difficulty">Nivel: {currentQuestion.level}</span>
+          <span className="diagnostic-difficulty">{t('diagnostic.levelLabel')}: {currentQuestion.level}</span>
         </div>
 
         <div className="diagnostic-question">
@@ -234,18 +268,18 @@ function DiagnosticTestPage() {
 
         <div className="diagnostic-actions">
           <button className="diagnostic-back-btn" onClick={handleBack} type="button" disabled={submitting}>
-            {currentIndex === 0 ? 'Volver' : 'Pregunta anterior'}
+            {currentIndex === 0 ? t('common.back') : t('diagnostic.questionBack')}
           </button>
           <button className="diagnostic-next-btn" onClick={handleNext} type="button" disabled={submitting}>
             {submitting
-              ? 'Finalizando...'
+              ? t('diagnostic.finishing')
               : currentIndex === exam.questions.length - 1
-                ? 'Finalizar diagnóstico'
-                : 'Siguiente pregunta'}
+                ? t('diagnostic.finishAction')
+                : t('diagnostic.nextQuestion')}
           </button>
         </div>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 

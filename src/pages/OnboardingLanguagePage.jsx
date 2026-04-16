@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
 import { useAuth } from '../context/useAuth'
+import { useLanguage } from '../context/useLanguage'
 import { listAvailableLanguages, selectLanguage } from '../services/learningApi'
+import { notifyError, notifyInfo, notifyPending, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -24,8 +27,9 @@ function OnboardingLanguagePage() {
   const [submitError, setSubmitError] = useState('')
   const navigate = useNavigate()
   const { user } = useAuth()
+  const { t } = useLanguage()
 
-  const loadLanguages = async () => {
+  const loadLanguages = useCallback(async () => {
     setLoadingLanguages(true)
     setLoadError('')
 
@@ -34,43 +38,53 @@ function OnboardingLanguagePage() {
       setLanguages(list)
 
       if (list.length === 0) {
-        setLoadError('No hay lenguajes disponibles en este momento.')
+        const message = t('onboarding.noLanguages')
+        setLoadError(message)
+        notifyInfo(message)
       }
     } catch (error) {
-      setLoadError(error.message || 'No fue posible cargar los lenguajes.')
+      const message = error.message || t('onboarding.loadError')
+      setLoadError(message)
+      notifyError(message)
       setLanguages([])
     } finally {
       setLoadingLanguages(false)
     }
-  }
+  }, [t])
 
   useEffect(() => {
     loadLanguages()
-  }, [])
+  }, [loadLanguages])
 
   const handleContinue = async () => {
-    if (!selected) return
+    if (!selected) {
+      notifyPending(t('onboarding.selectLanguageToast'))
+      return
+    }
 
     setSubmitError('')
     setLoading(true)
 
     try {
       await selectLanguage(selected)
+      notifySuccess(t('onboarding.saveSuccess'))
       navigate('/onboarding/tour')
     } catch (error) {
-      setSubmitError(error.message || 'No fue posible guardar tu selección.')
+      const message = error.message || t('onboarding.saveError')
+      setSubmitError(message)
+      notifyError(message)
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div className="onboarding-page">
+    <MotionPage className="onboarding-page" delay={0.06}>
       <div className="onboarding-container">
         <div className="onboarding-header">
-          <span className="onboarding-step">Paso 1 de 2</span>
-          <h1>¡Bienvenido, {user?.nombre}!</h1>
-          <p>¿Qué lenguaje de programación quieres aprender?</p>
+          <span className="onboarding-step">{t('onboarding.step', { current: 1, total: 2 })}</span>
+          <h1>{t('onboarding.welcome', { name: user?.nombre || '' })}</h1>
+          <p>{t('onboarding.selectLanguage')}</p>
         </div>
 
         {loadError && <p className="onboarding-error-message">{loadError}</p>}
@@ -78,7 +92,7 @@ function OnboardingLanguagePage() {
 
         <div className="language-grid">
           {loadingLanguages ? (
-            <p className="onboarding-loading-message">Cargando lenguajes...</p>
+            <p className="onboarding-loading-message">{t('onboarding.loadingLanguages')}</p>
           ) : (
             languages.map((lang) => (
               <button
@@ -96,7 +110,7 @@ function OnboardingLanguagePage() {
 
         {!loadingLanguages && languages.length === 0 && (
           <button className="onboarding-retry-btn" onClick={loadLanguages} type="button">
-            Reintentar carga de lenguajes
+            {t('onboarding.retryLanguages')}
           </button>
         )}
 
@@ -106,10 +120,10 @@ function OnboardingLanguagePage() {
           disabled={!selected || loading || loadingLanguages || languages.length === 0}
           type="button"
         >
-          {loading ? 'Guardando...' : 'Continuar'}
+          {loading ? t('onboarding.saving') : t('onboarding.continue')}
         </button>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 

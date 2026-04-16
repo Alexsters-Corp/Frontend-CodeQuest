@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
+import MotionPage from '../components/MotionPage'
+import { useLanguage } from '../context/useLanguage'
 import { getLessonContent, submitLessonExercise, submitLessonSolution } from '../services/learningApi'
+import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 // Bonus XP que se otorga por completar la lección perfecta en un reintento
 const RETRY_BONUS_XP = 20
@@ -8,6 +11,7 @@ const RETRY_BONUS_XP = 20
 function LessonPage() {
   const { lessonId } = useParams()
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [lesson, setLesson] = useState(null)
   const [exercises, setExercises] = useState([])
   const [currentStep, setCurrentStep] = useState('theory') // theory | exercise | completed
@@ -32,10 +36,11 @@ function LessonPage() {
       setExercises(data.exercises)
     } catch (e) {
       console.error(e)
+      notifyError(e?.message || t('lesson.loadError'))
     } finally {
       setLoading(false)
     }
-  }, [lessonId])
+  }, [lessonId, t])
 
   useEffect(() => {
     loadLesson()
@@ -61,12 +66,18 @@ function LessonPage() {
 
   const handleSubmitExercise = async () => {
     if (!currentExercise) return
-    setSubmitting(true)
 
     const answer =
       currentExercise.tipo === 'completar_codigo'
         ? codeAnswer
         : selectedAnswer
+
+    if (!String(answer || '').trim()) {
+      notifyInfo(t('lesson.answerRequired'))
+      return
+    }
+
+    setSubmitting(true)
 
     try {
       const data = await submitLessonExercise({
@@ -77,11 +88,15 @@ function LessonPage() {
 
       setFeedback(data)
 
-      if (!data.isCorrect) {
+      if (data.isCorrect) {
+        notifySuccess(t('lesson.correctToast', { xp: data.xpGained || 0 }))
+      } else {
         setErrorsInAttempt((prev) => prev + 1)
+        notifyInfo(t('lesson.incorrectToast'))
       }
     } catch (e) {
       console.error(e)
+      notifyError(e?.message || t('lesson.submitError'))
     } finally {
       setSubmitting(false)
     }
@@ -132,23 +147,23 @@ function LessonPage() {
 
   if (loading) {
     return (
-      <div className="lesson-page">
+      <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
           <div className="spinner" />
-          <p>Cargando lección...</p>
+          <p>{t('lesson.loading')}</p>
         </div>
-      </div>
+      </MotionPage>
     )
   }
 
   if (!lesson) {
     return (
-      <div className="lesson-page">
+      <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
-          <p>Lección no encontrada.</p>
-          <button onClick={() => navigate('/dashboard')} type="button">Volver</button>
+          <p>{t('lesson.notFound')}</p>
+          <button onClick={() => navigate('/dashboard')} type="button">{t('common.back')}</button>
         </div>
-      </div>
+      </MotionPage>
     )
   }
 
@@ -157,10 +172,10 @@ function LessonPage() {
     const wasPerfect = errorsInAttempt === 0
 
     return (
-      <div className="lesson-page">
+      <MotionPage className="lesson-page" delay={0.06}>
         <div className="lesson-completed">
           <div className="completed-icon">{wasPerfect ? '🏆' : '🎉'}</div>
-          <h1>¡Lección completada!</h1>
+          <h1>{t('lesson.completed')}</h1>
           <h2>{lesson.titulo}</h2>
 
           <div className="completed-xp">
@@ -184,22 +199,22 @@ function LessonPage() {
 
           <div className="completed-actions">
             <button
-              className="lesson-retry-btn"
+              className="lesson-retry-btn ui-jitter"
               onClick={handleRetryLesson}
               type="button"
             >
               🔄 Repetir lección
             </button>
             <button
-              className="lesson-back-btn"
+              className="lesson-back-btn ui-jitter"
               onClick={() => navigate('/dashboard')}
               type="button"
             >
-              Volver al Dashboard
+              {t('lesson.backDashboard')}
             </button>
           </div>
         </div>
-      </div>
+      </MotionPage>
     )
   }
 
@@ -208,11 +223,11 @@ function LessonPage() {
     const alreadyCompleted = exercises.length > 0 && exercises[0]?.resuelto === true
 
     return (
-      <div className="lesson-page">
+      <MotionPage className="lesson-page" delay={0.06}>
         <div className="lesson-container">
           <div className="lesson-header">
             <button className="lesson-back-link" onClick={() => navigate('/dashboard')} type="button">
-              ← Volver
+              ← {t('lesson.back')}
             </button>
             <span className="lesson-modulo">{lesson.modulo_nombre}</span>
           </div>
@@ -238,17 +253,17 @@ function LessonPage() {
 
           <div className="lesson-actions">
             {alreadyCompleted ? (
-              <button className="lesson-start-btn lesson-retry-btn" onClick={handleRetryLesson} type="button">
+              <button className="lesson-start-btn lesson-retry-btn ui-jitter" onClick={handleRetryLesson} type="button">
                 🔄 Repetir lección
               </button>
             ) : (
-              <button className="lesson-start-btn" onClick={handleStartExercises} type="button">
-                {exercises.length > 0 ? 'Empezar ejercicios' : 'Completar lección'}
+              <button className="lesson-start-btn ui-jitter" onClick={handleStartExercises} type="button">
+                {exercises.length > 0 ? t('lesson.startExercises') : t('lesson.completeLesson')}
               </button>
             )}
           </div>
         </div>
-      </div>
+      </MotionPage>
     )
   }
 
@@ -256,11 +271,11 @@ function LessonPage() {
   const options = currentExercise?.opciones || []
 
   return (
-    <div className="lesson-page">
+    <MotionPage className="lesson-page" delay={0.06}>
       <div className="lesson-container">
         <div className="exercise-header">
           <span className="exercise-progress">
-            Ejercicio {currentExerciseIdx + 1} de {exercises.length}
+            {t('lesson.exerciseProgress', { current: currentExerciseIdx + 1, total: exercises.length })}
           </span>
           {isRetry && (
             <span className="exercise-retry-badge">🔄 Reintento</span>
@@ -276,11 +291,11 @@ function LessonPage() {
         <div className="exercise-content">
           <span className="exercise-type-badge">
             {currentExercise.tipo === 'opcion_multiple'
-              ? 'Opción múltiple'
+              ? t('lesson.exerciseType.multi')
               : currentExercise.tipo === 'verdadero_falso'
-                ? 'Verdadero / Falso'
+                ? t('lesson.exerciseType.trueFalse')
                 : currentExercise.tipo === 'completar_codigo'
-                  ? 'Completar código'
+                  ? t('lesson.exerciseType.code')
                   : currentExercise.tipo}
           </span>
           <h2 className="exercise-question">{currentExercise.enunciado}</h2>
@@ -324,7 +339,7 @@ function LessonPage() {
               <textarea
                 value={codeAnswer}
                 onChange={(e) => setCodeAnswer(e.target.value)}
-                placeholder="Escribe tu respuesta aquí..."
+                placeholder={t('lesson.answerPlaceholder')}
                 rows={4}
                 disabled={!!feedback}
                 className="code-textarea"
@@ -335,10 +350,10 @@ function LessonPage() {
 
         {feedback && (
           <div className={`exercise-feedback ${feedback.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`}>
-            <strong>{feedback.isCorrect ? '¡Correcto!' : 'Incorrecto'}</strong>
-            {!feedback.isCorrect && feedback.hint && <p className="feedback-hint">💡 Pista: {feedback.hint}</p>}
+            <strong>{feedback.isCorrect ? t('lesson.correct') : t('lesson.incorrect')}</strong>
+            {!feedback.isCorrect && feedback.hint && <p className="feedback-hint">💡 {t('lesson.hint')}: {feedback.hint}</p>}
             {!feedback.isCorrect && feedback.correctAnswer && (
-              <p className="feedback-answer">Respuesta correcta: {feedback.correctAnswer}</p>
+              <p className="feedback-answer">{t('lesson.correctAnswer')}: {feedback.correctAnswer}</p>
             )}
           </div>
         )}
@@ -356,16 +371,16 @@ function LessonPage() {
               }
               type="button"
             >
-              {submitting ? 'Evaluando...' : 'Comprobar'}
+              {submitting ? t('lesson.checking') : t('lesson.check')}
             </button>
           ) : (
             <button className="exercise-next-btn" onClick={handleNextExercise} type="button">
-              {currentExerciseIdx < exercises.length - 1 ? 'Siguiente' : 'Finalizar'}
+              {currentExerciseIdx < exercises.length - 1 ? t('lesson.next') : t('lesson.finish')}
             </button>
           )}
         </div>
       </div>
-    </div>
+    </MotionPage>
   )
 }
 

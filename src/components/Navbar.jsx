@@ -1,28 +1,27 @@
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/useAuth'
+import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
 import { apiFetch } from '../services/api'
 
-const ROLE_LABELS = {
-  user: 'Estudiante',
-  instructor: 'Instructor',
-  admin: 'Administrador',
-}
-
 function Navbar({
-  title = 'Panel de aprendizaje',
+  title,
   profileActionLabel,
   profileActionTo,
 }) {
   const { user, logout } = useAuth()
+  const { t } = useLanguage()
   const { role, isInstructor, isAdmin } = useRole()
   const navigate = useNavigate()
   const location = useLocation()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
 
-  const roleLabel = ROLE_LABELS[role] || 'Estudiante'
-  const resolvedProfileActionLabel = profileActionLabel || 'Editar perfil'
+  const roleLabel = ['user', 'instructor', 'admin'].includes(role)
+    ? t(`roles.${role}`)
+    : t('roles.unknown')
+  const resolvedTitle = title || t('dashboard.title')
+  const resolvedProfileActionLabel = profileActionLabel || t('nav.profile')
   const resolvedProfileActionTo = profileActionTo || '/profile/edit'
 
   const navigateTo = (path) => {
@@ -51,9 +50,9 @@ function Navbar({
   return (
     <header className="dashboard-header">
       <div className="dashboard-header-main">
-        <p className="dashboard-eyebrow">Hola, {user?.nombre || 'Estudiante'}</p>
-        <h1>{title}</h1>
-        <span className="dashboard-role-badge">Rol: {roleLabel}</span>
+        <p className="dashboard-eyebrow">{t('nav.greeting', { name: user?.nombre || t('nav.defaultName') })}</p>
+        <h1>{resolvedTitle}</h1>
+        <span className="dashboard-role-badge">{t('nav.role', { role: roleLabel })}</span>
       </div>
 
       <div className="dashboard-header-actions">
@@ -63,7 +62,7 @@ function Navbar({
             className={`dashboard-nav-btn ${location.pathname.startsWith('/instructor') ? 'dashboard-nav-btn--active' : ''}`}
             type="button"
           >
-            Instructor
+            {t('nav.instructor')}
           </button>
         )}
 
@@ -73,7 +72,7 @@ function Navbar({
             className={`dashboard-nav-btn ${location.pathname.startsWith('/admin') ? 'dashboard-nav-btn--active' : ''}`}
             type="button"
           >
-            Admin
+            {t('nav.admin')}
           </button>
         )}
 
@@ -91,7 +90,7 @@ function Navbar({
           type="button"
           disabled={isLoggingOut}
         >
-          {isLoggingOut ? 'Cerrando...' : 'Cerrar sesión'}
+          {isLoggingOut ? t('nav.loggingOut') : t('nav.logout')}
         </button>
       </div>
     </header>
