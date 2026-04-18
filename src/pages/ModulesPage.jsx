@@ -5,7 +5,7 @@ import { useLanguage } from '../context/useLanguage'
 import {
   getModulesByLanguage,
   getSelectedLanguageId,
-  isLessonFavorite,
+  listFavoriteLessons,
   listLessonsByModule,
   toggleLessonFavorite,
 } from '../services/learningApi'
@@ -120,15 +120,27 @@ function ModulesPage() {
   }, [languageId, loadModules, navigate])
 
   useEffect(() => {
-    const ids = new Set()
-    Object.values(lessons).forEach((moduleLessons) => {
-      moduleLessons.forEach((lesson) => {
-        if (isLessonFavorite(lesson.id)) {
-          ids.add(Number(lesson.id))
+    let cancelled = false
+
+    async function loadFavoriteIds() {
+      try {
+        const favorites = await listFavoriteLessons()
+        if (cancelled) return
+
+        const ids = new Set(favorites.map((item) => Number(item.lessonId)).filter(Boolean))
+        setFavoriteLessonIds(ids)
+      } catch (_error) {
+        if (!cancelled) {
+          setFavoriteLessonIds(new Set())
         }
-      })
-    })
-    setFavoriteLessonIds(ids)
+      }
+    }
+
+    loadFavoriteIds()
+
+    return () => {
+      cancelled = true
+    }
   }, [lessons])
 
   const toggleModule = async (moduleId) => {

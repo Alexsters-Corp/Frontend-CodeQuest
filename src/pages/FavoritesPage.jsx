@@ -15,9 +15,15 @@ function FavoritesPage() {
   const { t } = useLanguage()
   const [favorites, setFavorites] = useState([])
 
-  const loadFavorites = useCallback(() => {
-    setFavorites(listFavoriteLessons())
-  }, [])
+  const loadFavorites = useCallback(async () => {
+    try {
+      const items = await listFavoriteLessons()
+      setFavorites(Array.isArray(items) ? items : [])
+    } catch (error) {
+      notifyError(error.message || t('favorites.toggleError'))
+      setFavorites([])
+    }
+  }, [t])
 
   useEffect(() => {
     loadFavorites()
@@ -25,7 +31,9 @@ function FavoritesPage() {
 
   useEffect(() => {
     const eventName = getFavoritesUpdatedEventName()
-    const onUpdate = () => loadFavorites()
+    const onUpdate = () => {
+      loadFavorites()
+    }
 
     window.addEventListener(eventName, onUpdate)
     return () => {
@@ -45,7 +53,7 @@ function FavoritesPage() {
       })
 
       notifySuccess(t('favorites.removedToast', { lesson: favorite.lessonTitle }))
-      loadFavorites()
+      await loadFavorites()
     } catch (error) {
       notifyError(error.message || t('favorites.toggleError'))
     }
