@@ -183,6 +183,24 @@ export async function submitLessonExercise({ lessonId, exerciseId, answer }) {
   )
 }
 
+export async function submitLessonSolution({ lessonId, code, languageId, correctCount, totalExercises, isRetry }) {
+  const normalizedLessonId = parsePositiveInt(lessonId)
+  if (!normalizedLessonId) {
+    throw new Error('La lección solicitada no es válida.')
+  }
+
+  return requestJson(`/api/learning/lessons/${normalizedLessonId}/submit`, {
+    method: 'POST',
+    body: JSON.stringify({
+      code: String(code || ''),
+      language_id: languageId || null,
+      correct_count: Number(correctCount) || 0,
+      total_exercises: Number(totalExercises) || 0,
+      is_retry: Boolean(isRetry),
+    }),
+  })
+}
+
 function readFavoriteLessons() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.favoriteLessons)
@@ -200,12 +218,6 @@ function readFavoriteLessons() {
 function writeFavoriteLessons(favorites) {
   localStorage.setItem(STORAGE_KEYS.favoriteLessons, JSON.stringify(favorites))
 
-  if (typeof window !== 'undefined') {
-    window.dispatchEvent(new CustomEvent(FAVORITES_UPDATED_EVENT))
-  }
-}
-
-function emitFavoritesUpdated() {
   if (typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent(FAVORITES_UPDATED_EVENT))
   }

@@ -1529,7 +1529,8 @@ button.profile-icon-chip:hover {
 }
 
 .lesson-start-btn,
-.lesson-back-btn {
+.lesson-back-btn,
+.lesson-retry-btn {
   padding: 14px 32px;
   border: none;
   border-radius: 12px;
@@ -1542,7 +1543,8 @@ button.profile-icon-chip:hover {
 }
 
 .lesson-start-btn:hover,
-.lesson-back-btn:hover {
+.lesson-back-btn:hover,
+.lesson-retry-btn:hover {
   transform: translateY(-1px);
 }
 
