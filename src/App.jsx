@@ -17,9 +17,11 @@ import OnboardingTourPage from './pages/OnboardingTourPage'
 import DiagnosticTestPage from './pages/DiagnosticTestPage'
 import ModulesPage from './pages/ModulesPage'
 import LessonPage from './pages/LessonPage'
+import FavoritesPage from './pages/FavoritesPage'
 import UnauthorizedPage from './pages/UnauthorizedPage'
 import InstructorDashboardPage from './pages/InstructorDashboardPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
+import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
 
 function App() {
@@ -118,6 +120,22 @@ function App() {
             element={
               <PrivateRoute>
                 <LessonPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/favorites"
+            element={
+              <PrivateRoute>
+                <FavoritesPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage />
               </PrivateRoute>
             }
           />

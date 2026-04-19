@@ -196,6 +196,9 @@ function DashboardPage() {
             <button type="button" onClick={() => scrollToSection('dashboard-activity')}>
               {t('dashboard.sidebar.activity')}
             </button>
+            <button type="button" onClick={() => navigate('/favorites')}>
+              {t('dashboard.sidebar.favorites')}
+            </button>
             <button
               type="button"
               onClick={() => {

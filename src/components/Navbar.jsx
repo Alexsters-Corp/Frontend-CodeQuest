@@ -5,6 +5,8 @@ import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
 import { apiFetch } from '../services/api'
 
+const DEFAULT_AVATAR = '🙂'
+
 function Navbar({
   title,
   profileActionLabel,
@@ -20,9 +22,10 @@ function Navbar({
   const roleLabel = ['user', 'instructor', 'admin'].includes(role)
     ? t(`roles.${role}`)
     : t('roles.unknown')
+  const profileAvatar = String(user?.avatar || '').trim() || DEFAULT_AVATAR
   const resolvedTitle = title || t('dashboard.title')
   const resolvedProfileActionLabel = profileActionLabel || t('nav.profile')
-  const resolvedProfileActionTo = profileActionTo || '/profile/edit'
+  const resolvedProfileActionTo = profileActionTo || '/profile'
 
   const navigateTo = (path) => {
     if (location.pathname !== path) {
@@ -50,6 +53,7 @@ function Navbar({
   return (
     <header className="dashboard-header">
       <div className="dashboard-header-main">
+        <span className="navbar-avatar" aria-hidden="true">{profileAvatar}</span>
         <p className="dashboard-eyebrow">{t('nav.greeting', { name: user?.nombre || t('nav.defaultName') })}</p>
         <h1>{resolvedTitle}</h1>
         <span className="dashboard-role-badge">{t('nav.role', { role: roleLabel })}</span>

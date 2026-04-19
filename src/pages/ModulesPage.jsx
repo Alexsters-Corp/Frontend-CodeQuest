@@ -2,8 +2,14 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import { useLanguage } from '../context/useLanguage'
-import { getModulesByLanguage, getSelectedLanguageId, listLessonsByModule } from '../services/learningApi'
-import { notifyError, notifyInfo } from '../utils/notify'
+import {
+  getModulesByLanguage,
+  getSelectedLanguageId,
+  listFavoriteLessons,
+  listLessonsByModule,
+  toggleLessonFavorite,
+} from '../services/learningApi'
+import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -34,6 +40,7 @@ function ModulesPage() {
   const [loadingLessons, setLoadingLessons] = useState(null)
   const [loadError, setLoadError] = useState('')
   const [lessonErrors, setLessonErrors] = useState({})
+  const [favoriteLessonIds, setFavoriteLessonIds] = useState(() => new Set())
   const loadedModulesRef = useRef(new Set())
 
   const languageId = getSelectedLanguageId()
@@ -112,6 +119,30 @@ function ModulesPage() {
     loadModules()
   }, [languageId, loadModules, navigate])
 
+  useEffect(() => {
+    let cancelled = false
+
+    async function loadFavoriteIds() {
+      try {
+        const favorites = await listFavoriteLessons()
+        if (cancelled) return
+
+        const ids = new Set(favorites.map((item) => Number(item.lessonId)).filter(Boolean))
+        setFavoriteLessonIds(ids)
+      } catch (_error) {
+        if (!cancelled) {
+          setFavoriteLessonIds(new Set())
+        }
+      }
+    }
+
+    loadFavoriteIds()
+
+    return () => {
+      cancelled = true
+    }
+  }, [lessons])
+
   const toggleModule = async (moduleId) => {
     if (expandedModule === moduleId) {
       setExpandedModule(null)
@@ -120,6 +151,37 @@ function ModulesPage() {
 
     setExpandedModule(moduleId)
     await loadLessonsForModule(moduleId)
+  }
+
+  const handleToggleFavorite = async ({ lesson, module }) => {
+    try {
+      const result = await toggleLessonFavorite({
+        lessonId: lesson.id,
+        lessonTitle: lesson.titulo,
+        lessonDescription: lesson.descripcion,
+        moduleId: module.id,
+        moduleName: module.nombre,
+        xpReward: lesson.xp_recompensa,
+      })
+
+      setFavoriteLessonIds((prev) => {
+        const next = new Set(prev)
+        if (result.favorite) {
+          next.add(Number(lesson.id))
+        } else {
+          next.delete(Number(lesson.id))
+        }
+        return next
+      })
+
+      notifySuccess(
+        result.favorite
+          ? t('favorites.addedToast', { lesson: lesson.titulo })
+          : t('favorites.removedToast', { lesson: lesson.titulo })
+      )
+    } catch (error) {
+      notifyError(error.message || t('favorites.toggleError'))
+    }
   }
 
   const statusIcon = (estado) => {
@@ -168,6 +230,9 @@ function ModulesPage() {
             ← {t('modules.back')}
           </button>
           <h1>{t('modules.title')}</h1>
+          <button className="modules-back" onClick={() => navigate('/favorites')} type="button">
+            {t('favorites.title')}
+          </button>
         </div>
 
         <div className="modules-list">
@@ -243,6 +308,15 @@ function ModulesPage() {
                           <p>{lesson.descripcion}</p>
                           <span className="lesson-xp">+{lesson.xp_recompensa} XP</span>
                         </div>
+                        <button
+                          className={`lesson-favorite-btn ${favoriteLessonIds.has(Number(lesson.id)) ? 'active' : ''}`}
+                          onClick={() => handleToggleFavorite({ lesson, module: mod })}
+                          type="button"
+                          aria-label={favoriteLessonIds.has(Number(lesson.id)) ? t('favorites.remove') : t('favorites.add')}
+                          title={favoriteLessonIds.has(Number(lesson.id)) ? t('favorites.remove') : t('favorites.add')}
+                        >
+                          {favoriteLessonIds.has(Number(lesson.id)) ? '★' : '☆'}
+                        </button>
                         <button
                           className="lesson-go-btn"
                           onClick={() => navigate(`/lesson/${lesson.id}`)}
