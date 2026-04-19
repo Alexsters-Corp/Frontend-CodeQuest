@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import { useLanguage } from '../context/useLanguage'
-import { getLessonContent, submitLessonExercise, submitLessonSolution } from '../services/learningApi'
+import { getLessonContent, getLessonSolution, submitLessonExercise, submitLessonSolution } from '../services/learningApi'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 // Bonus XP que se otorga por completar la lección perfecta en un reintento
@@ -27,6 +27,11 @@ function LessonPage() {
   const [errorsInAttempt, setErrorsInAttempt] = useState(0)
   const [isRetry, setIsRetry] = useState(false)
   const [bonusAwarded, setBonusAwarded] = useState(false)
+
+  // Estado de la solución oficial
+  const [solution, setSolution] = useState(null)
+  const [showSolution, setShowSolution] = useState(false)
+  const [loadingSolution, setLoadingSolution] = useState(false)
 
   const loadLesson = useCallback(async () => {
     setLoading(true)
@@ -60,6 +65,23 @@ function LessonPage() {
     resetAttempt()
     setIsRetry(true)
     setCurrentStep('exercise')
+  }
+
+  const handleViewSolution = async () => {
+    if (solution) {
+      setShowSolution((prev) => !prev)
+      return
+    }
+    setLoadingSolution(true)
+    try {
+      const data = await getLessonSolution(Number(lessonId))
+      setSolution(data)
+      setShowSolution(true)
+    } catch (e) {
+      notifyError(e?.message || 'No se pudo cargar la solución.')
+    } finally {
+      setLoadingSolution(false)
+    }
   }
 
   const currentExercise = exercises[currentExerciseIdx]
@@ -198,6 +220,16 @@ function LessonPage() {
           )}
 
           <div className="completed-actions">
+            {errorsInAttempt > 0 && (
+              <button
+                className="lesson-solution-btn ui-jitter"
+                onClick={handleViewSolution}
+                disabled={loadingSolution}
+                type="button"
+              >
+                {loadingSolution ? '⏳ Cargando...' : showSolution ? '🙈 Ocultar solución' : '💡 Ver solución'}
+              </button>
+            )}
             <button
               className="lesson-retry-btn ui-jitter"
               onClick={handleRetryLesson}
@@ -213,6 +245,18 @@ function LessonPage() {
               {t('lesson.backDashboard')}
             </button>
           </div>
+
+          {showSolution && solution && (
+            <div className="lesson-solution-panel">
+              <h3 className="solution-title">💡 Solución oficial</h3>
+              {solution.explanation && (
+                <p className="solution-explanation">{solution.explanation}</p>
+              )}
+              <pre className="solution-code">
+                <code>{solution.solved_code}</code>
+              </pre>
+            </div>
+          )}
         </div>
       </MotionPage>
     )
@@ -253,13 +297,30 @@ function LessonPage() {
 
           <div className="lesson-actions">
             {alreadyCompleted ? (
-              <button className="lesson-start-btn lesson-retry-btn ui-jitter" onClick={handleRetryLesson} type="button">
-                🔄 Repetir lección
-              </button>
+              <>
+                <button className="lesson-solution-btn ui-jitter" onClick={handleViewSolution} disabled={loadingSolution} type="button">
+                  {loadingSolution ? '⏳ Cargando...' : showSolution ? '🙈 Ocultar solución' : '💡 Ver solución'}
+                </button>
+                <button className="lesson-start-btn lesson-retry-btn ui-jitter" onClick={handleRetryLesson} type="button">
+                  🔄 Repetir lección
+                </button>
+              </>
             ) : (
               <button className="lesson-start-btn ui-jitter" onClick={handleStartExercises} type="button">
                 {exercises.length > 0 ? t('lesson.startExercises') : t('lesson.completeLesson')}
               </button>
+            )}
+
+            {showSolution && solution && (
+              <div className="lesson-solution-panel">
+                <h3 className="solution-title">💡 Solución oficial</h3>
+                {solution.explanation && (
+                  <p className="solution-explanation">{solution.explanation}</p>
+                )}
+                <pre className="solution-code">
+                  <code>{solution.solved_code}</code>
+                </pre>
+              </div>
             )}
           </div>
         </div>
