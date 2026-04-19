@@ -1548,6 +1548,62 @@ button.profile-icon-chip:hover {
   transform: translateY(-1px);
 }
 
+.lesson-solution-btn {
+  padding: 14px 32px;
+  border: 2px solid #f59e0b;
+  border-radius: 12px;
+  background: #fffbeb;
+  color: #b45309;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.lesson-solution-btn:hover:not(:disabled) {
+  background: #fef3c7;
+  transform: translateY(-1px);
+}
+
+.lesson-solution-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.lesson-solution-panel {
+  margin-top: 24px;
+  text-align: left;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 20px 24px;
+}
+
+.solution-title {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 10px;
+}
+
+.solution-explanation {
+  font-size: 0.9rem;
+  color: #4b5563;
+  margin-bottom: 14px;
+  line-height: 1.6;
+}
+
+.solution-code {
+  background: #1e293b;
+  color: #e2e8f0;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 0.875rem;
+  overflow-x: auto;
+  white-space: pre;
+  line-height: 1.6;
+}
+
 /* Exercise styles */
 .exercise-header {
   margin-bottom: 24px;

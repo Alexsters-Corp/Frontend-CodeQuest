@@ -201,6 +201,15 @@ export async function submitLessonSolution({ lessonId, code, languageId, correct
   })
 }
 
+export async function getLessonSolution(lessonId) {
+  const normalizedLessonId = parsePositiveInt(lessonId)
+  if (!normalizedLessonId) {
+    throw new Error('La lección solicitada no es válida.')
+  }
+
+  return requestJson(`/api/learning/lessons/${normalizedLessonId}/solution`)
+}
+
 function readFavoriteLessons() {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.favoriteLessons)
