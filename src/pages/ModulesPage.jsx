@@ -129,7 +129,7 @@ function ModulesPage() {
 
         const ids = new Set(favorites.map((item) => Number(item.lessonId)).filter(Boolean))
         setFavoriteLessonIds(ids)
-      } catch (_error) {
+      } catch {
         if (!cancelled) {
           setFavoriteLessonIds(new Set())
         }

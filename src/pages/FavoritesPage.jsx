@@ -26,8 +26,26 @@ function FavoritesPage() {
   }, [t])
 
   useEffect(() => {
-    loadFavorites()
-  }, [loadFavorites])
+    let cancelled = false
+
+    async function fetchFavorites() {
+      try {
+        const items = await listFavoriteLessons()
+        if (!cancelled) setFavorites(Array.isArray(items) ? items : [])
+      } catch (error) {
+        if (!cancelled) {
+          notifyError(error.message || t('favorites.toggleError'))
+          setFavorites([])
+        }
+      }
+    }
+
+    fetchFavorites()
+
+    return () => {
+      cancelled = true
+    }
+  }, [t])
 
   useEffect(() => {
     const eventName = getFavoritesUpdatedEventName()
