@@ -219,7 +219,7 @@ function readFavoriteLessons() {
 
     const parsed = JSON.parse(raw)
     return Array.isArray(parsed) ? parsed : []
-  } catch (_error) {
+  } catch {
     return []
   }
 }
