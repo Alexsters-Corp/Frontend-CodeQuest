@@ -15,7 +15,11 @@ async function requestJson(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
-    throw new Error(data.message || 'No fue posible completar la solicitud.')
+    const error = new Error(data.message || 'No fue posible completar la solicitud.')
+    error.status = response.status
+    error.code = data.code
+    error.details = data.details
+    throw error
   }
 
   return data

@@ -1,9 +1,129 @@
-import { useCallback, useEffect, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
+import { motion as Motion } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
+import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
 import MotionPage from '../components/MotionPage'
 import { useLanguage } from '../context/useLanguage'
+import { executeCode } from '../services/codeExecutionService'
 import { getLessonContent, getLessonSolution, submitLessonExercise, submitLessonSolution } from '../services/learningApi'
+import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
+
+const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
+
+function parseBooleanFlag(value, fallback = false) {
+  if (value === undefined || value === null || value === '') {
+    return fallback
+  }
+
+  const normalized = String(value).trim().toLowerCase()
+  if (['1', 'true', 'yes', 'on'].includes(normalized)) {
+    return true
+  }
+
+  if (['0', 'false', 'no', 'off'].includes(normalized)) {
+    return false
+  }
+
+  return fallback
+}
+
+const FEATURE_CODE_EXECUTION_ENABLED = parseBooleanFlag(
+  import.meta.env.VITE_FEATURE_CODE_EXECUTION_ENABLED ?? import.meta.env.FEATURE_CODE_EXECUTION_ENABLED,
+  true
+)
+
+function isMissingRouteError(error) {
+  const code = String(error?.code || '').trim().toUpperCase()
+  const message = String(error?.message || '')
+
+  return code === 'ROUTE_NOT_FOUND' || message.startsWith('Ruta ')
+}
+
+function escapeRegex(value) {
+  return String(value || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
+function extractTokenFromOutputStatement(submission) {
+  const normalized = String(submission || '')
+  const patterns = [
+    /print\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)/,
+    /console\.log\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)/,
+    /System\.out\.println\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)/,
+    /Console\.WriteLine\s*\(\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*\)/,
+    /(?:std::)?cout\s*<<\s*([a-zA-Z_][a-zA-Z0-9_]*)\s*<</,
+  ]
+
+  for (const pattern of patterns) {
+    const match = normalized.match(pattern)
+    if (match?.[1]) {
+      return match[1].trim()
+    }
+  }
+
+  return ''
+}
+
+function normalizeCodeExerciseAnswer(exercise, answer) {
+  const rawAnswer = String(answer || '')
+  const trimmedAnswer = rawAnswer.trim()
+
+  if (!trimmedAnswer) {
+    return ''
+  }
+
+  if (exercise?.tipo !== 'completar_codigo') {
+    return trimmedAnswer
+  }
+
+  const baseCode = String(exercise?.codigo_base || '').replace(/\r\n/g, '\n')
+  if (!baseCode.includes('_____')) {
+    return trimmedAnswer
+  }
+
+  if (!/\r?\n/.test(rawAnswer) && !rawAnswer.includes('_____')) {
+    return trimmedAnswer
+  }
+
+  const submission = rawAnswer.replace(/\r\n/g, '\n').trim()
+  const [prefix, suffix] = baseCode.split('_____')
+  const strictPattern = new RegExp(`^${escapeRegex(prefix)}([\\s\\S]*?)${escapeRegex(suffix)}$`)
+  const strictMatch = submission.match(strictPattern)
+
+  if (strictMatch?.[1]) {
+    return strictMatch[1].trim()
+  }
+
+  const inferredToken = extractTokenFromOutputStatement(submission)
+  if (inferredToken) {
+    return inferredToken
+  }
+
+  return trimmedAnswer
+}
+
+function buildExecutionSource(exercise, answer) {
+  const rawAnswer = String(answer || '')
+  const trimmedAnswer = rawAnswer.trim()
+
+  if (!trimmedAnswer) {
+    return ''
+  }
+
+  const baseCode = String(exercise?.codigo_base || '')
+  const isFillCodeExercise = exercise?.tipo === 'completar_codigo'
+
+  if (!isFillCodeExercise || !baseCode.includes('_____')) {
+    return rawAnswer
+  }
+
+  // Si el usuario pega un script completo, se ejecuta tal cual.
+  if (/\r?\n/.test(rawAnswer) || rawAnswer.includes('_____')) {
+    return rawAnswer
+  }
+
+  return baseCode.split('_____').join(trimmedAnswer)
+}
 
 // Bonus XP que se otorga por completar la lección perfecta en un reintento
 const RETRY_BONUS_XP = 20
@@ -18,6 +138,13 @@ function LessonPage() {
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [codeAnswer, setCodeAnswer] = useState('')
+  const [consoleOutput, setConsoleOutput] = useState([])
+  const [isExecuting, setIsExecuting] = useState(false)
+  const [executionUnavailable, setExecutionUnavailable] = useState(false)
+  const [solutionUnavailable, setSolutionUnavailable] = useState(false)
+  const [isMobileFallback, setIsMobileFallback] = useState(false)
+  const [editorLoadFailed, setEditorLoadFailed] = useState(false)
+  const [runCelebrationTick, setRunCelebrationTick] = useState(0)
   const [feedback, setFeedback] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [loading, setLoading] = useState(true)
@@ -33,8 +160,59 @@ function LessonPage() {
   const [showSolution, setShowSolution] = useState(false)
   const [loadingSolution, setLoadingSolution] = useState(false)
 
+  const lessonLanguageId = lesson?.lenguaje_id
+
+  const editorLanguage = useMemo(
+    () => getMonacoLanguageFromLesson(lessonLanguageId),
+    [lessonLanguageId]
+  )
+
+  const editorLanguageLabel = useMemo(
+    () => getLanguageLabelFromLesson(lessonLanguageId),
+    [lessonLanguageId]
+  )
+
+  const shouldRenderMonaco =
+    FEATURE_CODE_EXECUTION_ENABLED &&
+    !isMobileFallback &&
+    !editorLoadFailed
+
+  const canExecuteCode = FEATURE_CODE_EXECUTION_ENABLED && !executionUnavailable
+
+  const monacoOptions = useMemo(() => ({
+    minimap: { enabled: false },
+    fontSize: 14,
+    automaticLayout: true,
+    scrollBeyondLastLine: false,
+  }), [])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
+      return undefined
+    }
+
+    const mediaQuery = window.matchMedia('(max-width: 767px)')
+
+    const syncMobileMode = (event) => {
+      setIsMobileFallback(event.matches)
+    }
+
+    setIsMobileFallback(mediaQuery.matches)
+
+    if (typeof mediaQuery.addEventListener === 'function') {
+      mediaQuery.addEventListener('change', syncMobileMode)
+      return () => mediaQuery.removeEventListener('change', syncMobileMode)
+    }
+
+    mediaQuery.addListener(syncMobileMode)
+    return () => mediaQuery.removeListener(syncMobileMode)
+  }, [])
+
   const loadLesson = useCallback(async () => {
     setLoading(true)
+    setEditorLoadFailed(false)
+    setExecutionUnavailable(false)
+    setSolutionUnavailable(false)
     try {
       const data = await getLessonContent(Number(lessonId))
       setLesson(data.lesson)
@@ -55,6 +233,9 @@ function LessonPage() {
     setCurrentExerciseIdx(0)
     setSelectedAnswer(null)
     setCodeAnswer('')
+    setConsoleOutput([])
+    setIsExecuting(false)
+    setRunCelebrationTick(0)
     setFeedback(null)
     setXpEarned(0)
     setErrorsInAttempt(0)
@@ -68,6 +249,11 @@ function LessonPage() {
   }
 
   const handleViewSolution = async () => {
+    if (solutionUnavailable) {
+      notifyInfo(t('lesson.solutionUnavailable'))
+      return
+    }
+
     if (solution) {
       setShowSolution((prev) => !prev)
       return
@@ -78,6 +264,17 @@ function LessonPage() {
       setSolution(data)
       setShowSolution(true)
     } catch (e) {
+      if (isMissingRouteError(e)) {
+        setSolutionUnavailable(true)
+        notifyInfo(t('lesson.solutionUnavailable'))
+        return
+      }
+
+      if (e?.code === 'LESSON_NOT_COMPLETED') {
+        notifyInfo(t('lesson.solutionRequiresCompletion'))
+        return
+      }
+
       notifyError(e?.message || 'No se pudo cargar la solución.')
     } finally {
       setLoadingSolution(false)
@@ -86,12 +283,86 @@ function LessonPage() {
 
   const currentExercise = exercises[currentExerciseIdx]
 
+  const handleRunCode = useCallback(async () => {
+    if (!FEATURE_CODE_EXECUTION_ENABLED) {
+      notifyInfo(t('lesson.executionDisabled'))
+      return
+    }
+
+    if (executionUnavailable) {
+      notifyInfo(t('lesson.executionUnavailable'))
+      return
+    }
+
+    const executionSource = buildExecutionSource(currentExercise, codeAnswer)
+
+    if (!executionSource.trim()) {
+      notifyInfo(t('lesson.noCodeToRun'))
+      return
+    }
+
+    if (!lessonLanguageId) {
+      notifyError(t('lesson.runError'))
+      return
+    }
+
+    setIsExecuting(true)
+
+    try {
+      const result = await executeCode(executionSource, lessonLanguageId)
+      const nextOutput = [...(result.output || [])]
+
+      if (Array.isArray(result.errors) && result.errors.length > 0) {
+        nextOutput.push(...result.errors.map((line) => `[error] ${line}`))
+      }
+
+      setConsoleOutput(nextOutput)
+
+      if (Array.isArray(result.errors) && result.errors.length > 0) {
+        notifyError(result.errors[0])
+      } else {
+        notifySuccess(t('lesson.codeExecuted'))
+        setRunCelebrationTick((prev) => prev + 1)
+      }
+    } catch (error) {
+      if (isMissingRouteError(error)) {
+        setExecutionUnavailable(true)
+        setConsoleOutput([
+          t('lesson.executionUnavailable'),
+          t('lesson.executionUnavailableHint'),
+        ])
+        notifyInfo(t('lesson.executionUnavailable'))
+        return
+      }
+
+      notifyError(error?.message || t('lesson.runError'))
+    } finally {
+      setIsExecuting(false)
+    }
+  }, [codeAnswer, currentExercise, executionUnavailable, lessonLanguageId, t])
+
+  const handleEditorLoadError = useCallback(() => {
+    setEditorLoadFailed(true)
+    notifyInfo(t('lesson.editorFallbackNotice'))
+  }, [t])
+
+  const handleFallbackCodeKeyDown = useCallback((event) => {
+    if (event.ctrlKey || event.metaKey) {
+      if (event.key === 'Enter') {
+        event.preventDefault()
+        if (!isExecuting && !feedback) {
+          handleRunCode()
+        }
+      }
+    }
+  }, [feedback, handleRunCode, isExecuting])
+
   const handleSubmitExercise = async () => {
     if (!currentExercise) return
 
     const answer =
       currentExercise.tipo === 'completar_codigo'
-        ? codeAnswer
+        ? normalizeCodeExerciseAnswer(currentExercise, codeAnswer)
         : selectedAnswer
 
     if (!String(answer || '').trim()) {
@@ -131,6 +402,9 @@ function LessonPage() {
       setCurrentExerciseIdx((prev) => prev + 1)
       setSelectedAnswer(null)
       setCodeAnswer('')
+      setConsoleOutput([])
+      setIsExecuting(false)
+      setRunCelebrationTick(0)
       setFeedback(null)
       return
     }
@@ -224,7 +498,7 @@ function LessonPage() {
               <button
                 className="lesson-solution-btn ui-jitter"
                 onClick={handleViewSolution}
-                disabled={loadingSolution}
+                disabled={loadingSolution || solutionUnavailable}
                 type="button"
               >
                 {loadingSolution ? '⏳ Cargando...' : showSolution ? '🙈 Ocultar solución' : '💡 Ver solución'}
@@ -245,6 +519,10 @@ function LessonPage() {
               {t('lesson.backDashboard')}
             </button>
           </div>
+
+          {solutionUnavailable && (
+            <p className="exercise-editor-flag-note lesson-inline-note">{t('lesson.solutionUnavailable')}</p>
+          )}
 
           {showSolution && solution && (
             <div className="lesson-solution-panel">
@@ -298,7 +576,7 @@ function LessonPage() {
           <div className="lesson-actions">
             {alreadyCompleted ? (
               <>
-                <button className="lesson-solution-btn ui-jitter" onClick={handleViewSolution} disabled={loadingSolution} type="button">
+                <button className="lesson-solution-btn ui-jitter" onClick={handleViewSolution} disabled={loadingSolution || solutionUnavailable} type="button">
                   {loadingSolution ? '⏳ Cargando...' : showSolution ? '🙈 Ocultar solución' : '💡 Ver solución'}
                 </button>
                 <button className="lesson-start-btn lesson-retry-btn ui-jitter" onClick={handleRetryLesson} type="button">
@@ -309,6 +587,10 @@ function LessonPage() {
               <button className="lesson-start-btn ui-jitter" onClick={handleStartExercises} type="button">
                 {exercises.length > 0 ? t('lesson.startExercises') : t('lesson.completeLesson')}
               </button>
+            )}
+
+            {solutionUnavailable && (
+              <p className="exercise-editor-flag-note lesson-inline-note">{t('lesson.solutionUnavailable')}</p>
             )}
 
             {showSolution && solution && (
@@ -397,14 +679,96 @@ function LessonPage() {
           {/* Input para completar_codigo */}
           {currentExercise.tipo === 'completar_codigo' && (
             <div className="exercise-code-input">
-              <textarea
-                value={codeAnswer}
-                onChange={(e) => setCodeAnswer(e.target.value)}
-                placeholder={t('lesson.answerPlaceholder')}
-                rows={4}
-                disabled={!!feedback}
-                className="code-textarea"
-              />
+              {executionUnavailable && (
+                <p className="exercise-editor-flag-note lesson-inline-note">{t('lesson.executionUnavailableHint')}</p>
+              )}
+
+              {shouldRenderMonaco ? (
+                <Suspense fallback={<EditorLoadingSkeleton />}>
+                  <MonacoEditor
+                    value={codeAnswer}
+                    onChange={setCodeAnswer}
+                    language={editorLanguage}
+                    languageLabel={editorLanguageLabel}
+                    theme="vs-dark"
+                    height="400px"
+                    readOnly={!!feedback}
+                    options={monacoOptions}
+                    onRun={canExecuteCode ? handleRunCode : undefined}
+                    isExecuting={isExecuting}
+                    consoleOutput={consoleOutput}
+                    runLabel={t('lesson.runCode')}
+                    runningLabel={t('lesson.runningCode')}
+                    outputLabel={t('lesson.outputTitle')}
+                    outputEmptyLabel={t('lesson.outputEmpty')}
+                    shortcutHint={t('lesson.runShortcut')}
+                    ariaLabel={t('lesson.codeEditorAria')}
+                    loadingLabel={t('lesson.editorLoadLabel')}
+                    editorErrorLabel={t('lesson.editorFallbackNotice')}
+                    placeholder={t('lesson.answerPlaceholder')}
+                    onEditorError={handleEditorLoadError}
+                    celebrationTick={runCelebrationTick}
+                  />
+                </Suspense>
+              ) : (
+                <div className="exercise-code-fallback">
+                  <label htmlFor="lesson-code-fallback" className="sr-only">
+                    {t('lesson.codeEditorAria')}
+                  </label>
+                  {isMobileFallback && FEATURE_CODE_EXECUTION_ENABLED && (
+                    <p className="exercise-editor-flag-note">{t('lesson.mobileFallbackNotice')}</p>
+                  )}
+                  {!FEATURE_CODE_EXECUTION_ENABLED && (
+                    <p className="exercise-editor-flag-note">{t('lesson.executionDisabled')}</p>
+                  )}
+                  <textarea
+                    id="lesson-code-fallback"
+                    value={codeAnswer}
+                    onChange={(event) => setCodeAnswer(event.target.value)}
+                    onKeyDown={handleFallbackCodeKeyDown}
+                    placeholder={t('lesson.answerPlaceholder')}
+                    rows={10}
+                    disabled={!!feedback}
+                    className="code-textarea"
+                  />
+
+                  {canExecuteCode && (
+                    <>
+                      <div className="exercise-code-fallback-actions">
+                        <button
+                          type="button"
+                          className={`monaco-run-btn ${isExecuting ? 'is-running' : ''}`}
+                          disabled={isExecuting || !!feedback}
+                          onClick={handleRunCode}
+                        >
+                          {isExecuting ? t('lesson.runningCode') : t('lesson.runCode')}
+                        </button>
+                        <span className="exercise-code-shortcut">{t('lesson.runShortcut')}</span>
+                      </div>
+
+                      <Motion.div
+                        className="monaco-console"
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.2 }}
+                        role="status"
+                        aria-live="polite"
+                      >
+                        <div className="monaco-console__header">
+                          <h3>{t('lesson.outputTitle')}</h3>
+                        </div>
+                        {consoleOutput.length === 0 ? (
+                          <p className="monaco-console-empty">{t('lesson.outputEmpty')}</p>
+                        ) : (
+                          <pre>
+                            <code>{consoleOutput.join('\n')}</code>
+                          </pre>
+                        )}
+                      </Motion.div>
+                    </>
+                  )}
+                </div>
+              )}
             </div>
           )}
         </div>
