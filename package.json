@@ -10,6 +10,8 @@
     "preview": "vite preview --port 5000"
   },
   "dependencies": {
+    "@monaco-editor/loader": "^1.7.0",
+    "@monaco-editor/react": "^4.7.0",
     "framer-motion": "^12.38.0",
     "prop-types": "^15.8.1",
     "react": "^19.2.0",

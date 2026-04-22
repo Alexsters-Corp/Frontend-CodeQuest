@@ -1,16 +1,103 @@
-# React + Vite
+# Frontend CodeQuest
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend de CodeQuest construido con React 19 + Vite.
 
-Currently, two official plugins are available:
+## Requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Node.js 20+
+- npm 10+
+- Backend de CodeQuest ejecutandose (API Gateway en `http://localhost:4000`)
 
-## React Compiler
+## Instalacion
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+```bash
+npm install
+```
 
-## Expanding the ESLint configuration
+## Variables de entorno
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Crea un archivo `.env` en la raiz del frontend.
+
+```env
+VITE_API_URL=http://localhost:4000
+VITE_FEATURE_CODE_EXECUTION_ENABLED=true
+```
+
+- `VITE_API_URL`: URL del API Gateway.
+- `VITE_FEATURE_CODE_EXECUTION_ENABLED`: habilita o deshabilita Monaco + ejecucion de codigo en lecciones.
+
+## Comandos disponibles
+
+```bash
+npm run dev      # desarrollo en http://localhost:5000
+npm run lint     # validacion ESLint
+npm run build    # build de produccion
+npm run preview  # preview del build
+```
+
+## Integracion Monaco en lecciones
+
+La pagina de lecciones carga Monaco solo cuando:
+
+- el ejercicio es `completar_codigo`
+- la feature flag esta activa
+- la vista no es movil (<768px)
+- Monaco no ha fallado en carga
+
+Se incluye fallback graceful a `textarea` para:
+
+- movil
+- error de carga de Monaco
+- feature flag deshabilitada
+
+Tambien soporta:
+
+- `Ctrl/Cmd + Enter` para ejecutar codigo
+- panel de salida de consola
+- notificaciones con Sonner
+- loading skeleton mientras carga Monaco
+
+## Uso del componente MonacoEditor
+
+```jsx
+<MonacoEditor
+	value={codeAnswer}
+	onChange={setCodeAnswer}
+	language="javascript"
+	languageLabel="JavaScript"
+	theme="vs-dark"
+	height="400px"
+	onRun={handleRunCode}
+	isExecuting={isExecuting}
+	consoleOutput={consoleOutput}
+/>
+```
+
+## Configuracion backend para ejecucion (Judge0)
+
+El frontend consume:
+
+- `POST /api/learning/execute`
+
+Body esperado:
+
+```json
+{
+	"code": "console.log('Hello CodeQuest')",
+	"languageId": 2
+}
+```
+
+Para habilitar ejecucion en backend, verifica estas settings/env:
+
+- `FEATURE_CODE_EXECUTION_ENABLED=true`
+- `JUDGE0_API_URL=https://ce.judge0.com`
+- `JUDGE0_API_KEY=<tu_key_si_aplica>`
+
+El servicio frontend aplica timeout de 5 segundos por ejecucion.
+
+## Notas tecnicas
+
+- Monaco se integra via `@monaco-editor/react` y `@monaco-editor/loader`.
+- La carga es lazy (`React.lazy + Suspense`) para reducir impacto en bundle inicial.
+- El editor mantiene coherencia visual con el design system dark de CodeQuest.
