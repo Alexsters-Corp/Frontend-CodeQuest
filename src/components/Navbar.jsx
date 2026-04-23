@@ -81,6 +81,14 @@ function Navbar({
         )}
 
         <button
+          onClick={() => navigateTo('/ranking')}
+          className={`dashboard-nav-btn ${location.pathname.startsWith('/ranking') ? 'dashboard-nav-btn--active' : ''}`}
+          type="button"
+        >
+          {t('nav.ranking')}
+        </button>
+
+        <button
           onClick={() => navigateTo(resolvedProfileActionTo)}
           className={`dashboard-nav-btn ${location.pathname.startsWith('/profile') ? 'dashboard-nav-btn--active' : ''}`}
           type="button"
