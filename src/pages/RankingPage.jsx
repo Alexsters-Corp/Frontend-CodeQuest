@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import { useLanguage } from '../context/useLanguage'
@@ -6,15 +7,34 @@ import { followUserByUsername, getLeaderboard, unfollowUserByUsername } from '..
 import { countryNameFromCode } from '../utils/countries'
 import { notifyError, notifySuccess } from '../utils/notify'
 
+function parseScopeParam(value) {
+  return value === 'following' ? 'following' : 'global'
+}
+
 function RankingPage() {
   const { t, language } = useLanguage()
   const locale = language === 'en' ? 'en' : 'es'
-  const [scope, setScope] = useState('global')
+  const [searchParams, setSearchParams] = useSearchParams()
+  const [scope, setScope] = useState(() => parseScopeParam(searchParams.get('scope')))
   const [entries, setEntries] = useState([])
   const [counts, setCounts] = useState({ followers: 0, following: 0 })
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [pendingUsername, setPendingUsername] = useState('')
+
+  useEffect(() => {
+    const parsedScope = parseScopeParam(searchParams.get('scope'))
+    setScope((currentScope) => (currentScope === parsedScope ? currentScope : parsedScope))
+  }, [searchParams])
+
+  const handleScopeChange = (nextScope) => {
+    const resolvedScope = parseScopeParam(nextScope)
+    setScope(resolvedScope)
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.set('scope', resolvedScope)
+    setSearchParams(nextParams, { replace: true })
+  }
 
   const loadLeaderboard = useCallback(async (currentScope = scope) => {
     setLoading(true)
@@ -82,14 +102,14 @@ function RankingPage() {
           <button
             type="button"
             className={`dashboard-nav-btn ${scope === 'global' ? 'dashboard-nav-btn--active' : ''}`}
-            onClick={() => setScope('global')}
+            onClick={() => handleScopeChange('global')}
           >
             {t('ranking.globalTab')}
           </button>
           <button
             type="button"
             className={`dashboard-nav-btn ${scope === 'following' ? 'dashboard-nav-btn--active' : ''}`}
-            onClick={() => setScope('following')}
+            onClick={() => handleScopeChange('following')}
           >
             {t('ranking.followingTab')}
           </button>

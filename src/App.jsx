@@ -24,6 +24,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage'
 import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
 import RankingPage from './pages/RankingPage'
+import SocialPage from './pages/SocialPage'
 
 function App() {
   return (
@@ -145,6 +146,14 @@ function App() {
             element={
               <PrivateRoute>
                 <RankingPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/social"
+            element={
+              <PrivateRoute>
+                <SocialPage />
               </PrivateRoute>
             }
           />

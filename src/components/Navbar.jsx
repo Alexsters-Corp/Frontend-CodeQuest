@@ -81,11 +81,11 @@ function Navbar({
         )}
 
         <button
-          onClick={() => navigateTo('/ranking')}
-          className={`dashboard-nav-btn ${location.pathname.startsWith('/ranking') ? 'dashboard-nav-btn--active' : ''}`}
+          onClick={() => navigateTo('/social')}
+          className={`dashboard-nav-btn ${location.pathname.startsWith('/social') ? 'dashboard-nav-btn--active' : ''}`}
           type="button"
         >
-          {t('nav.ranking')}
+          {t('nav.followers')}
         </button>
 
         <button
