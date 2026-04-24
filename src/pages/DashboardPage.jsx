@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import { useLanguage } from '../context/useLanguage'
@@ -48,9 +48,11 @@ function translateDiagnosticLevel(level, t) {
 
 function DashboardPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { language, t } = useLanguage()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [streakJitter, setStreakJitter] = useState(false)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
   const [deleteLanguageNameInput, setDeleteLanguageNameInput] = useState('')
   const [deleteActionInput, setDeleteActionInput] = useState('')
@@ -73,6 +75,14 @@ function DashboardPage() {
   useEffect(() => {
     loadOverview()
   }, [loadOverview])
+
+  useEffect(() => {
+    if (location.state?.fromLesson) {
+      setStreakJitter(true)
+      const timer = setTimeout(() => setStreakJitter(false), 1600)
+      return () => clearTimeout(timer)
+    }
+  }, [location.state])
 
   const handleLanguageClick = (lang) => {
     setSelectedLanguageId(lang.lenguaje_id)
@@ -163,6 +173,12 @@ function DashboardPage() {
     ? '...'
     : overview?.nivel || 1
 
+  const streakEmojiClass = [
+    'streak-emoji',
+    overview?.streakActiveToday ? 'streak-emoji--active' : 'streak-emoji--inactive',
+    streakJitter ? 'streak-emoji--jitter' : '',
+  ].filter(Boolean).join(' ')
+
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar title={t('dashboard.title')} />
@@ -172,7 +188,10 @@ function DashboardPage() {
           <h2>{t('dashboard.sidebar.title')}</h2>
           <div className="dashboard-sidebar__stats">
             <article className="stat-card">
-              <p>🔥 {t('dashboard.streak')}</p>
+              <p>
+                <span className={streakEmojiClass}>🔥</span>
+                {' '}{t('dashboard.streak')}
+              </p>
               <strong>{streakLabel}</strong>
             </article>
             <article className="stat-card">
