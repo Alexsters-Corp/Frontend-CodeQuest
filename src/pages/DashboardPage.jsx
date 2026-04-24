@@ -10,6 +10,7 @@ import {
   getSelectedLanguageId,
   setSelectedLanguageId,
 } from '../services/learningApi'
+import { getLeaderboard } from '../services/socialApi'
 import { notifyError, notifyPending, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
@@ -57,6 +58,10 @@ function DashboardPage() {
   const [deleteProgressInput, setDeleteProgressInput] = useState('')
   const [deleteSubmitting, setDeleteSubmitting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [rankingPreview, setRankingPreview] = useState([])
+  const [rankingPreviewLoading, setRankingPreviewLoading] = useState(true)
+  const [rankingPosition, setRankingPosition] = useState(null)
+  const [isSidebarMenuOpen, setIsSidebarMenuOpen] = useState(false)
 
   const loadOverview = useCallback(async () => {
     try {
@@ -73,6 +78,32 @@ function DashboardPage() {
   useEffect(() => {
     loadOverview()
   }, [loadOverview])
+
+  const loadRankingPreview = useCallback(async () => {
+    setRankingPreviewLoading(true)
+    try {
+      const data = await getLeaderboard('global', 5)
+      setRankingPreview(Array.isArray(data.entries) ? data.entries.slice(0, 4) : [])
+
+      const resolvedRank = Number(
+        data?.viewerRank
+        ?? data?.myRank
+        ?? data?.currentUserRank
+        ?? data?.position
+      )
+      setRankingPosition(Number.isFinite(resolvedRank) && resolvedRank > 0 ? resolvedRank : null)
+    } catch (error) {
+      console.error(error)
+      setRankingPreview([])
+      setRankingPosition(null)
+    } finally {
+      setRankingPreviewLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    loadRankingPreview()
+  }, [loadRankingPreview])
 
   const handleLanguageClick = (lang) => {
     setSelectedLanguageId(lang.lenguaje_id)
@@ -163,8 +194,112 @@ function DashboardPage() {
     ? '...'
     : overview?.nivel || 1
 
+  const getPodiumEntry = (targetRank) => {
+    if (!Array.isArray(rankingPreview) || rankingPreview.length === 0) {
+      return null
+    }
+
+    const byRank = rankingPreview.find((entry) => Number(entry.rank) === targetRank)
+    if (byRank) {
+      return byRank
+    }
+
+    const fallbackIndex = targetRank - 1
+    return rankingPreview[fallbackIndex] || null
+  }
+
+  const podiumSecond = getPodiumEntry(2)
+  const podiumFirst = getPodiumEntry(1)
+  const podiumThird = getPodiumEntry(3)
+  const fourthEntry = getPodiumEntry(4)
+
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
+      <div className="dashboard-floating-menu">
+        <button
+          type="button"
+          className={`dashboard-sidebar__menu-toggle ${isSidebarMenuOpen ? 'is-open' : ''}`}
+          onClick={() => setIsSidebarMenuOpen((value) => !value)}
+          aria-expanded={isSidebarMenuOpen}
+          aria-controls="dashboard-floating-actions"
+          aria-label={t('dashboard.sidebar.menu')}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        <div
+          id="dashboard-floating-actions"
+          className={`dashboard-sidebar__actions ${isSidebarMenuOpen ? 'is-open' : ''}`}
+        >
+          <button
+            type="button"
+            onClick={() => {
+              scrollToSection('dashboard-languages')
+              setIsSidebarMenuOpen(false)
+            }}
+          >
+            {t('dashboard.sidebar.languages')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              scrollToSection('dashboard-achievements')
+              setIsSidebarMenuOpen(false)
+            }}
+          >
+            {t('dashboard.sidebar.achievements')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              scrollToSection('dashboard-activity')
+              setIsSidebarMenuOpen(false)
+            }}
+          >
+            {t('dashboard.sidebar.activity')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              navigate('/favorites')
+              setIsSidebarMenuOpen(false)
+            }}
+          >
+            {t('dashboard.sidebar.favorites')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              navigate('/ranking?scope=global')
+              setIsSidebarMenuOpen(false)
+            }}
+          >
+            {t('dashboard.sidebar.ranking')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              navigate('/social')
+              setIsSidebarMenuOpen(false)
+            }}
+          >
+            {t('dashboard.sidebar.followers')}
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              notifyPending(t('dashboard.addLanguageHint'))
+              navigate('/onboarding/language')
+              setIsSidebarMenuOpen(false)
+            }}
+          >
+            {t('dashboard.sidebar.onboarding')}
+          </button>
+        </div>
+      </div>
+
       <Navbar title={t('dashboard.title')} />
 
       <div className="dashboard-layout">
@@ -183,31 +318,6 @@ function DashboardPage() {
               <p>📊 {t('dashboard.level')}</p>
               <strong>{levelLabel}</strong>
             </article>
-          </div>
-
-          <h3>{t('dashboard.sidebar.navigate')}</h3>
-          <div className="dashboard-sidebar__actions">
-            <button type="button" onClick={() => scrollToSection('dashboard-languages')}>
-              {t('dashboard.sidebar.languages')}
-            </button>
-            <button type="button" onClick={() => scrollToSection('dashboard-achievements')}>
-              {t('dashboard.sidebar.achievements')}
-            </button>
-            <button type="button" onClick={() => scrollToSection('dashboard-activity')}>
-              {t('dashboard.sidebar.activity')}
-            </button>
-            <button type="button" onClick={() => navigate('/favorites')}>
-              {t('dashboard.sidebar.favorites')}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                notifyPending(t('dashboard.addLanguageHint'))
-                navigate('/onboarding/language')
-              }}
-            >
-              {t('dashboard.sidebar.onboarding')}
-            </button>
           </div>
         </aside>
 
@@ -327,6 +437,72 @@ function DashboardPage() {
             </section>
           )}
         </div>
+
+        <aside className="dashboard-ranking-sidebar">
+          <section className="dashboard-ranking-preview" id="dashboard-ranking-preview">
+            <div className="dashboard-ranking-preview__head">
+              <h3>{t('dashboard.rankingPreview.title')}</h3>
+              <button
+                className="dashboard-ranking-preview__open"
+                onClick={() => navigate('/ranking?scope=global')}
+                type="button"
+              >
+                {t('dashboard.rankingPreview.viewAll')}
+              </button>
+            </div>
+
+            <div className="dashboard-ranking-preview__hero" aria-hidden="true">
+              <div className="dashboard-ranking-preview__hero-light dashboard-ranking-preview__hero-light--left" />
+              <div className="dashboard-ranking-preview__hero-light dashboard-ranking-preview__hero-light--right" />
+
+              <div className="dashboard-ranking-preview__hero-podium">
+                <div className="dashboard-ranking-preview__hero-step dashboard-ranking-preview__hero-step--silver">
+                  <span className="dashboard-ranking-preview__hero-step-rank">2</span>
+                  <span className="dashboard-ranking-preview__hero-step-avatar">{rankingPreviewLoading ? '…' : (podiumSecond?.username?.[0] || '?').toUpperCase()}</span>
+                </div>
+                <div className="dashboard-ranking-preview__hero-step dashboard-ranking-preview__hero-step--gold">
+                  <span className="dashboard-ranking-preview__hero-step-rank">1</span>
+                  <span className="dashboard-ranking-preview__hero-step-avatar">{rankingPreviewLoading ? '…' : (podiumFirst?.username?.[0] || '?').toUpperCase()}</span>
+                </div>
+                <div className="dashboard-ranking-preview__hero-step dashboard-ranking-preview__hero-step--bronze">
+                  <span className="dashboard-ranking-preview__hero-step-rank">3</span>
+                  <span className="dashboard-ranking-preview__hero-step-avatar">{rankingPreviewLoading ? '…' : (podiumThird?.username?.[0] || '?').toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+
+            {rankingPreviewLoading ? (
+              <article className="dashboard-ranking-preview__item" role="status" aria-live="polite">
+                <div className="dashboard-ranking-preview__rank">#4</div>
+                <div className="dashboard-ranking-preview__meta">
+                  <strong>...</strong>
+                  <span>{t('dashboard.rankingPreview.loading')}</span>
+                </div>
+              </article>
+            ) : fourthEntry ? (
+              <article className="dashboard-ranking-preview__item" role="listitem">
+                <div className="dashboard-ranking-preview__rank">#4</div>
+                <div className="dashboard-ranking-preview__meta">
+                  <strong>@{fourthEntry.username}</strong>
+                  <span>
+                    {t('ranking.xpLabel', { value: fourthEntry.totalXp || 0 })}
+                    {' · '}
+                    {t('ranking.levelLabel', { value: fourthEntry.currentLevel || 1 })}
+                  </span>
+                </div>
+              </article>
+            ) : (
+              <p className="dashboard-ranking-preview__empty">{t('dashboard.rankingPreview.empty')}</p>
+            )}
+
+            <div className="dashboard-ranking-preview__position">
+              <span className="dashboard-ranking-preview__position-label">{t('dashboard.rankingPreview.positionLabel')}</span>
+              <strong className="dashboard-ranking-preview__position-value">
+                {rankingPreviewLoading ? '...' : (rankingPosition || t('dashboard.rankingPreview.positionUnknown'))}
+              </strong>
+            </div>
+          </section>
+        </aside>
       </div>
 
       {deleteDialogLanguage && (
