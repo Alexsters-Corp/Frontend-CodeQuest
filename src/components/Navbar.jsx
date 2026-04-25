@@ -11,6 +11,8 @@ function Navbar({
   title,
   profileActionLabel,
   profileActionTo,
+  hideActions = false,
+  headerAside = null,
 }) {
   const { user, logout } = useAuth()
   const { t } = useLanguage()
@@ -59,52 +61,58 @@ function Navbar({
         <span className="dashboard-role-badge">{t('nav.role', { role: roleLabel })}</span>
       </div>
 
-      <div className="dashboard-header-actions">
-        {(isInstructor || isAdmin) && (
+      {hideActions ? (
+        <div className="dashboard-header-aside">
+          {headerAside}
+        </div>
+      ) : (
+        <div className="dashboard-header-actions">
+          {(isInstructor || isAdmin) && (
+            <button
+              onClick={() => navigateTo('/instructor')}
+              className={`dashboard-nav-btn ${location.pathname.startsWith('/instructor') ? 'dashboard-nav-btn--active' : ''}`}
+              type="button"
+            >
+              {t('nav.instructor')}
+            </button>
+          )}
+
+          {isAdmin && (
+            <button
+              onClick={() => navigateTo('/admin')}
+              className={`dashboard-nav-btn ${location.pathname.startsWith('/admin') ? 'dashboard-nav-btn--active' : ''}`}
+              type="button"
+            >
+              {t('nav.admin')}
+            </button>
+          )}
+
           <button
-            onClick={() => navigateTo('/instructor')}
-            className={`dashboard-nav-btn ${location.pathname.startsWith('/instructor') ? 'dashboard-nav-btn--active' : ''}`}
+            onClick={() => navigateTo('/social')}
+            className={`dashboard-nav-btn ${location.pathname.startsWith('/social') ? 'dashboard-nav-btn--active' : ''}`}
             type="button"
           >
-            {t('nav.instructor')}
+            {t('nav.followers')}
           </button>
-        )}
 
-        {isAdmin && (
           <button
-            onClick={() => navigateTo('/admin')}
-            className={`dashboard-nav-btn ${location.pathname.startsWith('/admin') ? 'dashboard-nav-btn--active' : ''}`}
+            onClick={() => navigateTo(resolvedProfileActionTo)}
+            className={`dashboard-nav-btn ${location.pathname.startsWith('/profile') ? 'dashboard-nav-btn--active' : ''}`}
             type="button"
           >
-            {t('nav.admin')}
+            {resolvedProfileActionLabel}
           </button>
-        )}
 
-        <button
-          onClick={() => navigateTo('/social')}
-          className={`dashboard-nav-btn ${location.pathname.startsWith('/social') ? 'dashboard-nav-btn--active' : ''}`}
-          type="button"
-        >
-          {t('nav.followers')}
-        </button>
-
-        <button
-          onClick={() => navigateTo(resolvedProfileActionTo)}
-          className={`dashboard-nav-btn ${location.pathname.startsWith('/profile') ? 'dashboard-nav-btn--active' : ''}`}
-          type="button"
-        >
-          {resolvedProfileActionLabel}
-        </button>
-
-        <button
-          onClick={handleLogout}
-          className="dashboard-logout-btn"
-          type="button"
-          disabled={isLoggingOut}
-        >
-          {isLoggingOut ? t('nav.loggingOut') : t('nav.logout')}
-        </button>
-      </div>
+          <button
+            onClick={handleLogout}
+            className="dashboard-logout-btn"
+            type="button"
+            disabled={isLoggingOut}
+          >
+            {isLoggingOut ? t('nav.loggingOut') : t('nav.logout')}
+          </button>
+        </div>
+      )}
     </header>
   )
 }

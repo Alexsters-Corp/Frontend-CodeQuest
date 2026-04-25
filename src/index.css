@@ -70,8 +70,7 @@ button {
 
 .dashboard-page {
   min-height: 100vh;
-  max-width: 1280px;
-  margin: 0 auto;
+  margin-left: 220px;
   padding: 28px 16px 40px;
 }
 
@@ -3830,12 +3829,11 @@ button:disabled {
 
 .dashboard-layout {
   display: grid;
-  grid-template-columns: minmax(210px, 250px) minmax(0, 1fr) minmax(240px, 280px);
-  gap: 14px;
+  grid-template-columns: minmax(0, 1fr) minmax(240px, 280px);
+  gap: 16px;
   align-items: start;
 }
 
-.dashboard-sidebar,
 .dashboard-main,
 .dashboard-ranking-sidebar {
   border: 1px solid var(--cq-border);
@@ -3845,8 +3843,31 @@ button:disabled {
 }
 
 .dashboard-sidebar {
-  position: sticky;
-  top: 74px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 220px;
+  overflow-y: auto;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 14px 20px;
+  background: rgba(6, 14, 27, 0.97);
+  border-right: 2px solid rgba(248, 113, 113, 0.55);
+  box-shadow: 4px 0 24px rgba(2, 6, 23, 0.3);
+}
+
+.dashboard-sidebar__logo {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #e0eeff;
+  margin-bottom: 20px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.2);
+  flex-shrink: 0;
 }
 
 .dashboard-ranking-sidebar {
@@ -3857,6 +3878,7 @@ button:disabled {
 .dashboard-sidebar h2,
 .dashboard-sidebar h3 {
   margin-bottom: 10px;
+  flex-shrink: 0;
 }
 
 .dashboard-sidebar h2 {
@@ -3870,61 +3892,46 @@ button:disabled {
   color: #afc4de;
 }
 
+.dashboard-sidebar__menu-block,
+.dashboard-sidebar__account-block {
+  display: grid;
+  gap: 10px;
+}
+
+.dashboard-sidebar__account-block {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.dashboard-sidebar__account-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard-sidebar__account-actions .dashboard-nav-btn,
+.dashboard-sidebar__account-actions .dashboard-logout-btn {
+  margin: 0;
+  width: 100%;
+  min-height: 38px;
+  justify-content: center;
+}
+
 .dashboard-sidebar__stats {
   display: grid;
   gap: 10px;
 }
 
-.dashboard-floating-menu {
-  position: fixed;
-  top: 18px;
-  left: 18px;
-  z-index: 30;
-  display: grid;
-  gap: 10px;
-}
-
-.dashboard-sidebar__menu-toggle {
-  margin: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 10px;
-  border: 1px solid var(--cq-border);
-  background: rgba(6, 24, 28, 0.86);
-  padding: 12px;
-  display: inline-flex;
-  flex-direction: column;
-  align-items: stretch;
-  justify-content: space-between;
-}
-
-.dashboard-sidebar__menu-toggle span {
-  display: block;
-  width: 100%;
-  height: 3px;
-  border-radius: 999px;
-  background: #dbe7f5;
-}
-
-.dashboard-sidebar__menu-toggle.is-open {
-  border-color: rgba(16, 185, 129, 0.52);
-  background: rgba(16, 185, 129, 0.16);
-}
-
 .dashboard-sidebar__actions {
-  display: none;
+  display: grid;
   gap: 8px;
   margin-top: 0;
-  width: min(220px, calc(100vw - 36px));
+  width: 100%;
   border: 1px solid var(--cq-border);
   border-radius: 12px;
   padding: 10px;
-  background: rgba(7, 18, 33, 0.92);
-  box-shadow: 0 14px 30px rgba(2, 6, 23, 0.4);
-}
-
-.dashboard-sidebar__actions.is-open {
-  display: grid;
+  background: rgba(7, 18, 33, 0.7);
+  box-shadow: 0 12px 24px rgba(2, 6, 23, 0.26);
 }
 
 .dashboard-sidebar__actions button {
@@ -3943,6 +3950,42 @@ button:disabled {
   border-color: rgba(16, 185, 129, 0.42);
   background: rgba(16, 185, 129, 0.14);
   color: #a7f3d0;
+}
+
+.dashboard-header-aside {
+  display: flex;
+  justify-content: flex-end;
+  flex: 1;
+}
+
+.dashboard-header-summary {
+  width: min(440px, 100%);
+  border: 1px solid var(--cq-border);
+  border-radius: 12px;
+  background: rgba(7, 18, 33, 0.7);
+  padding: 10px;
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard-header-summary h2 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.dashboard-header-summary__grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.dashboard-header-summary .stat-card {
+  min-height: 74px;
+  padding: 10px;
+}
+
+.dashboard-header-summary .stat-card p {
+  margin-bottom: 2px;
 }
 
 .dashboard-main {
@@ -4264,7 +4307,11 @@ button:disabled {
   }
 
   .dashboard-sidebar {
-    position: static;
+    display: none;
+  }
+
+  .dashboard-page {
+    margin-left: 0;
   }
 
   .dashboard-main {
@@ -4280,6 +4327,10 @@ button:disabled {
 
   .dashboard-ranking-preview {
     margin-top: 0;
+  }
+
+  .dashboard-header-summary {
+    width: 100%;
   }
 
   .landing__nav {
@@ -4322,6 +4373,15 @@ button:disabled {
 
   .diagnostic-actions {
     grid-template-columns: 1fr;
+  }
+
+  .dashboard-header-summary__grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-sidebar__actions,
+  .dashboard-sidebar__account-actions {
+    width: 100%;
   }
 
   .language-switcher {

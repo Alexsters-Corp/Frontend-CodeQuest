@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import {
   clearSelectedLanguageId,
@@ -10,6 +11,7 @@ import {
   getSelectedLanguageId,
   setSelectedLanguageId,
 } from '../services/learningApi'
+import { apiFetch } from '../services/api'
 import { getLeaderboard } from '../services/socialApi'
 import { notifyError, notifyPending, notifySuccess } from '../utils/notify'
 
@@ -49,6 +51,7 @@ function translateDiagnosticLevel(level, t) {
 
 function DashboardPage() {
   const navigate = useNavigate()
+  const { logout } = useAuth()
   const { language, t } = useLanguage()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -61,7 +64,7 @@ function DashboardPage() {
   const [rankingPreview, setRankingPreview] = useState([])
   const [rankingPreviewLoading, setRankingPreviewLoading] = useState(true)
   const [rankingPosition, setRankingPosition] = useState(null)
-  const [isSidebarMenuOpen, setIsSidebarMenuOpen] = useState(false)
+  const [isSidebarLoggingOut, setIsSidebarLoggingOut] = useState(false)
 
   const loadOverview = useCallback(async () => {
     try {
@@ -173,6 +176,23 @@ function DashboardPage() {
     }
   }
 
+  const handleSidebarLogout = async () => {
+    if (isSidebarLoggingOut) {
+      return
+    }
+
+    setIsSidebarLoggingOut(true)
+    try {
+      await apiFetch('/api/auth/logout', { method: 'POST' })
+    } catch (error) {
+      // Si falla backend, cerrar sesión local igualmente.
+      console.error('Error al cerrar sesión en el servidor:', error)
+    } finally {
+      logout()
+      navigate('/login', { replace: true })
+    }
+  }
+
   const scrollToSection = (sectionId) => {
     const target = document.getElementById(sectionId)
     if (!target) {
@@ -215,109 +235,103 @@ function DashboardPage() {
 
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
-      <div className="dashboard-floating-menu">
-        <button
-          type="button"
-          className={`dashboard-sidebar__menu-toggle ${isSidebarMenuOpen ? 'is-open' : ''}`}
-          onClick={() => setIsSidebarMenuOpen((value) => !value)}
-          aria-expanded={isSidebarMenuOpen}
-          aria-controls="dashboard-floating-actions"
-          aria-label={t('dashboard.sidebar.menu')}
-        >
-          <span />
-          <span />
-          <span />
-        </button>
-
-        <div
-          id="dashboard-floating-actions"
-          className={`dashboard-sidebar__actions ${isSidebarMenuOpen ? 'is-open' : ''}`}
-        >
-          <button
-            type="button"
-            onClick={() => {
-              scrollToSection('dashboard-languages')
-              setIsSidebarMenuOpen(false)
-            }}
-          >
-            {t('dashboard.sidebar.languages')}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              scrollToSection('dashboard-achievements')
-              setIsSidebarMenuOpen(false)
-            }}
-          >
-            {t('dashboard.sidebar.achievements')}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              scrollToSection('dashboard-activity')
-              setIsSidebarMenuOpen(false)
-            }}
-          >
-            {t('dashboard.sidebar.activity')}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              navigate('/favorites')
-              setIsSidebarMenuOpen(false)
-            }}
-          >
-            {t('dashboard.sidebar.favorites')}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              navigate('/ranking?scope=global')
-              setIsSidebarMenuOpen(false)
-            }}
-          >
-            {t('dashboard.sidebar.ranking')}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              navigate('/social')
-              setIsSidebarMenuOpen(false)
-            }}
-          >
-            {t('dashboard.sidebar.followers')}
-          </button>
-          <button
-            type="button"
-            onClick={() => {
-              notifyPending(t('dashboard.addLanguageHint'))
-              navigate('/onboarding/language')
-              setIsSidebarMenuOpen(false)
-            }}
-          >
-            {t('dashboard.sidebar.onboarding')}
-          </button>
-        </div>
-      </div>
-
-      <Navbar title={t('dashboard.title')} />
+      <Navbar
+        title={t('dashboard.title')}
+        hideActions
+        headerAside={(
+          <section className="dashboard-header-summary" aria-label={t('dashboard.sidebar.title')}>
+            <h2>{t('dashboard.sidebar.title')}</h2>
+            <div className="dashboard-header-summary__grid">
+              <article className="stat-card">
+                <p>🔥 {t('dashboard.streak')}</p>
+                <strong>{streakLabel}</strong>
+              </article>
+              <article className="stat-card">
+                <p>⭐ {t('dashboard.totalXp')}</p>
+                <strong>{xpLabel}</strong>
+              </article>
+              <article className="stat-card">
+                <p>📊 {t('dashboard.level')}</p>
+                <strong>{levelLabel}</strong>
+              </article>
+            </div>
+          </section>
+        )}
+      />
 
       <div className="dashboard-layout">
         <aside className="dashboard-sidebar">
-          <h2>{t('dashboard.sidebar.title')}</h2>
-          <div className="dashboard-sidebar__stats">
-            <article className="stat-card">
-              <p>🔥 {t('dashboard.streak')}</p>
-              <strong>{streakLabel}</strong>
-            </article>
-            <article className="stat-card">
-              <p>⭐ {t('dashboard.totalXp')}</p>
-              <strong>{xpLabel}</strong>
-            </article>
-            <article className="stat-card">
-              <p>📊 {t('dashboard.level')}</p>
-              <strong>{levelLabel}</strong>
-            </article>
+          <span className="dashboard-sidebar__logo">CodeQuest</span>
+          <div className="dashboard-sidebar__menu-block">
+            <h2>{t('dashboard.sidebar.navigate')}</h2>
+            <div className="dashboard-sidebar__actions dashboard-sidebar__actions--static">
+              <button
+                type="button"
+                onClick={() => scrollToSection('dashboard-languages')}
+              >
+                {t('dashboard.sidebar.languages')}
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('dashboard-achievements')}
+              >
+                {t('dashboard.sidebar.achievements')}
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollToSection('dashboard-activity')}
+              >
+                {t('dashboard.sidebar.activity')}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/favorites')}
+              >
+                {t('dashboard.sidebar.favorites')}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/ranking?scope=global')}
+              >
+                {t('dashboard.sidebar.ranking')}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/social')}
+              >
+                {t('dashboard.sidebar.followers')}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  notifyPending(t('dashboard.addLanguageHint'))
+                  navigate('/onboarding/language')
+                }}
+              >
+                {t('dashboard.sidebar.onboarding')}
+              </button>
+            </div>
+          </div>
+
+          <div className="dashboard-sidebar__account-block">
+            <h3>{t('dashboard.sidebar.accountActions')}</h3>
+            <div className="dashboard-sidebar__account-actions">
+              <button
+                type="button"
+                className="dashboard-nav-btn"
+                onClick={() => navigate('/profile')}
+              >
+                {t('nav.profile')}
+              </button>
+              <button
+                type="button"
+                className="dashboard-logout-btn"
+                onClick={handleSidebarLogout}
+                disabled={isSidebarLoggingOut}
+              >
+                {isSidebarLoggingOut ? t('nav.loggingOut') : t('nav.logout')}
+              </button>
+            </div>
           </div>
         </aside>
 
