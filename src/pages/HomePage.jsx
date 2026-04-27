@@ -160,6 +160,9 @@ function HomePage() {
             <Link className="landing__cta-btn ui-jitter" to={dashboardPath}>
               {isAuthenticated ? t('home.goDashboard') : t('home.getStarted')}
             </Link>
+            <Link className="landing__demo-btn ui-jitter" to="/demo">
+              {t('home.tryDemo')}
+            </Link>
           </div>
         </header>
 
