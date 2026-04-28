@@ -2891,6 +2891,39 @@ button:disabled {
   }
 }
 
+/* ── Streak emoji ───────────────────────── */
+.streak-emoji {
+  display: inline-block;
+  transition: filter 0.4s ease, opacity 0.4s ease;
+}
+
+.streak-emoji--active {
+  filter: none;
+  opacity: 1;
+}
+
+.streak-emoji--inactive {
+  filter: grayscale(1);
+  opacity: 0.4;
+}
+
+.streak-emoji--jitter {
+  animation: streak-jitter 0.5s ease 3;
+}
+
+@keyframes streak-jitter {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(-18deg);
+  }
+  75% {
+    transform: rotate(18deg);
+  }
+}
+
 .page {
   min-height: 100vh;
   display: grid;
@@ -3028,13 +3061,28 @@ button:disabled {
 
 .landing__link-btn,
 .landing__cta-btn,
-.landing__ghost-btn {
+.landing__ghost-btn,
+.landing__demo-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   border-radius: 999px;
   font-weight: 700;
   text-decoration: none;
+}
+
+.landing__demo-btn {
+  padding: 10px 16px;
+  border: 1px dashed rgba(245, 158, 11, 0.55);
+  background: rgba(245, 158, 11, 0.12);
+  color: #fbbf24;
+  margin-left: 4px;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.landing__demo-btn:hover {
+  background: rgba(245, 158, 11, 0.22);
+  transform: translateY(-1px);
 }
 
 .landing__link-btn {
@@ -4356,7 +4404,7 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 
-  .landing__hero-actions,
+  /* .landing__hero-actions,
   .landing__actions,
   .auth-panel__footer,
   .dashboard-header,
@@ -4369,7 +4417,7 @@ button:disabled {
   .result-stats {
     flex-direction: column;
     align-items: stretch;
-  }
+  } */
 
   .diagnostic-actions {
     grid-template-columns: 1fr;
@@ -4413,6 +4461,33 @@ button:disabled {
   }
 }
 
+/* SOLO móvil */
+@media (max-width: 768px) {
+  .landing__hero-actions,
+  .landing__actions,
+  .auth-panel__footer,
+  .dashboard-header,
+  .dashboard-header-actions,
+  .section-header,
+  .lesson-actions,
+  .completed-actions,
+  .diagnostic-actions,
+  .language-delete-actions,
+  .result-stats {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+/* Desktop */
+@media (min-width: 768px) {
+  .landing__hero-actions {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+  }
+}
+
 @media (max-width: 480px) {
   .landing__hero-copy h1 {
     font-size: 2.15rem;
@@ -4425,27 +4500,241 @@ button:disabled {
   .onboarding-container,
   .diagnostic-container,
   .lesson-container,
-  .profile-edit-card,
-  .rbac-card {
+  .profile-edit-card {
     padding: 18px;
-  }
-
-  .landing__company-row span {
-    font-size: 0.78rem;
-  }
-
-  .language-grid {
-    grid-template-columns: 1fr;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation: none !important;
-    transition-duration: 0ms !important;
-    scroll-behavior: auto !important;
+
+
+
+
+
+
+/* ============================================================
+   Demo publico (HU-025)
+   Estilos minimos: reusamos lesson-completed, landing__* y exercise-*.
+   Solo definimos aqui lo que no tiene equivalente en el sistema.
+   ============================================================ */
+
+/* Banner persistente en DemoLessonPage */
+.demo-banner {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+
+  padding: 10px 16px;
+}
+
+.demo-banner strong {
+  color: #fde68a;
+}
+
+.demo-banner__chip {
+  padding: 3px 10px;
+
+  background: rgba(16, 185, 129, 0.18);
+  color: #6ee7b7;
+
+  border-radius: 999px;
+
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.demo-banner__cta {
+  margin-left: auto;
+  padding: 6px 14px;
+
+  border: 1px solid rgba(245, 158, 11, 0.5);
+  border-radius: 999px;
+
+  background: rgba(245, 158, 11, 0.18);
+  color: #fde68a;
+
+  font-size: 13px;
+  font-weight: 600;
+
+  cursor: pointer;
+}
+
+.demo-banner__cta:hover {
+  background: rgba(245, 158, 11, 0.32);
+}
+
+/* Bloques internos de DemoCompletionPage */
+.lesson-completed--demo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+
+  max-width: 640px;
+  padding: 36px 32px;
+}
+
+.lesson-completed--demo h1 {
+  font-size: 1.75rem;
+}
+
+.lesson-completed--demo h2 {
+  margin-bottom: 8px;
+
+  color: #4b5563;
+  font-size: 1.05rem;
+}
+
+.demo-completion__stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+
+  width: 100%;
+}
+
+.demo-completion__stat {
+  padding: 18px 14px;
+
+  border: 1px solid var(--cq-border);
+  border-radius: var(--cq-radius-md, 14px);
+
+  background: rgba(16, 185, 129, 0.06);
+
+  text-align: center;
+}
+
+.demo-completion__stat-number {
+  display: block;
+
+  color: var(--cq-primary, #10b981);
+
+  font-size: 2rem;
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.demo-completion__stat-label {
+  display: block;
+  margin-top: 6px;
+
+  color: #374151;
+
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.demo-completion__chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+
+  width: 100%;
+}
+
+.demo-completion__chip {
+  padding: 4px 12px;
+
+  border: 1px solid rgba(16, 185, 129, 0.32);
+  border-radius: 999px;
+
+  background: rgba(16, 185, 129, 0.12);
+  color: #047857;
+
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.demo-completion__next {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 16px 18px;
+
+  border: 1px solid var(--cq-border);
+  border-radius: var(--cq-radius-md, 14px);
+
+  background: rgba(16, 185, 129, 0.04);
+
+  text-align: left;
+}
+
+.demo-completion__next h3 {
+  margin: 0 0 10px;
+
+  color: #111827;
+
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.demo-completion__next ul {
+  margin: 0;
+  padding: 0;
+
+  list-style: none;
+}
+
+.demo-completion__next li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  padding: 8px 0;
+
+  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
+
+  color: #374151;
+  font-size: 14px;
+}
+
+.demo-completion__next li:last-child {
+  border-bottom: none;
+}
+
+.demo-completion__footnote {
+  margin: 0;
+
+  color: #6b7280;
+
+  font-size: 12px;
+}
+
+/* Adaptacion suave */
+@media (max-width: 480px) {
+  .lesson-completed--demo {
+    padding: 28px 22px;
+  }
+
+  .lesson-completed--demo h1 {
+    font-size: 1.5rem;
+  }
+
+  .demo-completion__stats {
+    grid-template-columns: 1fr;
+  }
+
+  .demo-completion__stat-number {
+    font-size: 1.75rem;
+  }
+
+  .demo-banner {
+    padding: 8px 12px;
+
+    font-size: 12px;
+  }
+
+  .demo-banner__cta {
+    width: 100%;
+    margin-left: 0;
+
+    text-align: center;
   }
 }
 

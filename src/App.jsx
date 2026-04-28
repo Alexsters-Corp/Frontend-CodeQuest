@@ -25,6 +25,9 @@ import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
 import RankingPage from './pages/RankingPage'
 import SocialPage from './pages/SocialPage'
+import DemoLandingPage from './pages/DemoLandingPage'
+import DemoLessonPage from './pages/DemoLessonPage'
+import DemoCompletionPage from './pages/DemoCompletionPage'
 
 function App() {
   return (
@@ -186,6 +189,12 @@ function App() {
             }
           />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
+
+          {/* Demo publico (HU-025) - sin guards, accesible sin auth */}
+          <Route path="/demo" element={<DemoLandingPage />} />
+          <Route path="/demo/lesson" element={<DemoLessonPage />} />
+          <Route path="/demo/complete" element={<DemoCompletionPage />} />
+
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </AuthProvider>

@@ -513,7 +513,7 @@ function LessonPage() {
             </button>
             <button
               className="lesson-back-btn ui-jitter"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate('/dashboard', { state: { fromLesson: true } })}
               type="button"
             >
               {t('lesson.backDashboard')}

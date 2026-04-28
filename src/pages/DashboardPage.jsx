@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import { useAuth } from '../context/useAuth'
@@ -52,9 +52,11 @@ function translateDiagnosticLevel(level, t) {
 function DashboardPage() {
   const navigate = useNavigate()
   const { logout } = useAuth()
+  const location = useLocation()
   const { language, t } = useLanguage()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [streakJitter, setStreakJitter] = useState(false)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
   const [deleteLanguageNameInput, setDeleteLanguageNameInput] = useState('')
   const [deleteActionInput, setDeleteActionInput] = useState('')
@@ -107,6 +109,14 @@ function DashboardPage() {
   useEffect(() => {
     loadRankingPreview()
   }, [loadRankingPreview])
+
+  useEffect(() => {
+    if (location.state?.fromLesson) {
+      setStreakJitter(true)
+      const timer = setTimeout(() => setStreakJitter(false), 1600)
+      return () => clearTimeout(timer)
+    }
+  }, [location.state])
 
   const handleLanguageClick = (lang) => {
     setSelectedLanguageId(lang.lenguaje_id)
@@ -232,6 +242,12 @@ function DashboardPage() {
   const podiumFirst = getPodiumEntry(1)
   const podiumThird = getPodiumEntry(3)
   const fourthEntry = getPodiumEntry(4)
+
+  const streakEmojiClass = [
+    'streak-emoji',
+    overview?.streakActiveToday ? 'streak-emoji--active' : 'streak-emoji--inactive',
+    streakJitter ? 'streak-emoji--jitter' : '',
+  ].filter(Boolean).join(' ')
 
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
