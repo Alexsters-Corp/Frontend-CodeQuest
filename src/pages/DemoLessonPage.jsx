@@ -16,14 +16,10 @@ const AUTOSAVE_MAX_AGE_MS = 60 * 60 * 1000 // 1 hora
 function loadAutosaveState() {
   try {
     const raw = sessionStorage.getItem(AUTOSAVE_KEY)
-    if (!raw) {
-      return null
-    }
+    if (!raw) return null
 
     const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object') {
-      return null
-    }
+    if (!parsed || typeof parsed !== 'object') return null
 
     if (typeof parsed.savedAt !== 'number' || Date.now() - parsed.savedAt > AUTOSAVE_MAX_AGE_MS) {
       sessionStorage.removeItem(AUTOSAVE_KEY)
@@ -39,9 +35,7 @@ function loadAutosaveState() {
 function clearAutosaveState() {
   try {
     sessionStorage.removeItem(AUTOSAVE_KEY)
-  } catch {
-    /* ignore */
-  }
+  } catch { /* ignore */ }
 }
 
 function DemoLessonPage() {
@@ -50,7 +44,7 @@ function DemoLessonPage() {
   const [exercises, setExercises] = useState([])
   const [lessonId, setLessonId] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [currentStep, setCurrentStep] = useState('theory') // theory | exercise
+  const [currentStep, setCurrentStep] = useState('theory')
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
   const [codeAnswerByExercise, setCodeAnswerByExercise] = useState({})
@@ -63,7 +57,6 @@ function DemoLessonPage() {
   const autosaveTimeoutRef = useRef(null)
   const initialAutosaveRef = useRef(null)
 
-  // Cargar estado autosave antes de montar (una sola vez)
   useEffect(() => {
     initialAutosaveRef.current = loadAutosaveState()
   }, [])
@@ -87,7 +80,7 @@ function DemoLessonPage() {
     scrollBeyondLastLine: false,
   }), [])
 
-  // Carga inicial de la leccion demo
+  // Carga inicial
   useEffect(() => {
     let active = true
 
@@ -95,15 +88,12 @@ function DemoLessonPage() {
       setLoading(true)
       try {
         const data = await getDemoLessonContent()
-        if (!active) {
-          return
-        }
+        if (!active) return
 
         setLesson(data.lesson)
         setExercises(data.exercises || [])
         setLessonId(Number(data.lessonId || data.lesson?.id || 0))
 
-        // Restaurar estado guardado si pertenece a la misma leccion
         const saved = initialAutosaveRef.current
         if (saved && Number(saved.lessonId) === Number(data.lessonId)) {
           setCodeAnswerByExercise(saved.codeAnswerByExercise || {})
@@ -113,70 +103,43 @@ function DemoLessonPage() {
           notifyInfo('Continuamos donde lo dejaste.')
         }
       } catch (error) {
-        if (!active) {
-          return
-        }
-
-        notifyError(error?.message || 'No fue posible cargar la leccion demo.')
+        if (!active) return
+        notifyError(error?.message || 'No fue posible cargar la lección demo.')
       } finally {
-        if (active) {
-          setLoading(false)
-        }
+        if (active) setLoading(false)
       }
     }
 
     loadDemo()
-
-    return () => {
-      active = false
-    }
+    return () => { active = false }
   }, [])
 
-  // Autosave con debounce a sessionStorage
+  // Autosave debounced
   useEffect(() => {
-    if (loading || !lessonId) {
-      return undefined
-    }
+    if (loading || !lessonId) return undefined
 
-    if (autosaveTimeoutRef.current) {
-      clearTimeout(autosaveTimeoutRef.current)
-    }
+    if (autosaveTimeoutRef.current) clearTimeout(autosaveTimeoutRef.current)
 
     autosaveTimeoutRef.current = setTimeout(() => {
       try {
         sessionStorage.setItem(
           AUTOSAVE_KEY,
-          JSON.stringify({
-            lessonId,
-            currentStep,
-            currentExerciseIdx,
-            codeAnswerByExercise,
-            savedAt: Date.now(),
-          })
+          JSON.stringify({ lessonId, currentStep, currentExerciseIdx, codeAnswerByExercise, savedAt: Date.now() })
         )
-      } catch {
-        /* sessionStorage lleno o deshabilitado, ignoramos */
-      }
+      } catch { /* sessionStorage lleno */ }
     }, AUTOSAVE_DEBOUNCE_MS)
 
     return () => {
-      if (autosaveTimeoutRef.current) {
-        clearTimeout(autosaveTimeoutRef.current)
-      }
+      if (autosaveTimeoutRef.current) clearTimeout(autosaveTimeoutRef.current)
     }
   }, [lessonId, currentStep, currentExerciseIdx, codeAnswerByExercise, loading])
 
   const currentExercise = exercises[currentExerciseIdx]
-  const currentCodeAnswer = currentExercise
-    ? codeAnswerByExercise[currentExercise.id] || ''
-    : ''
+  const currentCodeAnswer = currentExercise ? codeAnswerByExercise[currentExercise.id] || '' : ''
 
   const setCurrentCodeAnswer = useCallback(
     (next) => {
-      if (!currentExercise) {
-        return
-      }
-
+      if (!currentExercise) return
       setCodeAnswerByExercise((prev) => ({
         ...prev,
         [currentExercise.id]: typeof next === 'function' ? next(prev[currentExercise.id] || '') : next,
@@ -186,28 +149,15 @@ function DemoLessonPage() {
   )
 
   const handleStartExercises = () => {
-    if (exercises.length === 0) {
-      handleFinishDemo()
-      return
-    }
+    if (exercises.length === 0) { handleFinishDemo(); return }
     setCurrentStep('exercise')
   }
 
   const handleRunCode = useCallback(async () => {
-    if (!currentExercise) {
-      return
-    }
-
+    if (!currentExercise) return
     const executionSource = buildExecutionSource(currentExercise, currentCodeAnswer)
-    if (!executionSource.trim()) {
-      notifyInfo('Escribe codigo antes de ejecutar.')
-      return
-    }
-
-    if (!lessonLanguageId) {
-      notifyError('No se encontro un lenguaje valido.')
-      return
-    }
+    if (!executionSource.trim()) { notifyInfo('Escribe código antes de ejecutar.'); return }
+    if (!lessonLanguageId) { notifyError('No se encontró un lenguaje válido.'); return }
 
     setIsExecuting(true)
     try {
@@ -217,45 +167,32 @@ function DemoLessonPage() {
         nextOutput.push(...result.errors.map((line) => `[error] ${line}`))
         notifyError(result.errors[0])
       } else {
-        notifySuccess('Codigo ejecutado.')
+        notifySuccess('Código ejecutado.')
       }
       setConsoleOutput(nextOutput)
     } catch (error) {
-      notifyError(error?.message || 'No fue posible ejecutar el codigo.')
+      notifyError(error?.message || 'No fue posible ejecutar el código.')
     } finally {
       setIsExecuting(false)
     }
   }, [currentExercise, currentCodeAnswer, lessonLanguageId])
 
   const handleSubmitExercise = async () => {
-    if (!currentExercise || !lessonId) {
-      return
-    }
+    if (!currentExercise || !lessonId) return
 
     const answer =
       currentExercise.tipo === 'completar_codigo'
         ? normalizeCodeExerciseAnswer(currentExercise, currentCodeAnswer)
         : selectedAnswer
 
-    if (!String(answer || '').trim()) {
-      notifyInfo('Selecciona o escribe una respuesta.')
-      return
-    }
+    if (!String(answer || '').trim()) { notifyInfo('Selecciona o escribe una respuesta.'); return }
 
     setSubmitting(true)
     try {
-      const data = await submitDemoExercise({
-        lessonId,
-        exerciseId: currentExercise.id,
-        answer,
-      })
-
+      const data = await submitDemoExercise({ lessonId, exerciseId: currentExercise.id, answer })
       setFeedback(data)
-      if (data.isCorrect) {
-        notifySuccess('¡Correcto!')
-      } else {
-        notifyInfo('Intentalo de nuevo.')
-      }
+      if (data.isCorrect) notifySuccess('¡Correcto!')
+      else notifyInfo('Inténtalo de nuevo.')
     } catch (error) {
       notifyError(error?.message || 'No fue posible validar la respuesta.')
     } finally {
@@ -270,11 +207,7 @@ function DemoLessonPage() {
 
   const handleNextExercise = () => {
     const isLast = currentExerciseIdx >= exercises.length - 1
-    if (isLast) {
-      handleFinishDemo()
-      return
-    }
-
+    if (isLast) { handleFinishDemo(); return }
     setCurrentExerciseIdx((prev) => prev + 1)
     setSelectedAnswer(null)
     setConsoleOutput([])
@@ -286,7 +219,7 @@ function DemoLessonPage() {
       <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
           <div className="spinner" />
-          <p>Cargando leccion demo...</p>
+          <p>Cargando lección demo...</p>
         </div>
       </MotionPage>
     )
@@ -296,7 +229,7 @@ function DemoLessonPage() {
     return (
       <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
-          <p>No fue posible cargar la leccion demo.</p>
+          <p>No fue posible cargar la lección demo.</p>
           <button type="button" onClick={() => navigate('/demo')}>Volver</button>
         </div>
       </MotionPage>
@@ -307,23 +240,37 @@ function DemoLessonPage() {
 
   return (
     <MotionPage className="lesson-page" delay={0.06}>
-      <div className="demo-banner" role="note" aria-live="polite">
-        <strong>Modo demo</strong> · tu progreso no se guarda
-        {restoredFromAutosave && <span className="demo-banner__chip">sesion restaurada</span>}
-        <button
-          type="button"
-          className="demo-banner__cta"
-          onClick={() => navigate('/registro')}
-        >
-          Crear cuenta
-        </button>
-      </div>
-
       <div className="lesson-container">
+
+        {/* ── Banner demo: siempre visible arriba del contenido ── */}
+        <div className="demo-lesson-banner" role="note" aria-live="polite">
+          <div className="demo-lesson-banner__left">
+            <span className="demo-lesson-banner__dot" aria-hidden="true" />
+            <strong className="demo-lesson-banner__label">Modo demo</strong>
+            <span className="demo-lesson-banner__divider" aria-hidden="true">·</span>
+            <span className="demo-lesson-banner__info">Tu progreso no se guarda</span>
+            {restoredFromAutosave && (
+              <span className="demo-banner__chip">sesión restaurada</span>
+            )}
+          </div>
+          <button
+            type="button"
+            className="demo-banner__cta"
+            onClick={() => navigate('/registro')}
+          >
+            Crear cuenta gratis →
+          </button>
+        </div>
+
+        {/* ── Teoría ── */}
         {currentStep === 'theory' && (
           <>
             <div className="lesson-header">
-              <button className="lesson-back-link" type="button" onClick={() => navigate('/demo')}>
+              <button
+                className="lesson-back-link"
+                type="button"
+                onClick={() => navigate('/demo')}
+              >
                 ← Volver
               </button>
               <span className="lesson-modulo">{lesson.modulo_nombre}</span>
@@ -343,13 +290,18 @@ function DemoLessonPage() {
             )}
 
             <div className="lesson-actions">
-              <button className="lesson-start-btn ui-jitter" onClick={handleStartExercises} type="button">
+              <button
+                className="lesson-start-btn ui-jitter"
+                onClick={handleStartExercises}
+                type="button"
+              >
                 Empezar ejercicios
               </button>
             </div>
           </>
         )}
 
+        {/* ── Ejercicio ── */}
         {currentStep === 'exercise' && currentExercise && (
           <>
             <div className="exercise-header">
@@ -381,9 +333,7 @@ function DemoLessonPage() {
                       className={`exercise-option ${selectedAnswer === opt ? 'selected' : ''} ${
                         feedback
                           ? opt === selectedAnswer
-                            ? feedback.isCorrect
-                              ? 'correct'
-                              : 'incorrect'
+                            ? feedback.isCorrect ? 'correct' : 'incorrect'
                             : ''
                           : ''
                       }`}
@@ -412,15 +362,15 @@ function DemoLessonPage() {
                       onRun={handleRunCode}
                       isExecuting={isExecuting}
                       consoleOutput={consoleOutput}
-                      runLabel="Ejecutar codigo"
+                      runLabel="Ejecutar código"
                       runningLabel="Ejecutando..."
                       outputLabel="Salida"
-                      outputEmptyLabel="Ejecuta tu codigo para ver resultados."
+                      outputEmptyLabel="Ejecuta tu código para ver resultados."
                       shortcutHint="Ctrl/Cmd + Enter"
-                      ariaLabel="Editor de codigo"
+                      ariaLabel="Editor de código"
                       loadingLabel="Cargando editor..."
                       editorErrorLabel="No se pudo cargar Monaco."
-                      placeholder="Escribe tu codigo aqui..."
+                      placeholder="Escribe tu código aquí..."
                     />
                   </Suspense>
                 </div>
@@ -429,8 +379,10 @@ function DemoLessonPage() {
 
             {feedback && (
               <div className={`exercise-feedback ${feedback.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`}>
-                <strong>{feedback.isCorrect ? '¡Correcto!' : 'Aun no.'}</strong>
-                {!feedback.isCorrect && feedback.hint && <p className="feedback-hint">💡 {feedback.hint}</p>}
+                <strong>{feedback.isCorrect ? '¡Correcto!' : 'Aún no.'}</strong>
+                {!feedback.isCorrect && feedback.hint && (
+                  <p className="feedback-hint">💡 {feedback.hint}</p>
+                )}
               </div>
             )}
 

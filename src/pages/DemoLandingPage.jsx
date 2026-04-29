@@ -3,48 +3,86 @@ import MotionPage from '../components/MotionPage'
 
 /**
  * Pagina de bienvenida del demo publico (HU-025).
- * Reutiliza el lenguaje visual del landing principal (clases landing__*)
- * para mantener consistencia y heredar breakpoints responsivos existentes.
  */
 function DemoLandingPage() {
   const navigate = useNavigate()
 
   return (
-    <MotionPage className="landing" delay={0.05}>
-      <div className="landing__container">
-        <section className="landing__hero" style={{ gridTemplateColumns: '1fr', textAlign: 'center' }}>
-          <div className="landing__hero-copy" style={{ margin: '0 auto', maxWidth: 720 }}>
-            <span className="landing__status">Modo demo · Sin registro</span>
+    <MotionPage className="demo-landing" delay={0.05}>
 
-            <h1>
-              Vas a programar
-              <em> de verdad </em>
-              en 30 segundos.
-            </h1>
+      {/* Botón volver */}
+      <Link to="/" className="demo-landing__back" aria-label="Volver al inicio">
+        ← Volver
+      </Link>
 
-            <p>
-              Una leccion completa de Python con editor profesional y ejecucion real,
-              para que sientas como aprendes en CodeQuest. Sin tarjeta, sin compromisos.
-            </p>
+      <div className="demo-landing__container">
+        {/* Badge */}
+        <span className="demo-landing__badge">Modo demo · Sin registro</span>
 
-            <div className="landing__hero-actions">
-              <button
-                type="button"
-                className="landing__cta-btn ui-jitter"
-                onClick={() => navigate('/demo/lesson')}
-              >
-                Iniciar leccion demo
-              </button>
-              <Link className="landing__link-btn" to="/login">
-                Ya tengo cuenta
-              </Link>
-            </div>
+        {/* Headline */}
+        <h1 className="demo-landing__title">
+          Empieza a programar
+          <em className="demo-landing__title-em"> ahora mismo</em>
+        </h1>
 
-            <p className="landing__footer" style={{ marginTop: 24 }}>
-              Tu progreso del demo no se guarda en el servidor. Crea una cuenta gratis para conservarlo.
-            </p>
+        {/* Subtítulo */}
+        <p className="demo-landing__subtitle">
+          Prueba una lección interactiva con código real y ejecución instantánea.
+          Aprende practicando desde el primer minuto.
+        </p>
+
+        {/* Texto de apoyo */}
+        <p className="demo-landing__support">
+          Explora cómo se siente aprender programación en CodeQuest.
+        </p>
+
+        {/* CTAs */}
+        <div className="demo-landing__actions">
+          <button
+            type="button"
+            className="landing__cta-btn demo-landing__cta-main ui-jitter"
+            onClick={() => navigate('/demo/lesson')}
+          >
+            Probar lección demo
+          </button>
+          <Link className="landing__link-btn demo-landing__cta-secondary" to="/login">
+            Ya tengo cuenta
+          </Link>
+        </div>
+
+        {/* Nota pequeña */}
+        <p className="demo-landing__note">
+          Sin tarjeta. Sin instalaciones. Empieza gratis.
+        </p>
+
+        {/* Features rápidas */}
+        <div className="demo-landing__features">
+          <div className="demo-landing__feature">
+            <span className="demo-landing__feature-icon">⚡</span>
+            <span>Ejecución instantánea</span>
           </div>
-        </section>
+          <div className="demo-landing__feature">
+            <span className="demo-landing__feature-icon">🧑‍💻</span>
+            <span>Editor profesional</span>
+          </div>
+          <div className="demo-landing__feature">
+            <span className="demo-landing__feature-icon">🎯</span>
+            <span>Ejercicios reales</span>
+          </div>
+        </div>
+
+        {/* ── BLOQUE DE PRUEBA DE SCROLL — eliminar después ── */}
+        <div className="demo-landing__scroll-test" aria-hidden="true">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div key={i} className="demo-landing__scroll-row">
+              <span className="demo-landing__scroll-label">🧪 Línea de prueba #{i + 1}</span>
+              <span className="demo-landing__scroll-note">Si ves el naranja al llegar aquí abajo, el fondo está anclado correctamente al documento.</span>
+            </div>
+          ))}
+          <p className="demo-landing__scroll-footer">⬇️ Fondo naranja visible aquí = comportamiento correcto</p>
+        </div>
+        {/* ── FIN BLOQUE DE PRUEBA ── */}
+
       </div>
     </MotionPage>
   )
