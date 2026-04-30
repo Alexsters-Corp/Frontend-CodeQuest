@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import { apiFetch } from '../services/api'
@@ -230,6 +231,7 @@ function ProfileEditPage() {
 
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
+      <Sidebar />
       <Navbar
         title={t('profile.title')}
         profileActionLabel={t('profile.viewTitle')}

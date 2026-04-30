@@ -56,63 +56,16 @@ function Navbar({
     <header className="dashboard-header">
       <div className="dashboard-header-main">
         <span className="navbar-avatar" aria-hidden="true">{profileAvatar}</span>
-        <p className="dashboard-eyebrow">{t('nav.greeting', { name: user?.nombre || t('nav.defaultName') })}</p>
-        <h1>{resolvedTitle}</h1>
-        <span className="dashboard-role-badge">{t('nav.role', { role: roleLabel })}</span>
+        <div className="dashboard-header-text">
+          <p className="dashboard-eyebrow">{t('nav.greeting', { name: user?.nombre || t('nav.defaultName') })}</p>
+          <h1>{resolvedTitle}</h1>
+          <span className="dashboard-role-badge">{t('nav.role', { role: roleLabel })}</span>
+        </div>
       </div>
 
-      {hideActions ? (
-        <div className="dashboard-header-aside">
-          {headerAside}
-        </div>
-      ) : (
-        <div className="dashboard-header-actions">
-          {(isInstructor || isAdmin) && (
-            <button
-              onClick={() => navigateTo('/instructor')}
-              className={`dashboard-nav-btn ${location.pathname.startsWith('/instructor') ? 'dashboard-nav-btn--active' : ''}`}
-              type="button"
-            >
-              {t('nav.instructor')}
-            </button>
-          )}
-
-          {isAdmin && (
-            <button
-              onClick={() => navigateTo('/admin')}
-              className={`dashboard-nav-btn ${location.pathname.startsWith('/admin') ? 'dashboard-nav-btn--active' : ''}`}
-              type="button"
-            >
-              {t('nav.admin')}
-            </button>
-          )}
-
-          <button
-            onClick={() => navigateTo('/social')}
-            className={`dashboard-nav-btn ${location.pathname.startsWith('/social') ? 'dashboard-nav-btn--active' : ''}`}
-            type="button"
-          >
-            {t('nav.followers')}
-          </button>
-
-          <button
-            onClick={() => navigateTo(resolvedProfileActionTo)}
-            className={`dashboard-nav-btn ${location.pathname.startsWith('/profile') ? 'dashboard-nav-btn--active' : ''}`}
-            type="button"
-          >
-            {resolvedProfileActionLabel}
-          </button>
-
-          <button
-            onClick={handleLogout}
-            className="dashboard-logout-btn"
-            type="button"
-            disabled={isLoggingOut}
-          >
-            {isLoggingOut ? t('nav.loggingOut') : t('nav.logout')}
-          </button>
-        </div>
-      )}
+      <div className="dashboard-header-aside">
+        {headerAside}
+      </div>
     </header>
   )
 }

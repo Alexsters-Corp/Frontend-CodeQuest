@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
-import { useAuth } from '../context/useAuth'
+import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
 import {
   clearSelectedLanguageId,
@@ -11,7 +11,6 @@ import {
   getSelectedLanguageId,
   setSelectedLanguageId,
 } from '../services/learningApi'
-import { apiFetch } from '../services/api'
 import { getLeaderboard } from '../services/socialApi'
 import { notifyError, notifyPending, notifySuccess } from '../utils/notify'
 
@@ -51,12 +50,9 @@ function translateDiagnosticLevel(level, t) {
 
 function DashboardPage() {
   const navigate = useNavigate()
-  const { logout } = useAuth()
-  const location = useLocation()
   const { language, t } = useLanguage()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [streakJitter, setStreakJitter] = useState(false)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
   const [deleteLanguageNameInput, setDeleteLanguageNameInput] = useState('')
   const [deleteActionInput, setDeleteActionInput] = useState('')
@@ -66,7 +62,6 @@ function DashboardPage() {
   const [rankingPreview, setRankingPreview] = useState([])
   const [rankingPreviewLoading, setRankingPreviewLoading] = useState(true)
   const [rankingPosition, setRankingPosition] = useState(null)
-  const [isSidebarLoggingOut, setIsSidebarLoggingOut] = useState(false)
 
   const loadOverview = useCallback(async () => {
     try {
@@ -109,14 +104,6 @@ function DashboardPage() {
   useEffect(() => {
     loadRankingPreview()
   }, [loadRankingPreview])
-
-  useEffect(() => {
-    if (location.state?.fromLesson) {
-      setStreakJitter(true)
-      const timer = setTimeout(() => setStreakJitter(false), 1600)
-      return () => clearTimeout(timer)
-    }
-  }, [location.state])
 
   const handleLanguageClick = (lang) => {
     setSelectedLanguageId(lang.lenguaje_id)
@@ -186,39 +173,13 @@ function DashboardPage() {
     }
   }
 
-  const handleSidebarLogout = async () => {
-    if (isSidebarLoggingOut) {
-      return
-    }
-
-    setIsSidebarLoggingOut(true)
-    try {
-      await apiFetch('/api/auth/logout', { method: 'POST' })
-    } catch (error) {
-      // Si falla backend, cerrar sesión local igualmente.
-      console.error('Error al cerrar sesión en el servidor:', error)
-    } finally {
-      logout()
-      navigate('/login', { replace: true })
-    }
-  }
-
-  const scrollToSection = (sectionId) => {
-    const target = document.getElementById(sectionId)
-    if (!target) {
-      return
-    }
-
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
   const streakLabel = loading
     ? '...'
     : t('dashboard.days', { count: overview?.racha || 0 })
 
-  const xpLabel = loading
+  const achievementsLabel = loading
     ? '...'
-    : (overview?.xpTotal || 0).toLocaleString(language === 'en' ? 'en-US' : 'es-CO')
+    : overview?.achievements?.length || 0
 
   const levelLabel = loading
     ? '...'
@@ -243,32 +204,34 @@ function DashboardPage() {
   const podiumThird = getPodiumEntry(3)
   const fourthEntry = getPodiumEntry(4)
 
-  const streakEmojiClass = [
-    'streak-emoji',
-    overview?.streakActiveToday ? 'streak-emoji--active' : 'streak-emoji--inactive',
-    streakJitter ? 'streak-emoji--jitter' : '',
-  ].filter(Boolean).join(' ')
-
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar
         title={t('dashboard.title')}
         hideActions
         headerAside={(
-          <section className="dashboard-header-summary" aria-label={t('dashboard.sidebar.title')}>
-            <h2>{t('dashboard.sidebar.title')}</h2>
+          <section className="dashboard-header-summary" aria-label={t('dashboard.summaryLabel')}>
             <div className="dashboard-header-summary__grid">
               <article className="stat-card">
-                <p>🔥 {t('dashboard.streak')}</p>
-                <strong>{streakLabel}</strong>
+                <span className="stat-card__icon">🔥</span>
+                <div className="stat-card__content">
+                  <p>{t('dashboard.streak')}</p>
+                  <strong>{streakLabel}</strong>
+                </div>
               </article>
               <article className="stat-card">
-                <p>⭐ {t('dashboard.totalXp')}</p>
-                <strong>{xpLabel}</strong>
+                <span className="stat-card__icon">🏆</span>
+                <div className="stat-card__content">
+                  <p>{t('dashboard.achievements')}</p>
+                  <strong>{achievementsLabel}</strong>
+                </div>
               </article>
               <article className="stat-card">
-                <p>📊 {t('dashboard.level')}</p>
-                <strong>{levelLabel}</strong>
+                <span className="stat-card__icon">📊</span>
+                <div className="stat-card__content">
+                  <p>{t('dashboard.level')}</p>
+                  <strong>{levelLabel}</strong>
+                </div>
               </article>
             </div>
           </section>
@@ -276,80 +239,7 @@ function DashboardPage() {
       />
 
       <div className="dashboard-layout">
-        <aside className="dashboard-sidebar">
-          <span className="dashboard-sidebar__logo">CodeQuest</span>
-          <div className="dashboard-sidebar__menu-block">
-            <h2>{t('dashboard.sidebar.navigate')}</h2>
-            <div className="dashboard-sidebar__actions dashboard-sidebar__actions--static">
-              <button
-                type="button"
-                onClick={() => scrollToSection('dashboard-languages')}
-              >
-                {t('dashboard.sidebar.languages')}
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollToSection('dashboard-achievements')}
-              >
-                {t('dashboard.sidebar.achievements')}
-              </button>
-              <button
-                type="button"
-                onClick={() => scrollToSection('dashboard-activity')}
-              >
-                {t('dashboard.sidebar.activity')}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/favorites')}
-              >
-                {t('dashboard.sidebar.favorites')}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/ranking?scope=global')}
-              >
-                {t('dashboard.sidebar.ranking')}
-              </button>
-              <button
-                type="button"
-                onClick={() => navigate('/social')}
-              >
-                {t('dashboard.sidebar.followers')}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  notifyPending(t('dashboard.addLanguageHint'))
-                  navigate('/onboarding/language')
-                }}
-              >
-                {t('dashboard.sidebar.onboarding')}
-              </button>
-            </div>
-          </div>
-
-          <div className="dashboard-sidebar__account-block">
-            <h3>{t('dashboard.sidebar.accountActions')}</h3>
-            <div className="dashboard-sidebar__account-actions">
-              <button
-                type="button"
-                className="dashboard-nav-btn"
-                onClick={() => navigate('/profile')}
-              >
-                {t('nav.profile')}
-              </button>
-              <button
-                type="button"
-                className="dashboard-logout-btn"
-                onClick={handleSidebarLogout}
-                disabled={isSidebarLoggingOut}
-              >
-                {isSidebarLoggingOut ? t('nav.loggingOut') : t('nav.logout')}
-              </button>
-            </div>
-          </div>
-        </aside>
+        <Sidebar />
 
         <div className="dashboard-main">
           <section className="dashboard-languages" id="dashboard-languages">
@@ -472,13 +362,6 @@ function DashboardPage() {
           <section className="dashboard-ranking-preview" id="dashboard-ranking-preview">
             <div className="dashboard-ranking-preview__head">
               <h3>{t('dashboard.rankingPreview.title')}</h3>
-              <button
-                className="dashboard-ranking-preview__open"
-                onClick={() => navigate('/ranking?scope=global')}
-                type="button"
-              >
-                {t('dashboard.rankingPreview.viewAll')}
-              </button>
             </div>
 
             <div className="dashboard-ranking-preview__hero" aria-hidden="true">
@@ -531,6 +414,15 @@ function DashboardPage() {
                 {rankingPreviewLoading ? '...' : (rankingPosition || t('dashboard.rankingPreview.positionUnknown'))}
               </strong>
             </div>
+
+            <button
+              className="dashboard-ranking-preview__footer-btn"
+              onClick={() => navigate('/ranking?scope=global')}
+              type="button"
+            >
+              {t('dashboard.rankingPreview.viewAll')}
+              <span className="footer-btn-icon">→</span>
+            </button>
           </section>
         </aside>
       </div>

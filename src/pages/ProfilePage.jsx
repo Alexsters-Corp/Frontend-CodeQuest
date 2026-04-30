@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
 import { apiFetch } from '../services/api'
 import {
@@ -83,6 +84,8 @@ function ProfilePage() {
         nombre: user.nombre || '',
         email: user.email || '',
         avatar: String(user.avatar || PRESET_ICONS[0]),
+        totalXp: Number(user.totalXp || 0),
+        currentLevel: Number(user.currentLevel || 1),
         countryCode,
         countryRaw: '',
         birthDate: String(user.birthDate || ''),
@@ -175,7 +178,8 @@ function ProfilePage() {
 
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
-      <Navbar title={t('profile.viewTitle')} />
+      <Sidebar />
+      <Navbar title={t('profile.viewTitle')} hideActions />
 
       <section className="profile-edit-card">
         <div className="profile-header-row">
@@ -265,7 +269,22 @@ function ProfilePage() {
                 ))}
               </div>
 
-              <label htmlFor="profile-view-country">{t('profile.country')}</label>
+              <div className="profile-edit-header" style={{ marginTop: '20px' }}>
+                <h3>{t('profile.progressTitle')}</h3>
+              </div>
+
+              <div className="social-summary-grid" style={{ marginTop: '10px' }}>
+                <article className="stat-card">
+                  <p>⭐ {t('dashboard.totalXp')}</p>
+                  <strong>{profile.totalXp?.toLocaleString() || 0} XP</strong>
+                </article>
+                <article className="stat-card">
+                  <p>📊 {t('dashboard.level')}</p>
+                  <strong>{profile.currentLevel || 1}</strong>
+                </article>
+              </div>
+
+              <label htmlFor="profile-view-country" style={{ marginTop: '20px' }}>{t('profile.country')}</label>
               <input
                 id="profile-view-country"
                 type="text"

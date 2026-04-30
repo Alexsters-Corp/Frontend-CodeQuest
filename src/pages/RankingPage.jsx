@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
 import { followUserByUsername, getLeaderboard, unfollowUserByUsername } from '../services/socialApi'
 import { countryNameFromCode } from '../utils/countries'
@@ -83,7 +84,8 @@ function RankingPage() {
 
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
-      <Navbar title={t('ranking.title')} />
+      <Sidebar />
+      <Navbar title={t('ranking.title')} hideActions />
 
       <section className="profile-edit-card ranking-card">
         <div className="ranking-header-row">
@@ -101,14 +103,14 @@ function RankingPage() {
         <div className="ranking-scope-tabs" role="tablist" aria-label={t('ranking.scopeLabel')}>
           <button
             type="button"
-            className={`dashboard-nav-btn ${scope === 'global' ? 'dashboard-nav-btn--active' : ''}`}
+            className={`ranking-tab ${scope === 'global' ? 'ranking-tab--active' : ''}`}
             onClick={() => handleScopeChange('global')}
           >
             {t('ranking.globalTab')}
           </button>
           <button
             type="button"
-            className={`dashboard-nav-btn ${scope === 'following' ? 'dashboard-nav-btn--active' : ''}`}
+            className={`ranking-tab ${scope === 'following' ? 'ranking-tab--active' : ''}`}
             onClick={() => handleScopeChange('following')}
           >
             {t('ranking.followingTab')}

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
 import {
@@ -106,10 +107,12 @@ function InstructorDashboardPage() {
   }
 
   return (
-    <MotionPage className="rbac-page" delay={0.06}>
-      <Navbar title={t('instructor.title')} />
+    <MotionPage className="dashboard-page" delay={0.06}>
+      <Sidebar />
+      <Navbar title={t('instructor.title')} hideActions />
 
-      <div className="rbac-header">
+      <section className="rbac-page">
+        <div className="rbac-header">
         <div>
           <p className="rbac-kicker">{t('route.rolePanel')}</p>
           <h1>{t('instructor.header')}</h1>
@@ -271,6 +274,7 @@ function InstructorDashboardPage() {
           )}
         </section>
       )}
+      </section>
     </MotionPage>
   )
 }

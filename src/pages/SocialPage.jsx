@@ -1,6 +1,7 @@
 import MotionPage from '../components/MotionPage'
 import { useNavigate } from 'react-router-dom'
 import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 import SocialPanel from '../components/SocialPanel'
 import { useLanguage } from '../context/useLanguage'
 
@@ -10,7 +11,8 @@ function SocialPage() {
 
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
-      <Navbar title={t('social.title')} />
+      <Sidebar />
+      <Navbar title={t('social.title')} hideActions />
 
       <section className="profile-edit-card">
         <div className="profile-header-row">
