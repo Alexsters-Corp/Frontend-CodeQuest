@@ -5,7 +5,7 @@ import { LanguageProvider } from './context/LanguageContext'
 import PrivateRoute from './components/PrivateRoute'
 import PublicRoute from './components/PublicRoute'
 import RoleGuard from './components/guards/RoleGuard'
-// LanguageSwitcher quitado — las páginas traducen automáticamente por contexto
+import LanguageSwitcher from './components/LanguageSwitcher'
 import DashboardPage from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -33,7 +33,7 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        {/* <LanguageSwitcher /> — desactivado, traducción automática por contexto */}
+        <LanguageSwitcher />
 
         <Toaster
           position="top-right"
