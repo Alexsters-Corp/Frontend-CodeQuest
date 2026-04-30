@@ -3550,6 +3550,20 @@ button:disabled {
   margin-bottom: 12px;
 }
 
+.dashboard-page > .dashboard-header {
+  background: transparent;
+  border: none;
+  padding: 16px 0;
+}
+
+.dashboard-page .stat-card {
+  background: transparent;
+  border: none;
+  padding: 4px 8px;
+  min-width: auto;
+  box-shadow: none;
+}
+
 .dashboard-eyebrow,
 .rbac-kicker {
   color: #8ea5c2;
@@ -4137,27 +4151,10 @@ body.sidebar-is-collapsed .dashboard-page {
   flex: 1;
 }
 
-.dashboard-header-summary {
-  width: min(440px, 100%);
-  border: 1px solid var(--cq-border);
-  border-radius: 12px;
-  background: rgba(7, 18, 33, 0.7);
-  padding: 10px;
-  display: grid;
-  gap: 8px;
-}
-
-.dashboard-header-summary {
-  width: auto;
-}
-
-.dashboard-header-summary h2 {
-  display: none; /* Removed the redundant title */
-}
-
 .dashboard-header-summary__grid {
   display: flex;
   gap: 12px;
+  flex-wrap: wrap;
 }
 
 .stat-card {
@@ -4931,8 +4928,73 @@ body.sidebar-is-collapsed .dashboard-page {
   background: #f8fafc;
 }
 
-.social-list-card {
-  padding: 16px;
+.social-unified-input {
+  width: 100%;
+  padding: 14px 18px;
+  font-size: 1.05rem;
+  border-radius: 14px;
+  background: rgba(9, 18, 33, 0.72);
+  border: 1px solid var(--cq-border);
+  transition: all 0.2s;
+}
+
+.social-unified-input:focus {
+  border-color: var(--cq-primary);
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+}
+
+.social-search-spinner {
+  display: block;
+  margin-top: 8px;
+  font-size: 0.86rem;
+  color: var(--cq-muted);
+}
+
+.social-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.social-user-avatar {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--cq-primary), var(--cq-tertiary));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
+}
+
+.social-user-meta {
+  display: grid;
+  gap: 2px;
+}
+
+.social-user-meta strong {
+  color: #f1f7ff;
+}
+
+.social-user-meta p {
+  margin: 0;
+  font-size: 0.84rem;
+  color: var(--cq-muted);
+}
+
+.social-active-content {
+  margin-top: 16px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .social-list-card h3 {

@@ -15,11 +15,8 @@ function SocialPage() {
       <Navbar title={t('social.title')} hideActions />
 
       <section className="profile-edit-card">
-        <div className="profile-header-row">
-          <div className="profile-edit-header">
-            <h2>{t('social.title')}</h2>
-          </div>
-          <div className="profile-header-actions">
+        <div className="profile-header-row" style={{ marginBottom: '16px' }}>
+          <div className="profile-header-actions" style={{ marginLeft: 'auto' }}>
             <button
               type="button"
               className="profile-back-btn"

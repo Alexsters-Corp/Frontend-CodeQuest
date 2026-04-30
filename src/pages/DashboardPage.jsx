@@ -210,31 +210,29 @@ function DashboardPage() {
         title={t('dashboard.title')}
         hideActions
         headerAside={(
-          <section className="dashboard-header-summary" aria-label={t('dashboard.summaryLabel')}>
-            <div className="dashboard-header-summary__grid">
-              <article className="stat-card">
-                <span className="stat-card__icon">🔥</span>
-                <div className="stat-card__content">
-                  <p>{t('dashboard.streak')}</p>
-                  <strong>{streakLabel}</strong>
-                </div>
-              </article>
-              <article className="stat-card">
-                <span className="stat-card__icon">🏆</span>
-                <div className="stat-card__content">
-                  <p>{t('dashboard.achievements')}</p>
-                  <strong>{achievementsLabel}</strong>
-                </div>
-              </article>
-              <article className="stat-card">
-                <span className="stat-card__icon">📊</span>
-                <div className="stat-card__content">
-                  <p>{t('dashboard.level')}</p>
-                  <strong>{levelLabel}</strong>
-                </div>
-              </article>
-            </div>
-          </section>
+          <div className="dashboard-header-summary__grid">
+            <article className="stat-card">
+              <span className="stat-card__icon">🔥</span>
+              <div className="stat-card__content">
+                <p>{t('dashboard.streak')}</p>
+                <strong>{streakLabel}</strong>
+              </div>
+            </article>
+            <article className="stat-card">
+              <span className="stat-card__icon">🏆</span>
+              <div className="stat-card__content">
+                <p>{t('dashboard.achievements')}</p>
+                <strong>{achievementsLabel}</strong>
+              </div>
+            </article>
+            <article className="stat-card">
+              <span className="stat-card__icon">📊</span>
+              <div className="stat-card__content">
+                <p>{t('dashboard.level')}</p>
+                <strong>{levelLabel}</strong>
+              </div>
+            </article>
+          </div>
         )}
       />
 
