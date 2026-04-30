@@ -1,4 +1,5 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 
 /**
@@ -9,11 +10,7 @@ function DemoLandingPage() {
 
   return (
     <MotionPage className="demo-landing" delay={0.05}>
-
-      {/* Botón volver */}
-      <Link to="/" className="demo-landing__back" aria-label="Volver al inicio">
-        ← Volver
-      </Link>
+      <div className="landing__mesh" aria-hidden="true" />
 
       <div className="demo-landing__container">
         {/* Badge */}
@@ -22,7 +19,7 @@ function DemoLandingPage() {
         {/* Headline */}
         <h1 className="demo-landing__title">
           Empieza a programar
-          <em className="demo-landing__title-em"> ahora mismo</em>
+          <em className="demo-landing__title-em">ahora mismo</em>
         </h1>
 
         {/* Subtítulo */}
@@ -70,19 +67,6 @@ function DemoLandingPage() {
             <span>Ejercicios reales</span>
           </div>
         </div>
-
-        {/* ── BLOQUE DE PRUEBA DE SCROLL — eliminar después ── */}
-        <div className="demo-landing__scroll-test" aria-hidden="true">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div key={i} className="demo-landing__scroll-row">
-              <span className="demo-landing__scroll-label">🧪 Línea de prueba #{i + 1}</span>
-              <span className="demo-landing__scroll-note">Si ves el naranja al llegar aquí abajo, el fondo está anclado correctamente al documento.</span>
-            </div>
-          ))}
-          <p className="demo-landing__scroll-footer">⬇️ Fondo naranja visible aquí = comportamiento correcto</p>
-        </div>
-        {/* ── FIN BLOQUE DE PRUEBA ── */}
-
       </div>
     </MotionPage>
   )

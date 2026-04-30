@@ -100,6 +100,20 @@ body::before {
   z-index: -1;
 }
 
+/* Halos de color globales — mismo efecto que el mesh del inicio, ahora en todas las páginas */
+body::after {
+  content: '';
+  position: fixed;
+  inset: -20% -10%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 15% 18%, rgba(16, 185, 129, 0.2), transparent 32%),
+    radial-gradient(circle at 82% 16%, rgba(139, 92, 246, 0.2), transparent 26%),
+    radial-gradient(circle at 52% 90%, rgba(245, 158, 11, 0.12), transparent 34%);
+  filter: blur(6px);
+  z-index: -1;
+}
+
 
 /* ============================================================
    3. TIPOGRAFÍA & ELEMENTOS GLOBALES
@@ -3143,9 +3157,11 @@ button.profile-icon-chip:hover { background: rgba(13, 25, 45, 0.92); }
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   text-align: center;
   max-width: 680px;
   width: 100%;
+  margin: 0 auto;
 }
 
 .demo-landing__badge {
@@ -3165,8 +3181,8 @@ button.profile-icon-chip:hover { background: rgba(13, 25, 45, 0.92); }
 
 .demo-landing__title {
   margin: 0 0 16px;
-  font-size: clamp(2.4rem, 6vw, 4rem);
-  line-height: 1;
+  font-size: 4rem;
+  line-height: 1.05;
   color: #f7fbff;
   letter-spacing: -0.03em;
 }
@@ -3241,6 +3257,50 @@ button.profile-icon-chip:hover { background: rgba(13, 25, 45, 0.92); }
 }
 
 .demo-landing__feature-icon { font-size: 1rem; line-height: 1; }
+
+/* Botón volver dentro de la lección demo */
+.demo-lesson-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--cq-border);
+  background: rgba(11, 20, 37, 0.72);
+  color: #c9d8eb;
+  font-size: 0.86rem;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 0;
+  backdrop-filter: blur(8px);
+  transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+  box-shadow: none;
+}
+
+.demo-lesson-back-btn:hover {
+  border-color: rgba(16, 185, 129, 0.46);
+  background: rgba(16, 185, 129, 0.12);
+  color: #a7f3d0;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Card de felicitaciones — naranja del banner */
+.lesson-completed--demo {
+  border-color: rgba(245, 158, 11, 0.35);
+  background: rgba(245, 158, 11, 0.06);
+}
+
+.lesson-completed--demo h1 { color: #fde68a; }
+.lesson-completed--demo h2 { color: #fcd34d; }
+
+/* Botón CTA completion */
+.demo-completion__cta {
+  padding: 14px 32px;
+  font-size: 1rem;
+  border-radius: 999px;
+  margin-top: 0;
+}
 
 /* Bloque de prueba de scroll — eliminar después de validar */
 .demo-landing__scroll-test {
@@ -3341,7 +3401,7 @@ button.profile-icon-chip:hover { background: rgba(13, 25, 45, 0.92); }
    ============================================================ */
 
 @media (max-width: 1280px) {
-  .demo-landing__title { font-size: clamp(2.2rem, 5vw, 3.4rem); }
+  .demo-landing__title { font-size: 3.2rem; }
 }
 
 @media (max-width: 1024px) {
@@ -3350,10 +3410,10 @@ button.profile-icon-chip:hover { background: rgba(13, 25, 45, 0.92); }
 }
 
 @media (max-width: 768px) {
-  .demo-landing { padding: 24px 16px; align-items: flex-start; padding-top: 72px; }
+  .demo-landing { padding: 48px 20px 40px; align-items: center; justify-content: center; }
   .demo-landing__back { top: 14px; left: 14px; padding: 7px 12px; font-size: 0.82rem; }
   .demo-landing__container { text-align: center; max-width: 100%; }
-  .demo-landing__title { font-size: 2rem; margin-bottom: 12px; }
+  .demo-landing__title { font-size: 2.5rem; margin-bottom: 12px; line-height: 1.08; }
   .demo-landing__subtitle { font-size: 0.97rem; margin-bottom: 8px; }
   .demo-landing__support { font-size: 0.86rem; margin-bottom: 22px; }
   .demo-landing__actions { flex-direction: column; align-items: stretch; gap: 10px; width: 100%; }

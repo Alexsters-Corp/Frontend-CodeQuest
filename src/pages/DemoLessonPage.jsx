@@ -1,11 +1,12 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { FaArrowLeft } from 'react-icons/fa'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
 import MotionPage from '../components/MotionPage'
 import { getDemoLessonContent, submitDemoExercise, executeDemoCode } from '../services/demoApi'
 import { buildExecutionSource, normalizeCodeExerciseAnswer } from '../utils/lessonAnswers'
 import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
-import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
+import { notifyError, notifyInfo, notifySuccess, notifyPending } from '../utils/notify'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
 
@@ -52,7 +53,7 @@ function DemoLessonPage() {
   const [isExecuting, setIsExecuting] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const [submitting, setSubmitting] = useState(false)
-  const [restoredFromAutosave, setRestoredFromAutosave] = useState(false)
+  // const [restoredFromAutosave, setRestoredFromAutosave] = useState(false)
 
   const autosaveTimeoutRef = useRef(null)
   const initialAutosaveRef = useRef(null)
@@ -99,8 +100,10 @@ function DemoLessonPage() {
           setCodeAnswerByExercise(saved.codeAnswerByExercise || {})
           setCurrentExerciseIdx(saved.currentExerciseIdx || 0)
           setCurrentStep(saved.currentStep || 'theory')
-          setRestoredFromAutosave(true)
-          notifyInfo('Continuamos donde lo dejaste.')
+          // Solo notifica si ya había iniciado los ejercicios
+          if (saved.currentStep === 'exercise') {
+            notifyPending('Continuamos donde lo dejaste.')
+          }
         }
       } catch (error) {
         if (!active) return
@@ -242,36 +245,16 @@ function DemoLessonPage() {
     <MotionPage className="lesson-page" delay={0.06}>
       <div className="lesson-container">
 
-        {/* ── Banner demo: siempre visible arriba del contenido ── */}
-        <div className="demo-lesson-banner" role="note" aria-live="polite">
-          <div className="demo-lesson-banner__left">
-            <span className="demo-lesson-banner__dot" aria-hidden="true" />
-            <strong className="demo-lesson-banner__label">Modo demo</strong>
-            <span className="demo-lesson-banner__divider" aria-hidden="true">·</span>
-            <span className="demo-lesson-banner__info">Tu progreso no se guarda</span>
-            {restoredFromAutosave && (
-              <span className="demo-banner__chip">sesión restaurada</span>
-            )}
-          </div>
-          <button
-            type="button"
-            className="demo-banner__cta"
-            onClick={() => navigate('/registro')}
-          >
-            Crear cuenta gratis →
-          </button>
-        </div>
-
         {/* ── Teoría ── */}
         {currentStep === 'theory' && (
           <>
             <div className="lesson-header">
               <button
-                className="lesson-back-link"
+                className="demo-lesson-back-btn"
                 type="button"
                 onClick={() => navigate('/demo')}
               >
-                ← Volver
+                <FaArrowLeft /> Volver
               </button>
               <span className="lesson-modulo">{lesson.modulo_nombre}</span>
             </div>

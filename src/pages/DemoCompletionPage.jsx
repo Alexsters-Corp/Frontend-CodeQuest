@@ -93,17 +93,10 @@ function DemoCompletionPage() {
         <div className="completed-actions">
           <button
             type="button"
-            className="lesson-start-btn ui-jitter"
+            className="landing__cta-btn demo-completion__cta ui-jitter"
             onClick={() => navigate('/registro')}
           >
             Crear mi cuenta gratis
-          </button>
-          <button
-            type="button"
-            className="lesson-back-btn"
-            onClick={() => navigate('/login')}
-          >
-            Ya tengo cuenta
           </button>
         </div>
 
