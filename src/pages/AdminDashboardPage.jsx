@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
 import { getAdminAnalytics, listAdminUsers, updateAdminUser } from '../services/rbacApi'
@@ -163,10 +164,12 @@ function AdminDashboardPage() {
   }
 
   return (
-    <MotionPage className="rbac-page" delay={0.06}>
-      <Navbar title={t('admin.title')} />
+    <MotionPage className="dashboard-page" delay={0.06}>
+      <Sidebar />
+      <Navbar title={t('admin.title')} hideActions />
 
-      <div className="rbac-header">
+      <section className="rbac-page">
+        <div className="rbac-header">
         <div>
           <p className="rbac-kicker">{t('route.rolePanel')}</p>
           <h1>{t('admin.header')}</h1>
@@ -326,8 +329,9 @@ function AdminDashboardPage() {
           </div>
         )}
       </section>
-    </MotionPage>
-  )
+    </section>
+  </MotionPage>
+)
 }
 
 export default AdminDashboardPage

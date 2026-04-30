@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
 import {
   getFavoritesUpdatedEventName,
@@ -67,7 +68,8 @@ function FavoritesPage() {
 
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
-      <Navbar title={t('favorites.title')} />
+      <Sidebar />
+      <Navbar title={t('favorites.title')} hideActions />
 
       <section className="profile-edit-card favorites-card">
         <div className="favorites-header-row">

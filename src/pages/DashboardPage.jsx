@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
+import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
 import {
   clearSelectedLanguageId,
@@ -10,6 +11,7 @@ import {
   getSelectedLanguageId,
   setSelectedLanguageId,
 } from '../services/learningApi'
+import { getLeaderboard } from '../services/socialApi'
 import { notifyError, notifyPending, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
@@ -48,17 +50,18 @@ function translateDiagnosticLevel(level, t) {
 
 function DashboardPage() {
   const navigate = useNavigate()
-  const location = useLocation()
   const { language, t } = useLanguage()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [streakJitter, setStreakJitter] = useState(false)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
   const [deleteLanguageNameInput, setDeleteLanguageNameInput] = useState('')
   const [deleteActionInput, setDeleteActionInput] = useState('')
   const [deleteProgressInput, setDeleteProgressInput] = useState('')
   const [deleteSubmitting, setDeleteSubmitting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [rankingPreview, setRankingPreview] = useState([])
+  const [rankingPreviewLoading, setRankingPreviewLoading] = useState(true)
+  const [rankingPosition, setRankingPosition] = useState(null)
 
   const loadOverview = useCallback(async () => {
     try {
@@ -76,13 +79,31 @@ function DashboardPage() {
     loadOverview()
   }, [loadOverview])
 
-  useEffect(() => {
-    if (location.state?.fromLesson) {
-      setStreakJitter(true)
-      const timer = setTimeout(() => setStreakJitter(false), 1600)
-      return () => clearTimeout(timer)
+  const loadRankingPreview = useCallback(async () => {
+    setRankingPreviewLoading(true)
+    try {
+      const data = await getLeaderboard('global', 5)
+      setRankingPreview(Array.isArray(data.entries) ? data.entries.slice(0, 4) : [])
+
+      const resolvedRank = Number(
+        data?.viewerRank
+        ?? data?.myRank
+        ?? data?.currentUserRank
+        ?? data?.position
+      )
+      setRankingPosition(Number.isFinite(resolvedRank) && resolvedRank > 0 ? resolvedRank : null)
+    } catch (error) {
+      console.error(error)
+      setRankingPreview([])
+      setRankingPosition(null)
+    } finally {
+      setRankingPreviewLoading(false)
     }
-  }, [location.state])
+  }, [])
+
+  useEffect(() => {
+    loadRankingPreview()
+  }, [loadRankingPreview])
 
   const handleLanguageClick = (lang) => {
     setSelectedLanguageId(lang.lenguaje_id)
@@ -152,83 +173,71 @@ function DashboardPage() {
     }
   }
 
-  const scrollToSection = (sectionId) => {
-    const target = document.getElementById(sectionId)
-    if (!target) {
-      return
-    }
-
-    target.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
   const streakLabel = loading
     ? '...'
     : t('dashboard.days', { count: overview?.racha || 0 })
 
-  const xpLabel = loading
+  const achievementsLabel = loading
     ? '...'
-    : (overview?.xpTotal || 0).toLocaleString(language === 'en' ? 'en-US' : 'es-CO')
+    : overview?.achievements?.length || 0
 
   const levelLabel = loading
     ? '...'
     : overview?.nivel || 1
 
-  const streakEmojiClass = [
-    'streak-emoji',
-    overview?.streakActiveToday ? 'streak-emoji--active' : 'streak-emoji--inactive',
-    streakJitter ? 'streak-emoji--jitter' : '',
-  ].filter(Boolean).join(' ')
+  const getPodiumEntry = (targetRank) => {
+    if (!Array.isArray(rankingPreview) || rankingPreview.length === 0) {
+      return null
+    }
+
+    const byRank = rankingPreview.find((entry) => Number(entry.rank) === targetRank)
+    if (byRank) {
+      return byRank
+    }
+
+    const fallbackIndex = targetRank - 1
+    return rankingPreview[fallbackIndex] || null
+  }
+
+  const podiumSecond = getPodiumEntry(2)
+  const podiumFirst = getPodiumEntry(1)
+  const podiumThird = getPodiumEntry(3)
+  const fourthEntry = getPodiumEntry(4)
 
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
-      <Navbar title={t('dashboard.title')} />
+      <Navbar
+        title={t('dashboard.title')}
+        hideActions
+        headerAside={(
+          <div className="dashboard-header-summary__grid">
+            <article className="stat-card">
+              <span className="stat-card__icon">🔥</span>
+              <div className="stat-card__content">
+                <p>{t('dashboard.streak')}</p>
+                <strong>{streakLabel}</strong>
+              </div>
+            </article>
+            <article className="stat-card">
+              <span className="stat-card__icon">🏆</span>
+              <div className="stat-card__content">
+                <p>{t('dashboard.achievements')}</p>
+                <strong>{achievementsLabel}</strong>
+              </div>
+            </article>
+            <article className="stat-card">
+              <span className="stat-card__icon">📊</span>
+              <div className="stat-card__content">
+                <p>{t('dashboard.level')}</p>
+                <strong>{levelLabel}</strong>
+              </div>
+            </article>
+          </div>
+        )}
+      />
 
       <div className="dashboard-layout">
-        <aside className="dashboard-sidebar">
-          <h2>{t('dashboard.sidebar.title')}</h2>
-          <div className="dashboard-sidebar__stats">
-            <article className="stat-card">
-              <p>
-                <span className={streakEmojiClass}>🔥</span>
-                {' '}{t('dashboard.streak')}
-              </p>
-              <strong>{streakLabel}</strong>
-            </article>
-            <article className="stat-card">
-              <p>⭐ {t('dashboard.totalXp')}</p>
-              <strong>{xpLabel}</strong>
-            </article>
-            <article className="stat-card">
-              <p>📊 {t('dashboard.level')}</p>
-              <strong>{levelLabel}</strong>
-            </article>
-          </div>
-
-          <h3>{t('dashboard.sidebar.navigate')}</h3>
-          <div className="dashboard-sidebar__actions">
-            <button type="button" onClick={() => scrollToSection('dashboard-languages')}>
-              {t('dashboard.sidebar.languages')}
-            </button>
-            <button type="button" onClick={() => scrollToSection('dashboard-achievements')}>
-              {t('dashboard.sidebar.achievements')}
-            </button>
-            <button type="button" onClick={() => scrollToSection('dashboard-activity')}>
-              {t('dashboard.sidebar.activity')}
-            </button>
-            <button type="button" onClick={() => navigate('/favorites')}>
-              {t('dashboard.sidebar.favorites')}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                notifyPending(t('dashboard.addLanguageHint'))
-                navigate('/onboarding/language')
-              }}
-            >
-              {t('dashboard.sidebar.onboarding')}
-            </button>
-          </div>
-        </aside>
+        <Sidebar />
 
         <div className="dashboard-main">
           <section className="dashboard-languages" id="dashboard-languages">
@@ -346,6 +355,74 @@ function DashboardPage() {
             </section>
           )}
         </div>
+
+        <aside className="dashboard-ranking-sidebar">
+          <section className="dashboard-ranking-preview" id="dashboard-ranking-preview">
+            <div className="dashboard-ranking-preview__head">
+              <h3>{t('dashboard.rankingPreview.title')}</h3>
+            </div>
+
+            <div className="dashboard-ranking-preview__hero" aria-hidden="true">
+              <div className="dashboard-ranking-preview__hero-light dashboard-ranking-preview__hero-light--left" />
+              <div className="dashboard-ranking-preview__hero-light dashboard-ranking-preview__hero-light--right" />
+
+              <div className="dashboard-ranking-preview__hero-podium">
+                <div className="dashboard-ranking-preview__hero-step dashboard-ranking-preview__hero-step--silver">
+                  <span className="dashboard-ranking-preview__hero-step-rank">2</span>
+                  <span className="dashboard-ranking-preview__hero-step-avatar">{rankingPreviewLoading ? '…' : (podiumSecond?.username?.[0] || '?').toUpperCase()}</span>
+                </div>
+                <div className="dashboard-ranking-preview__hero-step dashboard-ranking-preview__hero-step--gold">
+                  <span className="dashboard-ranking-preview__hero-step-rank">1</span>
+                  <span className="dashboard-ranking-preview__hero-step-avatar">{rankingPreviewLoading ? '…' : (podiumFirst?.username?.[0] || '?').toUpperCase()}</span>
+                </div>
+                <div className="dashboard-ranking-preview__hero-step dashboard-ranking-preview__hero-step--bronze">
+                  <span className="dashboard-ranking-preview__hero-step-rank">3</span>
+                  <span className="dashboard-ranking-preview__hero-step-avatar">{rankingPreviewLoading ? '…' : (podiumThird?.username?.[0] || '?').toUpperCase()}</span>
+                </div>
+              </div>
+            </div>
+
+            {rankingPreviewLoading ? (
+              <article className="dashboard-ranking-preview__item" role="status" aria-live="polite">
+                <div className="dashboard-ranking-preview__rank">#4</div>
+                <div className="dashboard-ranking-preview__meta">
+                  <strong>...</strong>
+                  <span>{t('dashboard.rankingPreview.loading')}</span>
+                </div>
+              </article>
+            ) : fourthEntry ? (
+              <article className="dashboard-ranking-preview__item" role="listitem">
+                <div className="dashboard-ranking-preview__rank">#4</div>
+                <div className="dashboard-ranking-preview__meta">
+                  <strong>@{fourthEntry.username}</strong>
+                  <span>
+                    {t('ranking.xpLabel', { value: fourthEntry.totalXp || 0 })}
+                    {' · '}
+                    {t('ranking.levelLabel', { value: fourthEntry.currentLevel || 1 })}
+                  </span>
+                </div>
+              </article>
+            ) : (
+              <p className="dashboard-ranking-preview__empty">{t('dashboard.rankingPreview.empty')}</p>
+            )}
+
+            <div className="dashboard-ranking-preview__position">
+              <span className="dashboard-ranking-preview__position-label">{t('dashboard.rankingPreview.positionLabel')}</span>
+              <strong className="dashboard-ranking-preview__position-value">
+                {rankingPreviewLoading ? '...' : (rankingPosition || t('dashboard.rankingPreview.positionUnknown'))}
+              </strong>
+            </div>
+
+            <button
+              className="dashboard-ranking-preview__footer-btn"
+              onClick={() => navigate('/ranking?scope=global')}
+              type="button"
+            >
+              {t('dashboard.rankingPreview.viewAll')}
+              <span className="footer-btn-icon">→</span>
+            </button>
+          </section>
+        </aside>
       </div>
 
       {deleteDialogLanguage && (

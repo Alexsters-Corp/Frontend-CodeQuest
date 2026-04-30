@@ -1,0 +1,176 @@
+.dashboard-sidebar {
+  position: fixed;
+  left: 0;
+  top: 0;
+  height: 100vh;
+  width: 240px;
+  overflow-x: hidden;
+  overflow-y: auto;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  padding: 22px 14px 20px;
+  background: rgba(6, 14, 27, 0.97);
+  box-shadow: 4px 0 24px rgba(2, 6, 23, 0.3);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dashboard-sidebar--collapsed {
+  width: 72px;
+}
+
+.dashboard-sidebar__logo-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-left: 4px;
+  flex-shrink: 0;
+}
+
+.dashboard-sidebar__toggle {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.dashboard-sidebar__logo-text {
+  font-size: 1.35rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #e0eeff;
+  white-space: nowrap;
+}
+
+.dashboard-sidebar h2,
+.dashboard-sidebar h3 {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #64748b;
+  margin-bottom: 12px;
+  padding-left: 10px;
+  white-space: nowrap;
+}
+
+.dashboard-page {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-left: 240px;
+  transition: padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+body.sidebar-is-collapsed .dashboard-page {
+  padding-left: 72px;
+}
+
+.landing__brand-mark {
+  background: linear-gradient(135deg, #58cc02, #22c55e);
+  color: #060e1b;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-weight: 900;
+  font-family: 'Fira Code', monospace;
+  font-size: 1.15rem;
+  box-shadow: 0 4px 12px rgba(88, 204, 2, 0.3);
+}
+
+.dashboard-sidebar--collapsed .dashboard-nav-btn,
+.dashboard-sidebar--collapsed .dashboard-logout-btn {
+  justify-content: center;
+  padding: 10px;
+}
+
+.dashboard-sidebar--collapsed h2,
+.dashboard-sidebar--collapsed h3 {
+  display: none;
+}
+
+.dashboard-sidebar__menu-block,
+.dashboard-sidebar__account-block {
+  display: grid;
+  gap: 6px;
+}
+
+.dashboard-sidebar-nav {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.dashboard-nav-btn,
+.dashboard-logout-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 500;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+
+.dashboard-nav-btn {
+  color: #94a3b8;
+}
+
+.dashboard-logout-btn {
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+.dashboard-nav-btn:hover {
+  background: rgba(148, 163, 184, 0.1);
+  color: #f1f7ff;
+}
+
+.dashboard-logout-btn:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fee2e2;
+  border-color: rgba(239, 68, 68, 0.5);
+}
+
+.dashboard-nav-btn .nav-icon,
+.dashboard-logout-btn .nav-icon {
+  font-size: 1.15rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+}
+
+.dashboard-sidebar__account-block {
+  margin-top: auto;
+  padding-top: 14px;
+  border-top: 1px solid rgba(148, 163, 184, 0.24);
+}
+
+.dashboard-sidebar__account-actions {
+  display: grid;
+  gap: 8px;
+}
+
+.dashboard-sidebar__account-actions .dashboard-nav-btn,
+.dashboard-sidebar__account-actions .dashboard-logout-btn {
+  margin: 0;
+  width: 100%;
+  min-height: 38px;
+  justify-content: center;
+}
