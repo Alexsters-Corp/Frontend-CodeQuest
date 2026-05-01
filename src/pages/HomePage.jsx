@@ -138,7 +138,6 @@ function HomePage() {
 
   return (
     <MotionPage className="landing" delay={0.05}>
-      <div className="landing__mesh" aria-hidden="true" />
       <div className="landing__container">
         <header className="landing__header">
           <div className="landing__brand">

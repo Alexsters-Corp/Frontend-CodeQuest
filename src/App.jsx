@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
@@ -30,6 +31,16 @@ import DemoLessonPage from './pages/DemoLessonPage'
 import DemoCompletionPage from './pages/DemoCompletionPage'
 
 function App() {
+  const { pathname } = useLocation()
+
+  useEffect(() => {
+    const isMarketingRoute = pathname === '/' || pathname === '/demo'
+    document.body.classList.toggle('theme-marketing', isMarketingRoute)
+    return () => {
+      document.body.classList.remove('theme-marketing')
+    }
+  }, [pathname])
+
   return (
     <LanguageProvider>
       <AuthProvider>

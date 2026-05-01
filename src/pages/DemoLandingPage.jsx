@@ -12,7 +12,7 @@ function DemoLandingPage() {
   return (
     <MotionPage className="landing" delay={0.05}>
       <div className="landing__container">
-        <section className="landing__hero" style={{ gridTemplateColumns: '1fr', textAlign: 'center' }}>
+        <section className="landing__hero landing__hero-demo" style={{ gridTemplateColumns: '1fr', textAlign: 'center' }}>
           <div className="landing__hero-copy" style={{ margin: '0 auto', maxWidth: 720 }}>
             <span className="landing__status">Modo demo · Sin registro</span>
 
