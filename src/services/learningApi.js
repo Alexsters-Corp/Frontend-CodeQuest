@@ -9,6 +9,7 @@ const FAVORITES_UPDATED_EVENT = 'cq:favorites:updated'
 const LESSON_FAVORITES_LIST_ENDPOINT = '/api/learning/favorites/lessons'
 
 let lessonFavoritesMode = 'unknown'
+let _favoritesProbeCache = null
 
 async function requestJson(endpoint, options = {}) {
   const response = await apiFetch(endpoint, options)
@@ -335,8 +336,9 @@ async function isBackendLessonFavoritesAvailable() {
   }
 
   try {
-    await listBackendFavoriteLessons()
+    const data = await listBackendFavoriteLessons()
     lessonFavoritesMode = 'backend'
+    _favoritesProbeCache = data
     return true
   } catch (error) {
     if (shouldUseLocalFallback(error.status)) {
@@ -364,7 +366,13 @@ export function isLessonFavorite(lessonId) {
 
 export async function listFavoriteLessons() {
   if (await isBackendLessonFavoritesAvailable()) {
-    const favorites = await listBackendFavoriteLessons()
+    let favorites
+    if (_favoritesProbeCache !== null) {
+      favorites = _favoritesProbeCache
+      _favoritesProbeCache = null
+    } else {
+      favorites = await listBackendFavoriteLessons()
+    }
     writeFavoriteLessons(favorites)
     return favorites
   }

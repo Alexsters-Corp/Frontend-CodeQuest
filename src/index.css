@@ -3932,6 +3932,8 @@ button:disabled {
   border-radius: var(--cq-radius-md);
   background: rgba(11, 20, 37, 0.66);
   padding: 14px;
+  min-width: 0;
+  overflow-x: hidden;
 }
 
 .dashboard-sidebar {
