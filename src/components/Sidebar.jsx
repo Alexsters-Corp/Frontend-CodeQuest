@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+// import { AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
@@ -69,7 +70,7 @@ export default function Sidebar() {
           transition={{ duration: 0.4, ease: 'easeInOut' }}
           aria-label="Toggle Sidebar"
         >
-          <span className="landing__brand-mark">&lt;/&gt;</span>
+        <span className="landing__brand-mark">&lt;/&gt;</span>
         </motion.button>
         <AnimatePresence>
           {!isCollapsed && (
