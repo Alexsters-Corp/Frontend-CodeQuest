@@ -1,6 +1,7 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion as Motion } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
+import { IoMdArrowRoundBack } from 'react-icons/io'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
 import MotionPage from '../components/MotionPage'
 import { useLanguage } from '../context/useLanguage'
@@ -117,7 +118,6 @@ function buildExecutionSource(exercise, answer) {
     return rawAnswer
   }
 
-  // Si el usuario pega un script completo, se ejecuta tal cual.
   if (/\r?\n/.test(rawAnswer) || rawAnswer.includes('_____')) {
     return rawAnswer
   }
@@ -125,7 +125,6 @@ function buildExecutionSource(exercise, answer) {
   return baseCode.split('_____').join(trimmedAnswer)
 }
 
-// Bonus XP que se otorga por completar la lección perfecta en un reintento
 const RETRY_BONUS_XP = 20
 
 function LessonPage() {
@@ -549,7 +548,7 @@ function LessonPage() {
         <div className="lesson-container">
           <div className="lesson-header">
             <button className="lesson-back-link" onClick={() => navigate('/dashboard')} type="button">
-              ← {t('lesson.back')}
+              <IoMdArrowRoundBack /> {t('lesson.back')}
             </button>
             <span className="lesson-modulo">{lesson.modulo_nombre}</span>
           </div>

@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
-// import { AnimatePresence } from 'framer-motion'
+import { motion as Motion, AnimatePresence } from 'framer-motion'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
@@ -62,7 +61,7 @@ export default function Sidebar() {
   return (
     <aside className={`dashboard-sidebar ${isCollapsed ? 'dashboard-sidebar--collapsed' : ''}`}>
       <div className="dashboard-sidebar__logo-container">
-        <motion.button
+        <Motion.button
           type="button"
           className="dashboard-sidebar__toggle"
           onClick={toggleSidebar}
@@ -71,10 +70,10 @@ export default function Sidebar() {
           aria-label="Toggle Sidebar"
         >
         <span className="landing__brand-mark">&lt;/&gt;</span>
-        </motion.button>
+        </Motion.button>
         <AnimatePresence>
           {!isCollapsed && (
-            <motion.span
+            <Motion.span
               className="dashboard-sidebar__logo-text"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -82,7 +81,7 @@ export default function Sidebar() {
               transition={{ duration: 0.2 }}
             >
               CodeQuest
-            </motion.span>
+            </Motion.span>
           )}
         </AnimatePresence>
       </div>

@@ -51,8 +51,8 @@ function SocialPanel() {
       try {
         const users = await searchUsersByUsername(query, 10)
         setSocialResults(users)
-      } catch (error) {
-        // Silent error for auto-search to avoid annoying popups
+      } catch {
+        // silent — auto-search no muestra popups de error
       } finally {
         setSocialLoading(false)
       }

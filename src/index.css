@@ -598,11 +598,7 @@ button.profile-icon-chip:hover {
   margin-top: 8px;
 }
 
-
-
-/* ============================================================
-   7. ONBOARDING PAGES
-   ============================================================ */
+/* --- 7. ONBOARDING --- */
 
 .onboarding-page {
   min-height: 100vh;
@@ -880,7 +876,6 @@ button.profile-icon-chip:hover {
   transition: all 0.3s;
 }
 
-
 /* ============================================================
    8. DIAGNOSTIC TEST PAGE
    ============================================================ */
@@ -909,7 +904,9 @@ button.profile-icon-chip:hover {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .diagnostic-container {
@@ -1037,8 +1034,14 @@ button.profile-icon-chip:hover {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .feedback-correct {
@@ -1064,7 +1067,9 @@ button.profile-icon-chip:hover {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .diagnostic-submit-btn:hover:not(:disabled),
@@ -1094,7 +1099,10 @@ button.profile-icon-chip:hover {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    color 0.2s;
   margin-top: 0;
 }
 
@@ -1119,7 +1127,9 @@ button.profile-icon-chip:hover {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   margin-top: 0;
 }
 
@@ -1168,9 +1178,18 @@ button.profile-icon-chip:hover {
   text-transform: capitalize;
 }
 
-.level-principiante { background: #dbeafe; color: #1e40af; }
-.level-intermedio { background: #fef3c7; color: #92400e; }
-.level-avanzado { background: #d1fae5; color: #065f46; }
+.level-principiante {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.level-intermedio {
+  background: #fef3c7;
+  color: #92400e;
+}
+.level-avanzado {
+  background: #d1fae5;
+  color: #065f46;
+}
 
 .result-stats {
   display: flex;
@@ -1202,7 +1221,6 @@ button.profile-icon-chip:hover {
   line-height: 1.6;
   margin-bottom: 28px;
 }
-
 
 /* ============================================================
    9. MODULES PAGE
@@ -1258,6 +1276,9 @@ button.profile-icon-chip:hover {
 }
 
 .modules-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   background: none;
   border: none;
   color: #4f46e5;
@@ -1357,9 +1378,18 @@ button.profile-icon-chip:hover {
   font-weight: 600;
 }
 
-.status-completado { background: #d1fae5; color: #065f46; }
-.status-en_progreso { background: #dbeafe; color: #1e40af; }
-.status-bloqueado { background: #f3f4f6; color: #9ca3af; }
+.status-completado {
+  background: #d1fae5;
+  color: #065f46;
+}
+.status-en_progreso {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.status-bloqueado {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
 
 .module-progress-mini {
   height: 6px;
@@ -1493,6 +1523,9 @@ button.profile-icon-chip:hover {
 }
 
 .lesson-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   background: none;
   border: none;
   color: #4f46e5;
@@ -1604,7 +1637,9 @@ button.profile-icon-chip:hover {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
+  transition:
+    transform 0.2s,
+    background 0.2s;
 }
 
 .lesson-solution-btn:hover:not(:disabled) {
@@ -1813,7 +1848,11 @@ button.profile-icon-chip:hover {
   gap: 10px;
   padding: 10px 12px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.25);
-  background: linear-gradient(90deg, rgba(11, 20, 37, 0.96), rgba(15, 23, 42, 0.95));
+  background: linear-gradient(
+    90deg,
+    rgba(11, 20, 37, 0.96),
+    rgba(15, 23, 42, 0.95)
+  );
 }
 
 .monaco-language-chip {
@@ -2000,7 +2039,12 @@ button.profile-icon-chip:hover {
 .editor-skeleton__line {
   display: inline-block;
   border-radius: 8px;
-  background: linear-gradient(90deg, rgba(51, 65, 85, 0.55), rgba(100, 116, 139, 0.45), rgba(51, 65, 85, 0.55));
+  background: linear-gradient(
+    90deg,
+    rgba(51, 65, 85, 0.55),
+    rgba(100, 116, 139, 0.45),
+    rgba(51, 65, 85, 0.55)
+  );
   background-size: 180% 100%;
   animation: editorShimmer 1.2s ease infinite;
 }
@@ -2106,7 +2150,9 @@ button.profile-icon-chip:hover {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .exercise-submit-btn {
@@ -2572,7 +2618,11 @@ button.profile-icon-chip:hover {
   overflow: hidden;
   margin-bottom: 10px;
   background:
-    radial-gradient(circle at 50% 116%, rgba(56, 189, 248, 0.24), transparent 40%),
+    radial-gradient(
+      circle at 50% 116%,
+      rgba(56, 189, 248, 0.24),
+      transparent 40%
+    ),
     linear-gradient(180deg, rgba(9, 20, 37, 0.92), rgba(6, 16, 31, 0.95));
 }
 
@@ -2581,7 +2631,11 @@ button.profile-icon-chip:hover {
   top: -26px;
   width: 140px;
   height: 118px;
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.36), rgba(56, 189, 248, 0.04));
+  background: linear-gradient(
+    180deg,
+    rgba(56, 189, 248, 0.36),
+    rgba(56, 189, 248, 0.04)
+  );
   clip-path: polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%);
   filter: blur(1px);
   opacity: 0.72;
@@ -2736,7 +2790,6 @@ button.profile-icon-chip:hover {
   line-height: 1;
 }
 
-
 .activity-bars {
   display: flex;
   gap: 8px;
@@ -2799,8 +2852,16 @@ body {
   color: var(--cq-text);
   background:
     radial-gradient(circle at 4% 0%, rgba(16, 185, 129, 0.16), transparent 30%),
-    radial-gradient(circle at 95% 15%, rgba(139, 92, 246, 0.14), transparent 28%),
-    radial-gradient(circle at 70% 100%, rgba(245, 158, 11, 0.08), transparent 32%),
+    radial-gradient(
+      circle at 95% 15%,
+      rgba(139, 92, 246, 0.14),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 70% 100%,
+      rgba(245, 158, 11, 0.08),
+      transparent 32%
+    ),
     linear-gradient(150deg, #050a16 0%, #0c162b 44%, #090f20 100%);
 }
 
@@ -2809,10 +2870,15 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
   background-size: 44px 44px;
-  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.8), transparent 85%);
+  mask-image: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.8),
+    transparent 85%
+  );
   z-index: -1;
 }
 
@@ -2823,9 +2889,21 @@ body::after {
   inset: -20% -10%;
   pointer-events: none;
   background:
-    radial-gradient(circle at 15% 18%, rgba(16, 185, 129, 0.20), transparent 32%),
-    radial-gradient(circle at 82% 16%, rgba(139, 92, 246, 0.20), transparent 26%),
-    radial-gradient(circle at 52% 90%, rgba(245, 158, 11, 0.12), transparent 34%);
+    radial-gradient(
+      circle at 15% 18%,
+      rgba(16, 185, 129, 0.2),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 82% 16%,
+      rgba(139, 92, 246, 0.2),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 52% 90%,
+      rgba(245, 158, 11, 0.12),
+      transparent 34%
+    );
   filter: blur(6px);
   z-index: -1;
 }
@@ -2833,9 +2911,21 @@ body::after {
 /* Capa C - Halos de saturacion MARKETING (override en / y /demo) */
 body.theme-marketing::after {
   background:
-    radial-gradient(circle at 15% 18%, rgba(16, 185, 129, 0.36), transparent 32%),
-    radial-gradient(circle at 82% 16%, rgba(139, 92, 246, 0.36), transparent 26%),
-    radial-gradient(circle at 52% 90%, rgba(245, 158, 11, 0.24), transparent 34%);
+    radial-gradient(
+      circle at 15% 18%,
+      rgba(16, 185, 129, 0.36),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 82% 16%,
+      rgba(139, 92, 246, 0.36),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 52% 90%,
+      rgba(245, 158, 11, 0.24),
+      transparent 34%
+    );
 }
 
 h1,
@@ -2899,10 +2989,17 @@ textarea:focus {
 button {
   border: 1px solid transparent;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--cq-primary), var(--cq-primary-strong));
+  background: linear-gradient(
+    135deg,
+    var(--cq-primary),
+    var(--cq-primary-strong)
+  );
   color: #f7fffb;
   font-weight: 700;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
 
 button:hover:not(:disabled) {
@@ -2935,7 +3032,9 @@ button:disabled {
 /* ── Streak emoji ───────────────────────── */
 .streak-emoji {
   display: inline-block;
-  transition: filter 0.4s ease, opacity 0.4s ease;
+  transition:
+    filter 0.4s ease,
+    opacity 0.4s ease;
 }
 
 .streak-emoji--active {
@@ -3109,7 +3208,9 @@ button:disabled {
   border: 1px dashed rgba(245, 158, 11, 0.55);
   background: rgba(245, 158, 11, 0.12);
   color: #fbbf24;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
 }
 
 .landing__demo-btn:hover {
@@ -3340,7 +3441,11 @@ button:disabled {
 .landing__showcase-screen {
   border-radius: 20px;
   border: 1px solid rgba(16, 185, 129, 0.38);
-  background: linear-gradient(160deg, rgba(16, 185, 129, 0.16), rgba(139, 92, 246, 0.14));
+  background: linear-gradient(
+    160deg,
+    rgba(16, 185, 129, 0.16),
+    rgba(139, 92, 246, 0.14)
+  );
   padding: 28px 18px;
 }
 
@@ -3365,6 +3470,113 @@ button:disabled {
   gap: 12px;
   padding: 8px 2px 0;
   color: #9db1ca;
+}
+
+/* ============================================================
+   13b. DEMO LANDING PAGE (ruta /demo)
+   ============================================================ */
+
+.demo__hero-section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 80vh;
+  padding: 48px 16px;
+}
+
+.demo__hero-copy {
+  width: min(100%, 760px);
+  text-align: center;
+}
+
+.demo__hero-title {
+  margin: 0;
+  font-size: clamp(2.3rem, 6vw, 4.5rem);
+  line-height: 0.95;
+}
+
+.demo__hero-title em {
+  display: block;
+  color: #b7f7de;
+  font-style: normal;
+}
+
+.demo__hero-sub {
+  margin: 20px auto 0;
+  max-width: 580px;
+  line-height: 1.7;
+  color: #b0c4de;
+}
+
+/* Botones: misma apariencia que landing pero clase independiente
+   para poder centrarlos sin afectar el layout del home */
+.demo__cta-btn,
+.demo__link-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.15s;
+  white-space: nowrap;
+}
+
+.demo__cta-btn:hover,
+.demo__link-btn:hover {
+  opacity: 0.88;
+  transform: translateY(-1px);
+}
+
+.demo__cta-btn {
+  padding: 11px 20px;
+  border: 1px solid rgba(16, 185, 129, 0.4);
+  background: linear-gradient(135deg, var(--cq-primary), #34d399);
+  color: #022015;
+}
+
+.demo__link-btn {
+  padding: 10px 16px;
+  border: 1px solid var(--cq-border);
+  color: #dde7f6;
+  background: rgba(15, 23, 42, 0.58);
+}
+
+.demo__hero-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 14px;
+  margin-top: 32px;
+  flex-wrap: wrap;
+}
+
+.demo__footer-note {
+  margin-top: 16px;
+  font-size: 0.82rem;
+  color: #9db1ca;
+}
+
+.demo__badges {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.demo__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid var(--cq-border);
+  background: rgba(15, 23, 42, 0.55);
+  color: #c8daf4;
 }
 
 /* ============================================================
@@ -3401,8 +3613,16 @@ button:disabled {
 .auth-visual {
   padding: 26px;
   background:
-    radial-gradient(circle at 80% 16%, rgba(139, 92, 246, 0.24), transparent 32%),
-    radial-gradient(circle at 14% 70%, rgba(16, 185, 129, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(139, 92, 246, 0.24),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 14% 70%,
+      rgba(16, 185, 129, 0.2),
+      transparent 34%
+    ),
     rgba(8, 16, 30, 0.74);
 }
 
@@ -3897,7 +4117,9 @@ button:disabled {
   border-radius: inherit;
   pointer-events: none;
   border: 1px solid rgba(16, 185, 129, 0.3);
-  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1), 0 10px 24px rgba(16, 185, 129, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(16, 185, 129, 0.1),
+    0 10px 24px rgba(16, 185, 129, 0.14);
   opacity: 0;
   animation: landing-target-soft 0.82s ease-out;
 }
@@ -4262,17 +4484,9 @@ button:disabled {
   background: rgba(76, 41, 9, 0.95) !important;
 }
 
-
-
-
-
 /* SOLO móvil */
 
-
 /* Desktop */
-
-
-
 
 /* ============================================================
    16. DEMO PUBLICO (HU-025)
@@ -4285,12 +4499,11 @@ button:disabled {
   position: sticky;
   top: 0;
   z-index: 1000;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 10px;
-
   padding: 10px 16px;
 }
 
@@ -4300,12 +4513,9 @@ button:disabled {
 
 .demo-banner__chip {
   padding: 3px 10px;
-
   background: rgba(16, 185, 129, 0.18);
   color: #6ee7b7;
-
   border-radius: 999px;
-
   font-size: 11px;
   font-weight: 600;
 }
@@ -4313,16 +4523,12 @@ button:disabled {
 .demo-banner__cta {
   margin-left: auto;
   padding: 6px 14px;
-
   border: 1px solid rgba(245, 158, 11, 0.5);
   border-radius: 999px;
-
   background: rgba(245, 158, 11, 0.18);
   color: #fde68a;
-
   font-size: 13px;
   font-weight: 600;
-
   cursor: pointer;
 }
 
@@ -4330,26 +4536,35 @@ button:disabled {
   background: rgba(245, 158, 11, 0.32);
 }
 
-/* Bloques internos de DemoCompletionPage */
 .lesson-completed--demo {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 18px;
-
   max-width: 640px;
   padding: 36px 32px;
 }
 
 .lesson-completed--demo h1 {
   font-size: 1.75rem;
+  color: var(--cq-text);
 }
 
 .lesson-completed--demo h2 {
   margin-bottom: 8px;
-
-  color: #4b5563;
+  color: var(--cq-muted);
   font-size: 1.05rem;
+}
+
+.lesson-completed--demo .completed-icon {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.38);
 }
 
 .demo-completion__stats {
@@ -4373,9 +4588,7 @@ button:disabled {
 
 .demo-completion__stat-number {
   display: block;
-
   color: var(--cq-primary, #10b981);
-
   font-size: 2rem;
   font-weight: 800;
   line-height: 1.1;
@@ -4384,11 +4597,9 @@ button:disabled {
 .demo-completion__stat-label {
   display: block;
   margin-top: 6px;
-
-  color: #374151;
-
   font-size: 13px;
   font-weight: 500;
+  color: var(--cq-muted);
 }
 
 .demo-completion__chips {
@@ -4396,19 +4607,15 @@ button:disabled {
   flex-wrap: wrap;
   justify-content: center;
   gap: 6px;
-
   width: 100%;
 }
 
 .demo-completion__chip {
   padding: 4px 12px;
-
   border: 1px solid rgba(16, 185, 129, 0.32);
   border-radius: 999px;
-
   background: rgba(16, 185, 129, 0.12);
-  color: #047857;
-
+  color: #6ee7b7;
   font-size: 12px;
   font-weight: 600;
 }
@@ -4428,19 +4635,15 @@ button:disabled {
 
 .demo-completion__next h3 {
   margin: 0 0 10px;
-
-  color: #111827;
-
   font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
+  color: var(--cq-muted);
 }
-
 .demo-completion__next ul {
   margin: 0;
   padding: 0;
-
   list-style: none;
 }
 
@@ -4448,29 +4651,22 @@ button:disabled {
   display: flex;
   align-items: center;
   gap: 8px;
-
   padding: 8px 0;
-
   border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-
-  color: #374151;
   font-size: 14px;
+  color: var(--cq-text);
 }
 
 .demo-completion__next li:last-child {
   border-bottom: none;
 }
-
 .demo-completion__footnote {
   margin: 0;
-
-  color: #6b7280;
-
   font-size: 12px;
+  color: var(--cq-muted);
 }
 
 /* Adaptacion suave */
-
 
 .profile-social-panel {
   margin-top: 24px;
@@ -4571,8 +4767,14 @@ button:disabled {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .social-list-card h3 {
@@ -4705,9 +4907,18 @@ button:disabled {
   text-align: center;
 }
 
-.ranking-item:nth-child(1) .ranking-rank-badge { color: #fbbf24; font-size: 1.55rem; }
-.ranking-item:nth-child(2) .ranking-rank-badge { color: #cbd5e1; font-size: 1.4rem; }
-.ranking-item:nth-child(3) .ranking-rank-badge { color: #fb923c; font-size: 1.3rem; }
+.ranking-item:nth-child(1) .ranking-rank-badge {
+  color: #fbbf24;
+  font-size: 1.55rem;
+}
+.ranking-item:nth-child(2) .ranking-rank-badge {
+  color: #cbd5e1;
+  font-size: 1.4rem;
+}
+.ranking-item:nth-child(3) .ranking-rank-badge {
+  color: #fb923c;
+  font-size: 1.3rem;
+}
 
 .ranking-item-main {
   display: grid;
@@ -4795,7 +5006,6 @@ button:disabled {
   }
 }
 
-
 @media (max-width: 560px) {
   .rbac-metric-grid,
   .rbac-metric-grid--admin {
@@ -4803,11 +5013,9 @@ button:disabled {
   }
 }
 
-
 /* -- 7. ONBOARDING PAGES -- */
 
 @media (max-width: 480px) {
-
   .onboarding-container {
     padding: 28px 20px;
   }
@@ -4820,7 +5028,6 @@ button:disabled {
     min-width: 52px;
   }
 }
-
 
 /* -- 8. DIAGNOSTIC TEST PAGE -- */
 
@@ -4835,7 +5042,6 @@ button:disabled {
   }
 }
 
-
 /* -- 11. DASHBOARD - NEW SECTIONS -- */
 
 @media (max-width: 900px) {
@@ -4843,7 +5049,6 @@ button:disabled {
     width: 100%;
   }
 }
-
 
 /* -- 15. CORE APP SURFACES (DS V2 OVERRIDES) -- */
 
@@ -4863,14 +5068,12 @@ button:disabled {
   }
 }
 
-
 @media (max-width: 540px) {
   .cq-toast {
     min-width: 0;
     width: min(92vw, 420px);
   }
 }
-
 
 @media (max-width: 900px) {
   .landing__hero,
@@ -4924,7 +5127,6 @@ button:disabled {
     flex-wrap: wrap;
   }
 }
-
 
 @media (max-width: 760px) {
   .landing,
@@ -5000,7 +5202,6 @@ button:disabled {
   }
 }
 
-
 @media (max-width: 768px) {
   .landing__hero-actions,
   .landing__actions,
@@ -5018,7 +5219,6 @@ button:disabled {
   }
 }
 
-
 @media (min-width: 768px) {
   .landing__hero-actions {
     flex-direction: row;
@@ -5026,7 +5226,6 @@ button:disabled {
     align-items: center;
   }
 }
-
 
 @media (max-width: 480px) {
   .landing__hero-copy h1 {
@@ -5044,7 +5243,6 @@ button:disabled {
     padding: 18px;
   }
 }
-
 
 /* -- 16. DEMO PUBLICO (HU-025) -- */
 
@@ -5079,7 +5277,6 @@ button:disabled {
   }
 }
 
-
 @media (max-width: 900px) {
   .social-columns {
     grid-template-columns: 1fr;
@@ -5090,7 +5287,6 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
-
 
 @media (max-width: 640px) {
   .social-summary-grid,
@@ -5105,4 +5301,3 @@ button:disabled {
     flex-direction: column;
   }
 }
-

@@ -1,5 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { IoMdArrowRoundBack } from 'react-icons/io'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
 import MotionPage from '../components/MotionPage'
 import { getDemoLessonContent, submitDemoExercise, executeDemoCode } from '../services/demoApi'
@@ -58,7 +59,7 @@ function DemoLessonPage() {
   const [isExecuting, setIsExecuting] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const [submitting, setSubmitting] = useState(false)
-  const [restoredFromAutosave, setRestoredFromAutosave] = useState(false)
+  // const [restoredFromAutosave, setRestoredFromAutosave] = useState(false)
 
   const autosaveTimeoutRef = useRef(null)
   const initialAutosaveRef = useRef(null)
@@ -109,7 +110,7 @@ function DemoLessonPage() {
           setCodeAnswerByExercise(saved.codeAnswerByExercise || {})
           setCurrentExerciseIdx(saved.currentExerciseIdx || 0)
           setCurrentStep(saved.currentStep || 'theory')
-          setRestoredFromAutosave(true)
+          // setRestoredFromAutosave(true)
           notifyInfo('Continuamos donde lo dejaste.')
         }
       } catch (error) {
@@ -297,7 +298,7 @@ function DemoLessonPage() {
       <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
           <p>No fue posible cargar la leccion demo.</p>
-          <button type="button" onClick={() => navigate('/demo')}>Volver</button>
+          <button type="button" onClick={() => navigate('/demo')}><IoMdArrowRoundBack /> Volver</button>
         </div>
       </MotionPage>
     )
@@ -307,7 +308,7 @@ function DemoLessonPage() {
 
   return (
     <MotionPage className="lesson-page" delay={0.06}>
-      <div className="demo-banner" role="note" aria-live="polite">
+      {/* <div className="demo-banner" role="note" aria-live="polite">
         <strong>Modo demo</strong> · tu progreso no se guarda
         {restoredFromAutosave && <span className="demo-banner__chip">sesion restaurada</span>}
         <button
@@ -317,14 +318,14 @@ function DemoLessonPage() {
         >
           Crear cuenta
         </button>
-      </div>
+      </div> */}
 
       <div className="lesson-container">
         {currentStep === 'theory' && (
           <>
             <div className="lesson-header">
               <button className="lesson-back-link" type="button" onClick={() => navigate('/demo')}>
-                ← Volver
+                <IoMdArrowRoundBack /> Volver
               </button>
               <span className="lesson-modulo">{lesson.modulo_nombre}</span>
             </div>

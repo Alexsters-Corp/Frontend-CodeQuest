@@ -93,22 +93,15 @@ function DemoCompletionPage() {
         <div className="completed-actions">
           <button
             type="button"
-            className="lesson-start-btn ui-jitter"
+            className="demo__cta-btn ui-jitter"
             onClick={() => navigate('/registro')}
           >
             Crear mi cuenta gratis
           </button>
-          <button
-            type="button"
-            className="lesson-back-btn"
-            onClick={() => navigate('/login')}
-          >
-            Ya tengo cuenta
-          </button>
         </div>
 
         <p className="demo-completion__footnote">
-          Solo necesitas un email. Sin tarjeta. Cancelas cuando quieras.
+          Puedes crear tu cuenta gratis cuando quieras.
         </p>
       </div>
     </MotionPage>
