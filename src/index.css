@@ -3579,6 +3579,86 @@ button:disabled {
   color: #c8daf4;
 }
 
+.demo__hero-subtitle {
+  margin: 10px 0 0;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--cq-muted);
+}
+
+/* Desktop: 4 columnas fijas — 7 items quedan 4+3 alineados */
+.demo-lang-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  width: 100%;
+  max-width: 680px;
+  margin: 28px auto 0;
+  box-sizing: border-box;
+}
+
+.demo-lang-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 22px 12px 16px;
+  border: 1px solid var(--cq-border);
+  border-radius: 14px;
+  background: rgba(9, 18, 33, 0.72);
+  cursor: pointer;
+  width: 100%;
+  box-sizing: border-box;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+
+.demo-lang-card:hover {
+  border-color: rgba(16, 185, 129, 0.46);
+  background: rgba(13, 25, 45, 0.92);
+  transform: translateY(-3px);
+}
+
+.demo-lang-card img {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.demo-lang-card__name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--cq-text);
+  text-align: center;
+}
+
+/* Móvil: 1 por fila, layout horizontal (imagen izquierda + nombre derecha) */
+@media (max-width: 540px) {
+  .demo-lang-grid {
+    grid-template-columns: 1fr;
+    max-width: 100%;
+    gap: 5px;
+  }
+
+  .demo-lang-card {
+    flex-direction: row;
+    justify-content: flex-start;
+    padding: 10px 14px;
+    gap: 16px;
+    border-radius: 12px;
+  }
+
+  .demo-lang-card img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .demo-lang-card__name {
+    font-size: 0.9rem;
+    text-align: left;
+  }
+}
+
 /* ============================================================
    14. AUTH
    ============================================================ */
