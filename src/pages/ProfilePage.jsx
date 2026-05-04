@@ -86,6 +86,7 @@ function ProfilePage() {
         avatar: String(user.avatar || PRESET_ICONS[0]),
         totalXp: Number(user.totalXp || 0),
         currentLevel: Number(user.currentLevel || 1),
+        conductScore: Number(user.conductScore || 0),
         countryCode,
         countryRaw: '',
         birthDate: String(user.birthDate || ''),
@@ -282,6 +283,40 @@ function ProfilePage() {
                   <p>📊 {t('dashboard.level')}</p>
                   <strong>{profile.currentLevel || 1}</strong>
                 </article>
+              </div>
+
+              <div className="profile-edit-header" style={{ marginTop: '20px' }}>
+                <h3>{t('profile.conductTitle') || 'Índice de Buena Conducta'}</h3>
+              </div>
+
+              <div className="conduct-metric-container" style={{ marginTop: '10px', padding: '15px', backgroundColor: '#f9f9f9', borderRadius: '8px', border: '1px solid #eee' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
+                  <span style={{ fontSize: '0.9rem', color: '#666' }}>{t('profile.conductStatus') || 'Estado de conducta'}</span>
+                  <span style={{ fontSize: '0.9rem', fontWeight: 'bold', color: profile.conductScore > 80 ? '#4caf50' : profile.conductScore > 50 ? '#ff9800' : '#f44336' }}>
+                    {profile.conductScore}% - {
+                      profile.conductScore > 90 ? 'Excelente' :
+                      profile.conductScore > 75 ? 'Muy Buena' :
+                      profile.conductScore > 50 ? 'Regular' : 'Mejorable'
+                    }
+                  </span>
+                </div>
+                <div className="conduct-bar-background" style={{ 
+                  width: '100%', 
+                  height: '10px', 
+                  backgroundColor: '#e0e0e0', 
+                  borderRadius: '5px',
+                  overflow: 'hidden'
+                }}>
+                  <div className="conduct-bar-fill" style={{ 
+                    width: `${profile.conductScore}%`, 
+                    height: '100%', 
+                    backgroundColor: profile.conductScore > 80 ? '#4caf50' : profile.conductScore > 50 ? '#ff9800' : '#f44336',
+                    transition: 'width 0.8s cubic-bezier(0.4, 0, 0.2, 1)'
+                  }} />
+                </div>
+                <p style={{ marginTop: '10px', fontSize: '0.8rem', color: '#888', fontStyle: 'italic' }}>
+                  * Este índice se calcula basado en tu precisión de envíos y consistencia en la plataforma.
+                </p>
               </div>
 
               <label htmlFor="profile-view-country" style={{ marginTop: '20px' }}>{t('profile.country')}</label>
