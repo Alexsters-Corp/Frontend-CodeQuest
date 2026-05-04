@@ -10,6 +10,8 @@ import { getLessonContent, getLessonSolution, submitLessonExercise, submitLesson
 import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
+import TheoryContent from '../components/TheoryContent'
+
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
 
 function parseBooleanFlag(value, fallback = false) {
@@ -562,10 +564,7 @@ function LessonPage() {
           )}
 
           {lesson.contenido_teoria ? (
-            <div
-              className="lesson-theory"
-              dangerouslySetInnerHTML={{ __html: lesson.contenido_teoria }}
-            />
+            <TheoryContent html={lesson.contenido_teoria} language={editorLanguage} />
           ) : (
             <div className="lesson-theory">
               <p>{lesson.descripcion}</p>

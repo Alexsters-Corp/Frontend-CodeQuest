@@ -1560,7 +1560,7 @@ button.profile-icon-chip:hover {
 .lesson-theory h3 {
   margin-top: 20px;
   margin-bottom: 8px;
-  color: #1f2937;
+  color: #f1f7ff;
 }
 
 .lesson-theory pre {
@@ -4116,6 +4116,36 @@ button:disabled {
   border-radius: 12px;
   background: #050d1a;
   color: #bde7d4;
+}
+
+/* CodeViewer — Monaco en modo readOnly para bloques de teoria */
+.code-viewer {
+  margin: 16px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--cq-border);
+}
+
+.code-viewer__lang {
+  padding: 5px 12px;
+  background: rgba(9, 18, 33, 0.95);
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--cq-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.code-viewer__fallback {
+  margin: 0;
+  padding: 14px 16px;
+  background: #050d1a;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+  color: #d4d4d4;
+  white-space: pre;
 }
 
 .spinner {

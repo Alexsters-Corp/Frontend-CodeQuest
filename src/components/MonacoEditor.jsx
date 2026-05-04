@@ -1,7 +1,8 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
 import PropTypes from 'prop-types'
 import { motion as Motion } from 'framer-motion'
-import Editor, { loader } from '@monaco-editor/react'
+import Editor from '@monaco-editor/react'
+import { monacoReady, monacoError, monacoPromise } from '../utils/monacoLoader'
 
 const DEFAULT_OPTIONS = Object.freeze({
   minimap: { enabled: false },
@@ -51,8 +52,8 @@ function MonacoEditor({
   onEditorError,
   celebrationTick = 0,
 }) {
-  const [loaderReady, setLoaderReady] = useState(false)
-  const [loaderError, setLoaderError] = useState(false)
+  const [loaderReady, setLoaderReady] = useState(monacoReady)
+  const [loaderError, setLoaderError] = useState(monacoError)
 
   const outputLines = useMemo(() => normalizeConsoleOutput(consoleOutput), [consoleOutput])
 
@@ -65,30 +66,24 @@ function MonacoEditor({
   const canRun = typeof onRun === 'function' && !isExecuting && !readOnly
 
   useEffect(() => {
-    let active = true
+    if (monacoReady || monacoError) return
 
-    loader
-      .init()
+    let active = true
+    monacoPromise
       .then(() => {
-        if (!active) {
-          return
-        }
+        if (!active) return
         setLoaderReady(true)
         setLoaderError(false)
       })
       .catch(() => {
-        if (!active) {
-          return
-        }
+        if (!active) return
         setLoaderError(true)
         if (typeof onEditorError === 'function') {
           onEditorError()
         }
       })
 
-    return () => {
-      active = false
-    }
+    return () => { active = false }
   }, [onEditorError])
 
   const handleEditorMount = useCallback((editor, monaco) => {

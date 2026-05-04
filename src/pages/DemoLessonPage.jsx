@@ -6,6 +6,7 @@ import MotionPage from '../components/MotionPage'
 import { getDemoLessonContent, submitDemoExercise, executeDemoCode } from '../services/demoApi'
 import { buildExecutionSource, normalizeCodeExerciseAnswer } from '../utils/lessonAnswers'
 import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
+import TheoryContent from '../components/TheoryContent'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
@@ -333,10 +334,7 @@ function DemoLessonPage() {
             <h1 className="lesson-title">{lesson.titulo}</h1>
 
             {lesson.contenido_teoria ? (
-              <div
-                className="lesson-theory"
-                dangerouslySetInnerHTML={{ __html: lesson.contenido_teoria }}
-              />
+              <TheoryContent html={lesson.contenido_teoria} language={editorLanguage} />
             ) : (
               <div className="lesson-theory">
                 <p>{lesson.descripcion}</p>
