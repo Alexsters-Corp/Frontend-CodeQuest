@@ -185,6 +185,16 @@ function AdminDashboardPage() {
         </div>
       </div>
 
+      <section className="rbac-card ai-admin-entry">
+        <div className="rbac-section-head">
+          <h2>{t('admin.ai.toolsTitle')}</h2>
+          <button type="button" onClick={() => navigate('/admin/ai')}>
+            {t('admin.ai.open')}
+          </button>
+        </div>
+        <p className="rbac-muted">{t('admin.ai.toolsHint')}</p>
+      </section>
+
       <section className="rbac-card">
         <div className="rbac-section-head">
           <h2>{t('admin.globalAnalytics')}</h2>
