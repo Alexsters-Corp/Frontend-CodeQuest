@@ -1492,6 +1492,7 @@ button.profile-icon-chip:hover {
    10. LESSON PAGE & EXERCISES
    ============================================================ */
 
+/* Compartido: LessonPage, DemoLessonPage, DemoCompletionPage */
 .lesson-page {
   min-height: 100vh;
   background: #f3f4f6;
@@ -1501,11 +1502,13 @@ button.profile-icon-chip:hover {
   padding: 24px;
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .lesson-loading {
   text-align: center;
   color: #6b7280;
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .lesson-container {
   background: #fff;
   border-radius: 20px;
@@ -1515,6 +1518,7 @@ button.profile-icon-chip:hover {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .lesson-header {
   display: flex;
   align-items: center;
@@ -1522,6 +1526,7 @@ button.profile-icon-chip:hover {
   margin-bottom: 20px;
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .lesson-back-link {
   display: inline-flex;
   align-items: center;
@@ -1535,6 +1540,7 @@ button.profile-icon-chip:hover {
   margin-top: 0;
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .lesson-modulo {
   font-size: 0.8rem;
   color: #6b7280;
@@ -1543,12 +1549,14 @@ button.profile-icon-chip:hover {
   border-radius: 999px;
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .lesson-title {
   font-size: 1.5rem;
   color: #1f2937;
   margin-bottom: 20px;
 }
 
+/* Compartido: LessonPage, DemoLessonPage, TheoryContent */
 .lesson-theory {
   line-height: 1.7;
   color: #374151;
@@ -1583,6 +1591,7 @@ button.profile-icon-chip:hover {
   margin: 8px 0;
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .lesson-actions {
   display: flex;
   align-items: center;
@@ -1591,6 +1600,7 @@ button.profile-icon-chip:hover {
   flex-wrap: wrap;
 }
 
+/* Compartido: LessonPage, DemoCompletionPage */
 .completed-actions {
   display: flex;
   align-items: center;
@@ -1608,6 +1618,7 @@ button.profile-icon-chip:hover {
   margin-top: 4px;
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .lesson-start-btn,
 .lesson-back-btn,
 .lesson-retry-btn {
@@ -1745,6 +1756,7 @@ button.profile-icon-chip:hover {
   margin-bottom: 16px;
 }
 
+/* Compartido: LessonPage, DemoLessonPage */
 .exercise-options {
   display: flex;
   flex-direction: column;
@@ -2177,6 +2189,7 @@ button.profile-icon-chip:hover {
 }
 
 /* Lesson completed */
+/* Compartido: LessonPage, DemoCompletionPage */
 .lesson-completed {
   text-align: center;
   background: #fff;
@@ -2187,6 +2200,7 @@ button.profile-icon-chip:hover {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
 }
 
+/* Compartido: LessonPage, DemoCompletionPage */
 .completed-icon {
   font-size: 4rem;
   margin-bottom: 12px;
@@ -3012,6 +3026,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* Compartido: HomePage, LessonPage, DemoLessonPage, DemoCompletionPage, auth pages */
 .ui-jitter:hover:not(:disabled) {
   animation: ui-jitter 0.26s ease;
 }
@@ -3115,6 +3130,7 @@ button:disabled {
   padding: 28px 24px 40px;
 }
 
+/* Compartido: HomePage, DemoLandingPage */
 .landing__container {
   position: relative;
   max-width: 1220px;
@@ -3472,192 +3488,7 @@ button:disabled {
   color: #9db1ca;
 }
 
-/* ============================================================
-   13b. DEMO LANDING PAGE (ruta /demo)
-   ============================================================ */
-
-.demo__hero-section {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 80vh;
-  padding: 48px 16px;
-}
-
-.demo__hero-copy {
-  width: min(100%, 760px);
-  text-align: center;
-}
-
-.demo__hero-title {
-  margin: 0;
-  font-size: clamp(2.3rem, 6vw, 4.5rem);
-  line-height: 0.95;
-}
-
-.demo__hero-title em {
-  display: block;
-  color: #b7f7de;
-  font-style: normal;
-}
-
-.demo__hero-sub {
-  margin: 20px auto 0;
-  max-width: 580px;
-  line-height: 1.7;
-  color: #b0c4de;
-}
-
-/* Botones: misma apariencia que landing pero clase independiente
-   para poder centrarlos sin afectar el layout del home */
-.demo__cta-btn,
-.demo__link-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 999px;
-  font-weight: 700;
-  text-decoration: none;
-  cursor: pointer;
-  transition: opacity 0.15s, transform 0.15s;
-  white-space: nowrap;
-}
-
-.demo__cta-btn:hover,
-.demo__link-btn:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
-}
-
-.demo__cta-btn {
-  padding: 11px 20px;
-  border: 1px solid rgba(16, 185, 129, 0.4);
-  background: linear-gradient(135deg, var(--cq-primary), #34d399);
-  color: #022015;
-}
-
-.demo__link-btn {
-  padding: 10px 16px;
-  border: 1px solid var(--cq-border);
-  color: #dde7f6;
-  background: rgba(15, 23, 42, 0.58);
-}
-
-.demo__hero-actions {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 14px;
-  margin-top: 32px;
-  flex-wrap: wrap;
-}
-
-.demo__footer-note {
-  margin-top: 16px;
-  font-size: 0.82rem;
-  color: #9db1ca;
-}
-
-.demo__badges {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 28px;
-}
-
-.demo__badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  border: 1px solid var(--cq-border);
-  background: rgba(15, 23, 42, 0.55);
-  color: #c8daf4;
-}
-
-.demo__hero-subtitle {
-  margin: 10px 0 0;
-  font-size: 1.05rem;
-  font-weight: 500;
-  color: var(--cq-muted);
-}
-
-/* Desktop: 4 columnas fijas — 7 items quedan 4+3 alineados */
-.demo-lang-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 14px;
-  width: 100%;
-  max-width: 680px;
-  margin: 28px auto 0;
-  box-sizing: border-box;
-}
-
-.demo-lang-card {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 22px 12px 16px;
-  border: 1px solid var(--cq-border);
-  border-radius: 14px;
-  background: rgba(9, 18, 33, 0.72);
-  cursor: pointer;
-  width: 100%;
-  box-sizing: border-box;
-  transition: border-color 0.2s, background 0.2s, transform 0.15s;
-}
-
-.demo-lang-card:hover {
-  border-color: rgba(16, 185, 129, 0.46);
-  background: rgba(13, 25, 45, 0.92);
-  transform: translateY(-3px);
-}
-
-.demo-lang-card img {
-  width: 48px;
-  height: 48px;
-  object-fit: contain;
-  flex-shrink: 0;
-}
-
-.demo-lang-card__name {
-  font-size: 0.82rem;
-  font-weight: 600;
-  color: var(--cq-text);
-  text-align: center;
-}
-
-/* Móvil: 1 por fila, layout horizontal (imagen izquierda + nombre derecha) */
-@media (max-width: 540px) {
-  .demo-lang-grid {
-    grid-template-columns: 1fr;
-    max-width: 100%;
-    gap: 5px;
-  }
-
-  .demo-lang-card {
-    flex-direction: row;
-    justify-content: flex-start;
-    padding: 10px 14px;
-    gap: 16px;
-    border-radius: 12px;
-  }
-
-  .demo-lang-card img {
-    width: 36px;
-    height: 36px;
-  }
-
-  .demo-lang-card__name {
-    font-size: 0.9rem;
-    text-align: left;
-  }
-}
+/* Estilos del demo público movidos a demo.css */
 
 /* ============================================================
    14. AUTH
@@ -3670,6 +3501,7 @@ button:disabled {
   padding: 20px;
 }
 
+/* Compartido: LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage */
 .auth-layout {
   width: min(100%, 1080px);
   display: grid;
@@ -3683,6 +3515,7 @@ button:disabled {
   max-width: 560px;
 }
 
+/* Compartido: LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage */
 .auth-visual,
 .auth-panel {
   border-radius: var(--cq-radius-lg);
@@ -4126,15 +3959,6 @@ button:disabled {
   border: 1px solid var(--cq-border);
 }
 
-.code-viewer__lang {
-  padding: 5px 12px;
-  background: rgba(9, 18, 33, 0.95);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--cq-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
 
 .code-viewer__fallback {
   margin: 0;
@@ -4594,190 +4418,7 @@ button:disabled {
   background: rgba(76, 41, 9, 0.95) !important;
 }
 
-/* SOLO móvil */
-
-/* Desktop */
-
-/* ============================================================
-   16. DEMO PUBLICO (HU-025)
-   Estilos minimos: reusamos lesson-completed, landing__* y exercise-*.
-   Solo definimos aqui lo que no tiene equivalente en el sistema.
-   ============================================================ */
-
-/* Banner persistente en DemoLessonPage */
-.demo-banner {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 10px;
-  padding: 10px 16px;
-}
-
-.demo-banner strong {
-  color: #fde68a;
-}
-
-.demo-banner__chip {
-  padding: 3px 10px;
-  background: rgba(16, 185, 129, 0.18);
-  color: #6ee7b7;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.demo-banner__cta {
-  margin-left: auto;
-  padding: 6px 14px;
-  border: 1px solid rgba(245, 158, 11, 0.5);
-  border-radius: 999px;
-  background: rgba(245, 158, 11, 0.18);
-  color: #fde68a;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.demo-banner__cta:hover {
-  background: rgba(245, 158, 11, 0.32);
-}
-
-.lesson-completed--demo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-  max-width: 640px;
-  padding: 36px 32px;
-}
-
-.lesson-completed--demo h1 {
-  font-size: 1.75rem;
-  color: var(--cq-text);
-}
-
-.lesson-completed--demo h2 {
-  margin-bottom: 8px;
-  color: var(--cq-muted);
-  font-size: 1.05rem;
-}
-
-.lesson-completed--demo .completed-icon {
-  width: 80px;
-  height: 80px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 50%;
-  background: rgba(245, 158, 11, 0.18);
-  border: 1px solid rgba(245, 158, 11, 0.38);
-}
-
-.demo-completion__stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-
-  width: 100%;
-}
-
-.demo-completion__stat {
-  padding: 18px 14px;
-
-  border: 1px solid var(--cq-border);
-  border-radius: var(--cq-radius-md, 14px);
-
-  background: rgba(16, 185, 129, 0.06);
-
-  text-align: center;
-}
-
-.demo-completion__stat-number {
-  display: block;
-  color: var(--cq-primary, #10b981);
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.demo-completion__stat-label {
-  display: block;
-  margin-top: 6px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--cq-muted);
-}
-
-.demo-completion__chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  width: 100%;
-}
-
-.demo-completion__chip {
-  padding: 4px 12px;
-  border: 1px solid rgba(16, 185, 129, 0.32);
-  border-radius: 999px;
-  background: rgba(16, 185, 129, 0.12);
-  color: #6ee7b7;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.demo-completion__next {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 16px 18px;
-
-  border: 1px solid var(--cq-border);
-  border-radius: var(--cq-radius-md, 14px);
-
-  background: rgba(16, 185, 129, 0.04);
-
-  text-align: left;
-}
-
-.demo-completion__next h3 {
-  margin: 0 0 10px;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  color: var(--cq-muted);
-}
-.demo-completion__next ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.demo-completion__next li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 0;
-  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-  font-size: 14px;
-  color: var(--cq-text);
-}
-
-.demo-completion__next li:last-child {
-  border-bottom: none;
-}
-.demo-completion__footnote {
-  margin: 0;
-  font-size: 12px;
-  color: var(--cq-muted);
-}
-
 /* Adaptacion suave */
-
 .profile-social-panel {
   margin-top: 24px;
   padding-top: 24px;
@@ -5090,7 +4731,6 @@ button:disabled {
    ============================================================ */
 
 /* -- 6. ROLE-BASED PAGES (RBAC) -- */
-
 @media (max-width: 860px) {
   .rbac-header,
   .dashboard-header {
@@ -5124,7 +4764,6 @@ button:disabled {
 }
 
 /* -- 7. ONBOARDING PAGES -- */
-
 @media (max-width: 480px) {
   .onboarding-container {
     padding: 28px 20px;
@@ -5140,7 +4779,6 @@ button:disabled {
 }
 
 /* -- 8. DIAGNOSTIC TEST PAGE -- */
-
 @media (max-width: 640px) {
   .diagnostic-actions {
     grid-template-columns: 1fr;
@@ -5153,7 +4791,6 @@ button:disabled {
 }
 
 /* -- 11. DASHBOARD - NEW SECTIONS -- */
-
 @media (max-width: 900px) {
   .dashboard-ranking-preview {
     width: 100%;
@@ -5161,7 +4798,6 @@ button:disabled {
 }
 
 /* -- 15. CORE APP SURFACES (DS V2 OVERRIDES) -- */
-
 @media (max-width: 760px) {
   .module-meta {
     min-width: 0;
@@ -5351,39 +4987,6 @@ button:disabled {
   .lesson-container,
   .profile-edit-card {
     padding: 18px;
-  }
-}
-
-/* -- 16. DEMO PUBLICO (HU-025) -- */
-
-@media (max-width: 480px) {
-  .lesson-completed--demo {
-    padding: 28px 22px;
-  }
-
-  .lesson-completed--demo h1 {
-    font-size: 1.5rem;
-  }
-
-  .demo-completion__stats {
-    grid-template-columns: 1fr;
-  }
-
-  .demo-completion__stat-number {
-    font-size: 1.75rem;
-  }
-
-  .demo-banner {
-    padding: 8px 12px;
-
-    font-size: 12px;
-  }
-
-  .demo-banner__cta {
-    width: 100%;
-    margin-left: 0;
-
-    text-align: center;
   }
 }
 

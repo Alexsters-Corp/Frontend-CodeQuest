@@ -66,8 +66,8 @@ function MonacoEditor({
   const canRun = typeof onRun === 'function' && !isExecuting && !readOnly
 
   useEffect(() => {
-    if (monacoReady || monacoError) return
-
+    // Siempre suscribirse: si la promesa ya resolvio, el .then() corre como
+    // microtask y sincroniza el estado local sin la race condition del early-return
     let active = true
     monacoPromise
       .then(() => {
@@ -91,6 +91,9 @@ function MonacoEditor({
       if (canRun && onRun) {
         onRun()
       }
+    })
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA, () => {
+      editor.setSelection(editor.getModel().getFullModelRange())
     })
   }, [canRun, onRun])
 

@@ -48,7 +48,12 @@ function DemoCompletionPage() {
   return (
     <MotionPage className="lesson-page" delay={0.06}>
       <div className="lesson-completed lesson-completed--demo">
-        <div className="completed-icon">🏆</div>
+        <img
+          src="/codey-celebrando.png"
+          alt=""
+          aria-hidden="true"
+          className="demo__completion-mascot"
+        />
         <h1>¡Felicidades!</h1>
         <h2>Acabas de completar tu primera leccion en CodeQuest.</h2>
 

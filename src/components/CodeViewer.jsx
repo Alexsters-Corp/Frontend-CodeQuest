@@ -8,22 +8,24 @@ const VIEWER_OPTIONS = Object.freeze({
   minimap: { enabled: false },
   fontSize: 13,
   scrollBeyondLastLine: false,
-  wordWrap: 'on',
+  wordWrap: 'off',
   lineNumbers: 'on',
   folding: false,
   renderLineHighlight: 'none',
-  scrollbar: { vertical: 'hidden', horizontal: 'auto' },
+  scrollbar: { vertical: 'hidden', horizontal: 'auto', alwaysConsumeMouseWheel: false },
   overviewRulerLanes: 0,
   contextmenu: false,
+  padding: { top: 8, bottom: 8 },
 })
 
 const LINE_HEIGHT_PX = 19
-const HEIGHT_MIN_PX = 54
+const PADDING_PX = 18   // padding top(8) + bottom(8) + 2px buffer
+const HEIGHT_MIN_PX = 60
 const HEIGHT_MAX_PX = 420
 
 function computeHeight(code) {
   const lines = (code ?? '').split('\n').length
-  return `${Math.min(Math.max(lines * LINE_HEIGHT_PX + 10, HEIGHT_MIN_PX), HEIGHT_MAX_PX)}px`
+  return `${Math.min(Math.max(lines * LINE_HEIGHT_PX + PADDING_PX, HEIGHT_MIN_PX), HEIGHT_MAX_PX)}px`
 }
 
 function CodeViewer({ code = '', language = 'plaintext' }) {
@@ -40,11 +42,12 @@ function CodeViewer({ code = '', language = 'plaintext' }) {
     return () => { active = false }
   }, [])
 
-  return (
+    return (
     <div className="code-viewer">
-      <div className="code-viewer__lang">{language}</div>
       {error ? (
-        <pre className="code-viewer__fallback"><code>{code}</code></pre>
+        <pre className="code-viewer__fallback">
+          <code>{code}</code>
+        </pre>
       ) : ready ? (
         <Editor
           height={height}
@@ -54,7 +57,9 @@ function CodeViewer({ code = '', language = 'plaintext' }) {
           options={VIEWER_OPTIONS}
         />
       ) : (
-        <pre className="code-viewer__fallback"><code>{code}</code></pre>
+        <div className="code-viewer__loading">
+          Cargando código...
+        </div>
       )}
     </div>
   )

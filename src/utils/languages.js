@@ -38,6 +38,55 @@ export const LANGUAGE_CONFIG = Object.freeze({
   },
 })
 
+const LANGUAGE_SIGNATURES = Object.freeze({
+  javascript: [
+    /\bfunction\s+\w+\s*\(/,
+    /\b(?:const|let|var)\s+\w+/,
+    /\bconsole\s*\.\s*log\s*\(/,
+    /=>\s*[{(]/,
+  ],
+  python: [
+    /\bdef\s+\w+\s*\(/,
+    /\belif\b/,
+    /\bprint\s*\(/,
+    /\bfrom\s+\w[\w.]*\s+import\b/,
+  ],
+  java: [
+    /\bpublic\s+class\s+\w+/,
+    /\bSystem\.out\.print/,
+    /\bpublic\s+static\s+void\b/,
+  ],
+  cpp: [
+    /#include\s*[<"]/,
+    /\bstd\s*::/,
+    /\bcout\s*<</,
+  ],
+  csharp: [
+    /\bConsole\s*\.\s*Write(?:Line)?\s*\(/,
+    /\bnamespace\s+\w+/,
+    /\busing\s+System\b/,
+  ],
+})
+
+/**
+ * Checks if `code` contains signatures of a language different from `expectedSlug`.
+ * Returns the label of the detected language, or null if no mismatch found.
+ * @param {string} code
+ * @param {string} expectedSlug  e.g. 'python', 'javascript'
+ * @returns {string|null}
+ */
+export function detectLanguageMismatch(code, expectedSlug) {
+  if (!code?.trim() || !expectedSlug) return null
+  for (const [slug, patterns] of Object.entries(LANGUAGE_SIGNATURES)) {
+    if (slug === expectedSlug) continue
+    if (patterns.some((p) => p.test(code))) {
+      const config = Object.values(LANGUAGE_CONFIG).find((c) => c.slug === slug)
+      return config?.label ?? slug
+    }
+  }
+  return null
+}
+
 function normalizeLanguageId(languageId) {
   const normalized = Number(languageId)
   return Number.isInteger(normalized) && normalized > 0 ? normalized : null
