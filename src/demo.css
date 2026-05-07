@@ -1,19 +1,3 @@
-/* demo.css — Estilos exclusivos de las rutas /demo
- * Importado en main.jsx junto a index.css.
- *
- * Selectores compartidos que NO están aquí (siguen en index.css):
- *   .lesson-completed  (base — usado también en LessonPage y DiagnosticResult)
- *   .completed-icon    (base — compartido)
- *   .completed-actions (base — compartido)
- *   .lesson-start-btn  (base — compartido)
- *   .code-viewer*      (TheoryContent lo usa en LessonPage y DemoLessonPage)
- *   .language-card     (onboarding y dashboard también lo usan) */
-
-/* ============================================================
-   DEMO LANDING PAGE (ruta /demo)
-   ============================================================ */
-
-/* Página raíz: centra el wrapper vertical y horizontalmente */
 .demo__page {
   min-height: 100vh;
   display: flex;
@@ -23,12 +7,11 @@
   position: relative;
 }
 
-/* Logo móvil (dentro del flujo) — oculto en desktop */
+/* oculto en desktop */
 .demo__brand-mobile {
   display: none;
 }
 
-/* Logo superior izquierdo — retorna al inicio */
 .demo__brand-link {
   position: absolute;
   top: 18px;
@@ -44,13 +27,12 @@
   opacity: 0.72;
 }
 
-/* Wrapper: solo centra la sección — position:relative para anclar la mascota */
+/* position:relative para anclar la mascota absolute */
 .demo__page-wrapper {
   position: relative;
   width: min(100%, 760px);
 }
 
-/* Sección siempre centrada, independiente de la mascota */
 .demo__hero-section {
   width: 100%;
   display: flex;
@@ -62,7 +44,7 @@
   text-align: center;
 }
 
-/* Mascota: absolute fuera del flujo — no desplaza ni encoge la sección */
+/* absolute fuera del flujo — no empuja ni encoge la sección */
 .demo__mascot-container {
   position: absolute;
   left: calc(100% + 52px);
@@ -116,8 +98,7 @@
   color: #cdd8eb;
 }
 
-/* Botones: misma apariencia que landing pero clase independiente
-   para poder centrarlos sin afectar el layout del home */
+/* clase propia para centrar sin afectar botones del landing */
 .demo__cta-btn,
 .demo__link-btn {
   display: inline-flex;
@@ -187,7 +168,7 @@
   color: #c8daf4;
 }
 
-/* Desktop: 4 columnas fijas — 7 items quedan 4+3 alineados */
+/* 4 cols — 7 items quedan 4+3 */
 .demo-lang-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -233,11 +214,8 @@
   text-align: center;
 }
 
-/* ============================================================
-   DEMO PÚBLICO — Lección y completion (HU-025)
-   ============================================================ */
+/* --- LECCIÓN Y COMPLETION --- */
 
-/* Mascota fija en esquina inferior izquierda de la lección demo */
 .demo__teacher-mascot {
   position: fixed;
   bottom: 32px;
@@ -259,7 +237,6 @@
   }
 }
 
-/* Banner persistente en DemoLessonPage */
 .demo-banner {
   position: sticky;
   top: 0;
@@ -301,7 +278,7 @@
   background: rgba(245, 158, 11, 0.32);
 }
 
-/* Modificador exclusivo del demo sobre la base compartida .lesson-completed */
+/* override de .lesson-completed (base en index.css) */
 .lesson-completed--demo {
   display: flex;
   flex-direction: column;
@@ -427,20 +404,16 @@
   color: var(--cq-muted);
 }
 
-/* ============================================================
-   RESPONSIVE
-   ============================================================ */
+/* --- RESPONSIVE --- */
 
-/* Pantallas pequeñas: ocultar mascota — la sección sigue centrada sin cambios */
 @media (max-width: 900px) {
   .demo__mascot-container {
     display: none;
   }
 }
 
-/* Móvil pequeño: cards en columna única + grid scrollable interno */
+/* ≤540px — columna única, página sin scroll */
 @media (max-width: 540px) {
-  /* La página no hace scroll — todo cabe en la pantalla */
   .demo__page {
     height: 100dvh;
     overflow: hidden;
@@ -455,7 +428,6 @@
     height: 100%;
   }
 
-  /* El copy ocupa toda la altura y distribuye los hijos en columna */
   .demo__hero-copy {
     display: flex;
     flex-direction: column;
@@ -463,7 +435,6 @@
     overflow: hidden;
   }
 
-  /* Separación entre título y subtítulo en móvil */
   .demo__hero-subtitle {
     margin: 20px;
     font-size: 1rem;
@@ -474,12 +445,10 @@
     align-items: center;
   }
 
-  /* Logo absoluto oculto — se muestra el de dentro del flujo */
   .demo__brand-link {
     display: none;
   }
 
-  /* Logo móvil centrado encima del título */
   .demo__brand-mobile {
     display: flex;
     justify-content: center;
@@ -487,15 +456,11 @@
     text-decoration: none;
   }
 
-  /* Título: mismo tamaño en nivel 1 y nivel 2 */
   .demo__hero-title {
     font-size: clamp(2.2rem, 9vw, 2.6rem);
     margin-bottom: 0;
   }
 
-  /* em hereda el font-size del padre — sin override separado */
-
-  /* Wrapper: solo estructura, sin diseño propio — se funde con el fondo */
   .demo__lang-scroll-wrapper {
     flex: 1;
     min-height: 0;
@@ -505,7 +470,6 @@
     background: transparent;
   }
 
-  /* Scroll: sin borde ni fondo — se mezcla con la página */
   .demo__lang-scroll {
     flex: 1;
     min-height: 0;
@@ -517,7 +481,6 @@
     scrollbar-color: rgba(16, 185, 129, 0.35) transparent;
   }
 
-  /* Scrollbar redondeada (WebKit) */
   .demo__lang-scroll::-webkit-scrollbar {
     width: 4px;
     border-radius: 999px;
@@ -533,7 +496,7 @@
     border-radius: 999px;
   }
 
-  /* Corte sutil al final del scroll — gradiente suave */
+  /* gradiente de corte al final del scroll */
   .demo__scroll-hint {
     display: flex;
     justify-content: center;
@@ -576,7 +539,6 @@
   }
 }
 
-/* Pantallas pequeñas ≤480px: menos gap y padding para ajuste fino */
 @media (max-width: 480px) {
   .demo-lang-grid {
     gap: 3px;
@@ -587,7 +549,7 @@
   }
 }
 
-/* En desktop el hint y el wrapper son invisibles */
+/* hint y wrapper invisibles en desktop */
 .demo__scroll-hint {
   display: none;
 }
@@ -596,7 +558,6 @@
   display: contents;
 }
 
-/* Pantallas muy pequeñas: completion page */
 @media (max-width: 480px) {
   .lesson-completed--demo {
     padding: 28px 22px;

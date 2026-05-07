@@ -1,6 +1,4 @@
-/* ============================================================
-   1. IMPORTS & VARIABLES
-   ============================================================ */
+/* --- 1. VARIABLES --- */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap');
 @import './sidebar-redesign.css';
@@ -25,9 +23,7 @@
   --cq-shadow: 0 24px 56px rgba(2, 8, 23, 0.48);
 }
 
-/* ============================================================
-   2. RESET & BASE
-   ============================================================ */
+/* --- 2. RESET --- */
 
 * {
   box-sizing: border-box;
@@ -41,9 +37,7 @@ html {
   min-height: 100vh;
 }
 
-/* ============================================================
-   3. UTILIDADES
-   ============================================================ */
+/* --- 3. UTILS --- */
 
 .sr-only {
   position: absolute;
@@ -57,9 +51,7 @@ html {
   border: 0;
 }
 
-/* ============================================================
-   4. ELEMENTOS GLOBALES
-   ============================================================ */
+/* --- 4. GLOBALS --- */
 
 .page {
   align-items: center;
@@ -105,9 +97,7 @@ button {
   margin-top: 12px;
 }
 
-/* ============================================================
-   5. DASHBOARD & PERFIL
-   ============================================================ */
+/* --- 5. DASHBOARD --- */
 
 .dashboard-header {
   display: flex;
@@ -368,9 +358,7 @@ button.profile-icon-chip:hover {
   margin-top: 0;
 }
 
-/* ============================================================
-   6. ROLE-BASED PAGES (RBAC)
-   ============================================================ */
+/* --- 6. RBAC --- */
 
 .unauthorized-card {
   text-align: left;
@@ -701,8 +689,6 @@ button.profile-icon-chip:hover {
   margin: 0;
 }
 
-/* Language selection grid */
-
 .language-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -817,8 +803,6 @@ button.profile-icon-chip:hover {
   background: #dbeafe;
 }
 
-/* Tour slides */
-
 .tour-container {
   position: relative;
 }
@@ -876,9 +860,7 @@ button.profile-icon-chip:hover {
   transition: all 0.3s;
 }
 
-/* ============================================================
-   8. DIAGNOSTIC TEST PAGE
-   ============================================================ */
+/* --- 8. DIAGNOSTIC --- */
 
 .diagnostic-page {
   min-height: 100vh;
@@ -1143,7 +1125,6 @@ button.profile-icon-chip:hover {
   cursor: not-allowed;
 }
 
-/* Diagnostic Result */
 .diagnostic-result {
   background: #fff;
   border-radius: 20px;
@@ -1222,9 +1203,7 @@ button.profile-icon-chip:hover {
   margin-bottom: 28px;
 }
 
-/* ============================================================
-   9. MODULES PAGE
-   ============================================================ */
+/* --- 9. MODULES --- */
 
 .modules-page {
   min-height: 100vh;
@@ -1488,11 +1467,9 @@ button.profile-icon-chip:hover {
   cursor: default;
 }
 
-/* ============================================================
-   10. LESSON PAGE & EXERCISES
-   ============================================================ */
+/* --- 10. LESSON & EXERCISES --- */
 
-/* Compartido: LessonPage, DemoLessonPage, DemoCompletionPage */
+/* shared: Lesson + Demo + DemoCompletion */
 .lesson-page {
   height: 100dvh;
   overflow: hidden;
@@ -1503,13 +1480,13 @@ button.profile-icon-chip:hover {
   padding: 24px;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
+/* shared: Lesson + Demo */
 .lesson-loading {
   text-align: center;
   color: #6b7280;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
+/* shared: Lesson + Demo */
 .lesson-container {
   background: #fff;
   border-radius: 20px;
@@ -1522,7 +1499,6 @@ button.profile-icon-chip:hover {
   overflow-x: hidden;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
 .lesson-header {
   display: flex;
   align-items: center;
@@ -1530,7 +1506,6 @@ button.profile-icon-chip:hover {
   margin-bottom: 20px;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
 .lesson-back-link {
   display: inline-flex;
   align-items: center;
@@ -1544,7 +1519,6 @@ button.profile-icon-chip:hover {
   margin-top: 0;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
 .lesson-modulo {
   font-size: 0.8rem;
   color: #6b7280;
@@ -1553,14 +1527,13 @@ button.profile-icon-chip:hover {
   border-radius: 999px;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
 .lesson-title {
   font-size: 1.5rem;
   color: #1f2937;
   margin-bottom: 20px;
 }
 
-/* Compartido: LessonPage, DemoLessonPage, TheoryContent */
+/* shared: Lesson + Demo + TheoryContent */
 .lesson-theory {
   line-height: 1.7;
   color: #374151;
@@ -1595,7 +1568,6 @@ button.profile-icon-chip:hover {
   margin: 8px 0;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
 .lesson-actions {
   display: flex;
   align-items: center;
@@ -1604,7 +1576,6 @@ button.profile-icon-chip:hover {
   flex-wrap: wrap;
 }
 
-/* Compartido: LessonPage, DemoCompletionPage */
 .completed-actions {
   display: flex;
   align-items: center;
@@ -1622,7 +1593,6 @@ button.profile-icon-chip:hover {
   margin-top: 4px;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
 .lesson-start-btn,
 .lesson-back-btn,
 .lesson-retry-btn {
@@ -1701,7 +1671,6 @@ button.profile-icon-chip:hover {
   line-height: 1.6;
 }
 
-/* Exercise styles */
 .exercise-header {
   margin-bottom: 24px;
 }
@@ -1760,7 +1729,6 @@ button.profile-icon-chip:hover {
   margin-bottom: 16px;
 }
 
-/* Compartido: LessonPage, DemoLessonPage */
 .exercise-options {
   display: flex;
   flex-direction: column;
@@ -2192,8 +2160,7 @@ button.profile-icon-chip:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Lesson completed */
-/* Compartido: LessonPage, DemoCompletionPage */
+/* shared: Lesson + DemoCompletion */
 .lesson-completed {
   text-align: center;
   background: #fff;
@@ -2207,7 +2174,6 @@ button.profile-icon-chip:hover {
   overflow-x: hidden;
 }
 
-/* Compartido: LessonPage, DemoCompletionPage */
 .completed-icon {
   font-size: 4rem;
   margin-bottom: 12px;
@@ -2241,9 +2207,7 @@ button.profile-icon-chip:hover {
   font-size: 1.8rem;
 }
 
-/* ============================================================
-   11. DASHBOARD - NEW SECTIONS
-   ============================================================ */
+/* --- 11. DASHBOARD (cont.) --- */
 
 .dashboard-languages {
   margin-top: 28px;
@@ -2523,7 +2487,6 @@ button.profile-icon-chip:hover {
   cursor: not-allowed;
 }
 
-/* Achievements */
 .dashboard-achievements {
   margin-top: 28px;
 }
@@ -2565,7 +2528,6 @@ button.profile-icon-chip:hover {
   font-weight: 500;
 }
 
-/* Activity chart */
 .dashboard-activity {
   margin-top: 28px;
 }
@@ -2857,9 +2819,7 @@ button.profile-icon-chip:hover {
   font-weight: 600;
 }
 
-/* ============================================================
-   12. DESIGN SYSTEM v2
-   ============================================================ */
+/* --- 12. DESIGN SYSTEM v2 --- */
 
 html,
 body,
@@ -2903,7 +2863,7 @@ body::before {
   z-index: -1;
 }
 
-/* Capa C - Halos de saturacion PRODUCTO (default) */
+/* halos PRODUCTO (default) */
 body::after {
   content: '';
   position: fixed;
@@ -2929,7 +2889,7 @@ body::after {
   z-index: -1;
 }
 
-/* Capa C - Halos de saturacion MARKETING (override en / y /demo) */
+/* halos MARKETING (override en / y /demo) */
 body.theme-marketing::after {
   background:
     radial-gradient(
@@ -3033,7 +2993,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* Compartido: HomePage, LessonPage, DemoLessonPage, DemoCompletionPage, auth pages */
+/* shared: global */
 .ui-jitter:hover:not(:disabled) {
   animation: ui-jitter 0.26s ease;
 }
@@ -3051,7 +3011,6 @@ button:disabled {
   }
 }
 
-/* ── Streak emoji ───────────────────────── */
 .streak-emoji {
   display: inline-block;
   transition:
@@ -3126,9 +3085,7 @@ button:disabled {
   color: #fca5a5;
 }
 
-/* ============================================================
-   13. LANDING
-   ============================================================ */
+/* --- 13. LANDING --- */
 
 .landing {
   position: relative;
@@ -3137,7 +3094,7 @@ button:disabled {
   padding: 28px 24px 40px;
 }
 
-/* Compartido: HomePage, DemoLandingPage */
+/* shared: Home + DemoLanding */
 .landing__container {
   position: relative;
   max-width: 1220px;
@@ -3495,11 +3452,7 @@ button:disabled {
   color: #9db1ca;
 }
 
-/* Estilos del demo público movidos a demo.css */
-
-/* ============================================================
-   14. AUTH
-   ============================================================ */
+/* --- 14. AUTH --- */
 
 .auth-page {
   min-height: 100vh;
@@ -3508,7 +3461,7 @@ button:disabled {
   padding: 20px;
 }
 
-/* Compartido: LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage */
+/* shared: auth pages */
 .auth-layout {
   width: min(100%, 1080px);
   display: grid;
@@ -3522,7 +3475,6 @@ button:disabled {
   max-width: 560px;
 }
 
-/* Compartido: LoginPage, RegisterPage, ForgotPasswordPage, ResetPasswordPage */
 .auth-visual,
 .auth-panel {
   border-radius: var(--cq-radius-lg);
@@ -3667,9 +3619,7 @@ button:disabled {
   text-decoration: none;
 }
 
-/* ============================================================
-   15. CORE APP SURFACES (DS V2 OVERRIDES)
-   ============================================================ */
+/* --- 15. DS V2 OVERRIDES --- */
 
 .dashboard-page,
 .rbac-page,
@@ -3958,7 +3908,7 @@ button:disabled {
   color: #bde7d4;
 }
 
-/* CodeViewer — Monaco en modo readOnly para bloques de teoria */
+/* Monaco read-only — teoría */
 .code-viewer {
   margin: 16px 0;
   border-radius: 10px;
@@ -4425,7 +4375,6 @@ button:disabled {
   background: rgba(76, 41, 9, 0.95) !important;
 }
 
-/* Adaptacion suave */
 .profile-social-panel {
   margin-top: 24px;
   padding-top: 24px;
@@ -4733,11 +4682,8 @@ button:disabled {
   background: rgba(11, 20, 37, 0.4);
 }
 
-/* ============================================================
-   17. RESPONSIVE
-   ============================================================ */
+/* --- 17. RESPONSIVE --- */
 
-/* -- 6. ROLE-BASED PAGES (RBAC) -- */
 @media (max-width: 860px) {
   .rbac-header,
   .dashboard-header {
@@ -4770,7 +4716,6 @@ button:disabled {
   }
 }
 
-/* -- 7. ONBOARDING PAGES -- */
 @media (max-width: 480px) {
   .onboarding-container {
     padding: 28px 20px;
@@ -4785,7 +4730,6 @@ button:disabled {
   }
 }
 
-/* -- 8. DIAGNOSTIC TEST PAGE -- */
 @media (max-width: 640px) {
   .diagnostic-actions {
     grid-template-columns: 1fr;
@@ -4797,14 +4741,12 @@ button:disabled {
   }
 }
 
-/* -- 11. DASHBOARD - NEW SECTIONS -- */
 @media (max-width: 900px) {
   .dashboard-ranking-preview {
     width: 100%;
   }
 }
 
-/* -- 15. CORE APP SURFACES (DS V2 OVERRIDES) -- */
 @media (max-width: 760px) {
   .module-meta {
     min-width: 0;
