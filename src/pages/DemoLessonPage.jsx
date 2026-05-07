@@ -8,6 +8,7 @@ import { getDemoLessonContent, submitDemoExercise, executeDemoCode } from '../se
 import { buildExecutionSource, normalizeCodeExerciseAnswer } from '../utils/lessonAnswers'
 import { detectLanguageMismatch, getLanguageConfig, getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
 import TheoryContent from '../components/TheoryContent'
+import CodeViewer from '../components/CodeViewer'
 import { notifyError, notifyInfo, notifyPending, notifySuccess } from '../utils/notify'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
@@ -183,7 +184,7 @@ function DemoLessonPage() {
 
   const currentExercise = exercises[currentExerciseIdx]
   const currentCodeAnswer = currentExercise
-    ? codeAnswerByExercise[currentExercise.id] || ''
+    ? (codeAnswerByExercise[currentExercise.id] ?? currentExercise.codigo_base ?? '')
     : ''
 
   const setCurrentCodeAnswer = useCallback(
@@ -401,10 +402,8 @@ function DemoLessonPage() {
             <div className="exercise-content">
               <h2 className="exercise-question">{currentExercise.enunciado}</h2>
 
-              {currentExercise.codigo_base && (
-                <pre className="exercise-code">
-                  <code>{currentExercise.codigo_base}</code>
-                </pre>
+              {currentExercise.codigo_base && currentExercise.tipo !== 'completar_codigo' && (
+                <CodeViewer code={currentExercise.codigo_base} language={editorLanguage} />
               )}
 
               {(currentExercise.tipo === 'opcion_multiple' || currentExercise.tipo === 'verdadero_falso') && (
@@ -440,7 +439,7 @@ function DemoLessonPage() {
                       language={editorLanguage}
                       languageLabel={editorLanguageLabel}
                       theme="vs-dark"
-                      height="380px"
+                      height="clamp(180px, 28vh, 380px)"
                       readOnly={!!feedback}
                       options={monacoOptions}
                       onRun={handleRunCode}

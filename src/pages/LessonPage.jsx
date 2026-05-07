@@ -689,7 +689,7 @@ function LessonPage() {
                     language={editorLanguage}
                     languageLabel={editorLanguageLabel}
                     theme="vs-dark"
-                    height="400px"
+                    height="clamp(180px, 28vh, 400px)"
                     readOnly={!!feedback}
                     options={monacoOptions}
                     onRun={canExecuteCode ? handleRunCode : undefined}

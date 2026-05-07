@@ -1494,7 +1494,8 @@ button.profile-icon-chip:hover {
 
 /* Compartido: LessonPage, DemoLessonPage, DemoCompletionPage */
 .lesson-page {
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: #f3f4f6;
   display: flex;
   align-items: center;
@@ -1516,6 +1517,9 @@ button.profile-icon-chip:hover {
   max-width: 650px;
   width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Compartido: LessonPage, DemoLessonPage */
@@ -2198,6 +2202,9 @@ button.profile-icon-chip:hover {
   max-width: 450px;
   width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 /* Compartido: LessonPage, DemoCompletionPage */
@@ -4987,6 +4994,10 @@ button:disabled {
   .lesson-container,
   .profile-edit-card {
     padding: 18px;
+  }
+
+  .lesson-container {
+    max-height: calc(100dvh - 32px);
   }
 }
 

@@ -72,16 +72,6 @@ function DemoCompletionPage() {
           </div>
         </div>
 
-        {preview?.languages?.length > 0 && (
-          <div className="demo-completion__chips">
-            {preview.languages.map((lang) => (
-              <span key={lang.id} className="demo-completion__chip">
-                {lang.displayName || lang.name}
-              </span>
-            ))}
-          </div>
-        )}
-
         {preview?.nextLessonsTitles?.length > 0 && (
           <div className="demo-completion__next">
             <h3>Lo que te espera al registrarte:</h3>
