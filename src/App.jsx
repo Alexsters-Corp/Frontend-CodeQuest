@@ -22,6 +22,7 @@ import FavoritesPage from './pages/FavoritesPage'
 import UnauthorizedPage from './pages/UnauthorizedPage'
 import InstructorDashboardPage from './pages/InstructorDashboardPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
+import AdminAiPage from './pages/AdminAiPage'
 import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
 import RankingPage from './pages/RankingPage'
@@ -195,6 +196,16 @@ function App() {
               <PrivateRoute>
                 <RoleGuard allowedRoles={['admin']}>
                   <AdminDashboardPage />
+                </RoleGuard>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/ai"
+            element={
+              <PrivateRoute>
+                <RoleGuard allowedRoles={['admin']}>
+                  <AdminAiPage />
                 </RoleGuard>
               </PrivateRoute>
             }

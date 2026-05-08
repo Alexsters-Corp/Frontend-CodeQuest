@@ -558,6 +558,46 @@ button.profile-icon-chip:hover {
   color: #6b7280;
 }
 
+.ai-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 12px;
+}
+
+.ai-admin-card--full {
+  grid-column: 1 / -1;
+}
+
+.ai-admin-form {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.ai-admin-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 4px;
+}
+
+.ai-admin-response {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #0f172a;
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  min-height: 120px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+}
+
+.ai-admin-error {
+  color: #b91c1c;
+  margin-top: 8px;
+}
+
 
 
 /* ============================================================
@@ -4748,6 +4788,10 @@ button:disabled {
   .rbac-metric-grid,
   .rbac-metric-grid--admin {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .ai-admin-grid {
+    grid-template-columns: 1fr;
   }
 }
 
