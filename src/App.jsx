@@ -45,7 +45,7 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        <LanguageSwitcher />
+        {!pathname.startsWith('/demo') && <LanguageSwitcher />}
 
         <Toaster
           position="top-right"

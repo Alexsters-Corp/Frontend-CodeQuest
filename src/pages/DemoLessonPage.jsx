@@ -1,11 +1,15 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { IoMdArrowRoundBack } from 'react-icons/io'
+import { CiSaveDown1 } from 'react-icons/ci'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
 import MotionPage from '../components/MotionPage'
 import { getDemoLessonContent, submitDemoExercise, executeDemoCode } from '../services/demoApi'
 import { buildExecutionSource, normalizeCodeExerciseAnswer } from '../utils/lessonAnswers'
-import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
-import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
+import { detectLanguageMismatch, getLanguageConfig, getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
+import TheoryContent from '../components/TheoryContent'
+import CodeViewer from '../components/CodeViewer'
+import { notifyError, notifyInfo, notifyPending, notifySuccess } from '../utils/notify'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
 
@@ -44,6 +48,16 @@ function clearAutosaveState() {
   }
 }
 
+// Progreso real = ya habia empezado ejercicios, avanzado, o escrito codigo
+function hasRealProgress(saved) {
+  if (!saved) return false
+  if (saved.currentStep === 'exercise') return true
+  if (saved.currentExerciseIdx > 0) return true
+  return Object.values(saved.codeAnswerByExercise || {}).some(
+    (v) => typeof v === 'string' && v.trim().length > 0
+  )
+}
+
 function DemoLessonPage() {
   const navigate = useNavigate()
   const [lesson, setLesson] = useState(null)
@@ -58,7 +72,7 @@ function DemoLessonPage() {
   const [isExecuting, setIsExecuting] = useState(false)
   const [feedback, setFeedback] = useState(null)
   const [submitting, setSubmitting] = useState(false)
-  const [restoredFromAutosave, setRestoredFromAutosave] = useState(false)
+  // const [restoredFromAutosave, setRestoredFromAutosave] = useState(false)
 
   const autosaveTimeoutRef = useRef(null)
   const initialAutosaveRef = useRef(null)
@@ -109,8 +123,10 @@ function DemoLessonPage() {
           setCodeAnswerByExercise(saved.codeAnswerByExercise || {})
           setCurrentExerciseIdx(saved.currentExerciseIdx || 0)
           setCurrentStep(saved.currentStep || 'theory')
-          setRestoredFromAutosave(true)
-          notifyInfo('Continuamos donde lo dejaste.')
+          // Si ya estaba en ejercicios, va directo sin pasar por el boton: mostrar toast aqui
+          if (saved.currentStep === 'exercise' && hasRealProgress(saved)) {
+            notifyPending('Continuamos donde lo dejaste.', { icon: <CiSaveDown1 size={22} style={{ display: 'block', flexShrink: 0 }} /> })
+          }
         }
       } catch (error) {
         if (!active) {
@@ -168,7 +184,7 @@ function DemoLessonPage() {
 
   const currentExercise = exercises[currentExerciseIdx]
   const currentCodeAnswer = currentExercise
-    ? codeAnswerByExercise[currentExercise.id] || ''
+    ? (codeAnswerByExercise[currentExercise.id] ?? currentExercise.codigo_base ?? '')
     : ''
 
   const setCurrentCodeAnswer = useCallback(
@@ -190,6 +206,9 @@ function DemoLessonPage() {
       handleFinishDemo()
       return
     }
+    if (hasRealProgress(initialAutosaveRef.current)) {
+      notifyPending('Continuamos donde lo dejaste.', { icon: <CiSaveDown1 size={22} style={{ display: 'block', flexShrink: 0 }} /> })
+    }
     setCurrentStep('exercise')
   }
 
@@ -206,6 +225,16 @@ function DemoLessonPage() {
 
     if (!lessonLanguageId) {
       notifyError('No se encontro un lenguaje valido.')
+      return
+    }
+
+    const { slug: expectedSlug, label: expectedLabel } = getLanguageConfig(lessonLanguageId)
+    const detectedLabel = detectLanguageMismatch(executionSource, expectedSlug)
+    if (detectedLabel) {
+      setConsoleOutput([
+        `Esta leccion usa ${expectedLabel}. El codigo que escribiste parece ser ${detectedLabel}.`,
+        `Asegurate de escribir en ${expectedLabel} para poder ejecutar.`,
+      ])
       return
     }
 
@@ -297,7 +326,7 @@ function DemoLessonPage() {
       <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
           <p>No fue posible cargar la leccion demo.</p>
-          <button type="button" onClick={() => navigate('/demo')}>Volver</button>
+          <button type="button" onClick={() => navigate('/demo')}><IoMdArrowRoundBack /> Volver</button>
         </div>
       </MotionPage>
     )
@@ -306,8 +335,17 @@ function DemoLessonPage() {
   const options = currentExercise?.opciones || []
 
   return (
-    <MotionPage className="lesson-page" delay={0.06}>
-      <div className="demo-banner" role="note" aria-live="polite">
+    <>
+      <img
+        src="/codey-ensenando.png"
+        alt=""
+        aria-hidden="true"
+        className="demo__teacher-mascot"
+      />
+
+      <MotionPage className="lesson-page" delay={0.06}>
+
+      {/* <div className="demo-banner" role="note" aria-live="polite">
         <strong>Modo demo</strong> · tu progreso no se guarda
         {restoredFromAutosave && <span className="demo-banner__chip">sesion restaurada</span>}
         <button
@@ -317,14 +355,14 @@ function DemoLessonPage() {
         >
           Crear cuenta
         </button>
-      </div>
+      </div> */}
 
       <div className="lesson-container">
         {currentStep === 'theory' && (
           <>
             <div className="lesson-header">
               <button className="lesson-back-link" type="button" onClick={() => navigate('/demo')}>
-                ← Volver
+                <IoMdArrowRoundBack /> Volver
               </button>
               <span className="lesson-modulo">{lesson.modulo_nombre}</span>
             </div>
@@ -332,10 +370,7 @@ function DemoLessonPage() {
             <h1 className="lesson-title">{lesson.titulo}</h1>
 
             {lesson.contenido_teoria ? (
-              <div
-                className="lesson-theory"
-                dangerouslySetInnerHTML={{ __html: lesson.contenido_teoria }}
-              />
+              <TheoryContent html={lesson.contenido_teoria} language={editorLanguage} />
             ) : (
               <div className="lesson-theory">
                 <p>{lesson.descripcion}</p>
@@ -367,10 +402,8 @@ function DemoLessonPage() {
             <div className="exercise-content">
               <h2 className="exercise-question">{currentExercise.enunciado}</h2>
 
-              {currentExercise.codigo_base && (
-                <pre className="exercise-code">
-                  <code>{currentExercise.codigo_base}</code>
-                </pre>
+              {currentExercise.codigo_base && currentExercise.tipo !== 'completar_codigo' && (
+                <CodeViewer code={currentExercise.codigo_base} language={editorLanguage} />
               )}
 
               {(currentExercise.tipo === 'opcion_multiple' || currentExercise.tipo === 'verdadero_falso') && (
@@ -406,7 +439,7 @@ function DemoLessonPage() {
                       language={editorLanguage}
                       languageLabel={editorLanguageLabel}
                       theme="vs-dark"
-                      height="380px"
+                      height="clamp(180px, 28vh, 380px)"
                       readOnly={!!feedback}
                       options={monacoOptions}
                       onRun={handleRunCode}
@@ -459,6 +492,7 @@ function DemoLessonPage() {
         )}
       </div>
     </MotionPage>
+    </>
   )
 }
 

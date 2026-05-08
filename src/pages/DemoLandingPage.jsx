@@ -1,50 +1,83 @@
 import { Link, useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
+import LogoCQ from '../components/LogoCQ'
 
-/**
- * Pagina de bienvenida del demo publico (HU-025).
- * Reutiliza el lenguaje visual del landing principal (clases landing__*)
- * para mantener consistencia y heredar breakpoints responsivos existentes.
- */
+const LANGUAGES = [
+  { name: 'Python',     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+  { name: 'JavaScript', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg' },
+  { name: 'Java',       logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg' },
+  { name: 'C++',        logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg' },
+  { name: 'C#',         logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg' },
+  { name: 'Go',         logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg' },
+  { name: 'Ruby',       logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ruby/ruby-original.svg' },
+]
+
 function DemoLandingPage() {
   const navigate = useNavigate()
 
   return (
-    <MotionPage className="landing" delay={0.05}>
-      <div className="landing__container">
-        <section className="landing__hero landing__hero-demo" style={{ gridTemplateColumns: '1fr', textAlign: 'center' }}>
-          <div className="landing__hero-copy" style={{ margin: '0 auto', maxWidth: 720 }}>
-            <span className="landing__status">Modo demo · Sin registro</span>
+    <MotionPage className="demo__page" delay={0.05}>
+      <Link to="/" className="demo__brand-link" aria-label="Volver al inicio">
+        <LogoCQ height={34} />
+      </Link>
 
-            <h1>
-              Vas a programar
-              <em> de verdad </em>
-              en 30 segundos.
+      <div className="demo__page-wrapper">
+
+        {/* Contenido centrado — igual que antes */}
+        <section className="demo__hero-section">
+          <div className="demo__hero-copy">
+            <Link to="/" className="demo__brand-mobile" aria-label="Volver al inicio">
+              <LogoCQ height={28} />
+            </Link>
+
+            <h1 className="demo__hero-title">
+              Empieza a programar
+              <em> ahora mismo</em>
             </h1>
 
-            <p>
-              Una leccion completa de Python con editor profesional y ejecucion real,
-              para que sientas como aprendes en CodeQuest. Sin tarjeta, sin compromisos.
-            </p>
+            <p className="demo__hero-subtitle">Elige tu primer lenguaje</p>
 
-            <div className="landing__hero-actions">
-              <button
-                type="button"
-                className="landing__cta-btn ui-jitter"
-                onClick={() => navigate('/demo/lesson')}
-              >
-                Iniciar leccion demo
-              </button>
-              <Link className="landing__link-btn" to="/login">
-                Ya tengo cuenta
-              </Link>
+            <div className="demo__lang-scroll-wrapper">
+              <div className="demo__lang-scroll">
+                <div className="demo-lang-grid">
+                  {LANGUAGES.map((lang) => (
+                    <button
+                      key={lang.name}
+                      type="button"
+                      className="demo-lang-card"
+                      onClick={() => navigate('/demo/lesson')}
+                    >
+                      <img src={lang.logo} alt={lang.name} />
+                      <span className="demo-lang-card__name">{lang.name}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="demo__scroll-hint" aria-hidden="true">▼</div>
             </div>
 
-            <p className="landing__footer" style={{ marginTop: 24 }}>
-              Tu progreso del demo no se guarda en el servidor. Crea una cuenta gratis para conservarlo.
+            <div className="demo__badges">
+              <span className="demo__badge">⚡ Ejecución instantánea</span>
+              <span className="demo__badge">🧑🏻‍💻 Editor profesional</span>
+              <span className="demo__badge">🎯 Ejercicios reales</span>
+            </div>
+
+            <p className="demo__footer-note">
+              No necesitas una cuenta. Empieza gratis.
             </p>
           </div>
         </section>
+
+        {/* Mascota fuera del contenido — a la derecha en desktop, abajo en móvil */}
+        <div className="demo__mascot-container">
+          <img
+            src="/codey-saludando.png"
+            alt=""
+            aria-hidden="true"
+            className="demo__mascot"
+          />
+        </div>
+
       </div>
     </MotionPage>
   )

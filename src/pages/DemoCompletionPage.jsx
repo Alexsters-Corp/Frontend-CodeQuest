@@ -48,7 +48,12 @@ function DemoCompletionPage() {
   return (
     <MotionPage className="lesson-page" delay={0.06}>
       <div className="lesson-completed lesson-completed--demo">
-        <div className="completed-icon">🏆</div>
+        <img
+          src="/codey-celebrando.png"
+          alt=""
+          aria-hidden="true"
+          className="demo__completion-mascot"
+        />
         <h1>¡Felicidades!</h1>
         <h2>Acabas de completar tu primera leccion en CodeQuest.</h2>
 
@@ -67,16 +72,6 @@ function DemoCompletionPage() {
           </div>
         </div>
 
-        {preview?.languages?.length > 0 && (
-          <div className="demo-completion__chips">
-            {preview.languages.map((lang) => (
-              <span key={lang.id} className="demo-completion__chip">
-                {lang.displayName || lang.name}
-              </span>
-            ))}
-          </div>
-        )}
-
         {preview?.nextLessonsTitles?.length > 0 && (
           <div className="demo-completion__next">
             <h3>Lo que te espera al registrarte:</h3>
@@ -93,22 +88,15 @@ function DemoCompletionPage() {
         <div className="completed-actions">
           <button
             type="button"
-            className="lesson-start-btn ui-jitter"
+            className="demo__cta-btn ui-jitter"
             onClick={() => navigate('/registro')}
           >
             Crear mi cuenta gratis
           </button>
-          <button
-            type="button"
-            className="lesson-back-btn"
-            onClick={() => navigate('/login')}
-          >
-            Ya tengo cuenta
-          </button>
         </div>
 
         <p className="demo-completion__footnote">
-          Solo necesitas un email. Sin tarjeta. Cancelas cuando quieras.
+          Puedes crear tu cuenta gratis cuando quieras.
         </p>
       </div>
     </MotionPage>

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { IoMdArrowRoundBack } from 'react-icons/io'
 import MotionPage from '../components/MotionPage'
 import { useLanguage } from '../context/useLanguage'
 import {
@@ -227,7 +228,7 @@ function ModulesPage() {
       <div className="modules-container">
         <div className="modules-header">
           <button className="modules-back" onClick={() => navigate('/dashboard')} type="button">
-            ← {t('modules.back')}
+            <IoMdArrowRoundBack /> {t('modules.back')}
           </button>
           <h1>{t('modules.title')}</h1>
           <button className="modules-back" onClick={() => navigate('/favorites')} type="button">

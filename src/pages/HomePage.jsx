@@ -159,9 +159,6 @@ function HomePage() {
             <Link className="landing__cta-btn ui-jitter" to={dashboardPath}>
               {isAuthenticated ? t('home.goDashboard') : t('home.getStarted')}
             </Link>
-            <Link className="landing__demo-btn ui-jitter" to="/demo">
-              {t('home.tryDemo')}
-            </Link>
           </div>
         </header>
 
@@ -177,7 +174,7 @@ function HomePage() {
             </p>
 
             <div className="landing__hero-actions">
-              <Link className="landing__cta-btn ui-jitter" to={dashboardPath}>
+              <Link className="landing__cta-btn ui-jitter" to="/demo">
                 {t('home.hero.start')}
               </Link>
               <button className="landing__ghost-btn" type="button" onClick={() => scrollTo('features')}>

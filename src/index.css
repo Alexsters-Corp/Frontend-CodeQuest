@@ -1,6 +1,4 @@
-/* ============================================================
-   1. IMPORTS & VARIABLES
-   ============================================================ */
+/* --- 1. VARIABLES --- */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap');
 @import './sidebar-redesign.css';
@@ -25,9 +23,7 @@
   --cq-shadow: 0 24px 56px rgba(2, 8, 23, 0.48);
 }
 
-/* ============================================================
-   2. RESET & BASE
-   ============================================================ */
+/* --- 2. RESET --- */
 
 * {
   box-sizing: border-box;
@@ -41,9 +37,7 @@ html {
   min-height: 100vh;
 }
 
-/* ============================================================
-   3. UTILIDADES
-   ============================================================ */
+/* --- 3. UTILS --- */
 
 .sr-only {
   position: absolute;
@@ -57,9 +51,7 @@ html {
   border: 0;
 }
 
-/* ============================================================
-   4. ELEMENTOS GLOBALES
-   ============================================================ */
+/* --- 4. GLOBALS --- */
 
 .page {
   align-items: center;
@@ -105,9 +97,7 @@ button {
   margin-top: 12px;
 }
 
-/* ============================================================
-   5. DASHBOARD & PERFIL
-   ============================================================ */
+/* --- 5. DASHBOARD --- */
 
 .dashboard-header {
   display: flex;
@@ -368,9 +358,7 @@ button.profile-icon-chip:hover {
   margin-top: 0;
 }
 
-/* ============================================================
-   6. ROLE-BASED PAGES (RBAC)
-   ============================================================ */
+/* --- 6. RBAC --- */
 
 .unauthorized-card {
   text-align: left;
@@ -598,11 +586,7 @@ button.profile-icon-chip:hover {
   margin-top: 8px;
 }
 
-
-
-/* ============================================================
-   7. ONBOARDING PAGES
-   ============================================================ */
+/* --- 7. ONBOARDING --- */
 
 .onboarding-page {
   min-height: 100vh;
@@ -704,8 +688,6 @@ button.profile-icon-chip:hover {
   font-size: 1.05rem;
   margin: 0;
 }
-
-/* Language selection grid */
 
 .language-grid {
   display: grid;
@@ -821,8 +803,6 @@ button.profile-icon-chip:hover {
   background: #dbeafe;
 }
 
-/* Tour slides */
-
 .tour-container {
   position: relative;
 }
@@ -880,10 +860,7 @@ button.profile-icon-chip:hover {
   transition: all 0.3s;
 }
 
-
-/* ============================================================
-   8. DIAGNOSTIC TEST PAGE
-   ============================================================ */
+/* --- 8. DIAGNOSTIC --- */
 
 .diagnostic-page {
   min-height: 100vh;
@@ -909,7 +886,9 @@ button.profile-icon-chip:hover {
 }
 
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .diagnostic-container {
@@ -1037,8 +1016,14 @@ button.profile-icon-chip:hover {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(-8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .feedback-correct {
@@ -1064,7 +1049,9 @@ button.profile-icon-chip:hover {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .diagnostic-submit-btn:hover:not(:disabled),
@@ -1094,7 +1081,10 @@ button.profile-icon-chip:hover {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: border-color 0.2s, background-color 0.2s, color 0.2s;
+  transition:
+    border-color 0.2s,
+    background-color 0.2s,
+    color 0.2s;
   margin-top: 0;
 }
 
@@ -1119,7 +1109,9 @@ button.profile-icon-chip:hover {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
   margin-top: 0;
 }
 
@@ -1133,7 +1125,6 @@ button.profile-icon-chip:hover {
   cursor: not-allowed;
 }
 
-/* Diagnostic Result */
 .diagnostic-result {
   background: #fff;
   border-radius: 20px;
@@ -1168,9 +1159,18 @@ button.profile-icon-chip:hover {
   text-transform: capitalize;
 }
 
-.level-principiante { background: #dbeafe; color: #1e40af; }
-.level-intermedio { background: #fef3c7; color: #92400e; }
-.level-avanzado { background: #d1fae5; color: #065f46; }
+.level-principiante {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.level-intermedio {
+  background: #fef3c7;
+  color: #92400e;
+}
+.level-avanzado {
+  background: #d1fae5;
+  color: #065f46;
+}
 
 .result-stats {
   display: flex;
@@ -1203,10 +1203,7 @@ button.profile-icon-chip:hover {
   margin-bottom: 28px;
 }
 
-
-/* ============================================================
-   9. MODULES PAGE
-   ============================================================ */
+/* --- 9. MODULES --- */
 
 .modules-page {
   min-height: 100vh;
@@ -1258,6 +1255,9 @@ button.profile-icon-chip:hover {
 }
 
 .modules-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   background: none;
   border: none;
   color: #4f46e5;
@@ -1357,9 +1357,18 @@ button.profile-icon-chip:hover {
   font-weight: 600;
 }
 
-.status-completado { background: #d1fae5; color: #065f46; }
-.status-en_progreso { background: #dbeafe; color: #1e40af; }
-.status-bloqueado { background: #f3f4f6; color: #9ca3af; }
+.status-completado {
+  background: #d1fae5;
+  color: #065f46;
+}
+.status-en_progreso {
+  background: #dbeafe;
+  color: #1e40af;
+}
+.status-bloqueado {
+  background: #f3f4f6;
+  color: #9ca3af;
+}
 
 .module-progress-mini {
   height: 6px;
@@ -1458,12 +1467,12 @@ button.profile-icon-chip:hover {
   cursor: default;
 }
 
-/* ============================================================
-   10. LESSON PAGE & EXERCISES
-   ============================================================ */
+/* --- 10. LESSON & EXERCISES --- */
 
+/* shared: Lesson + Demo + DemoCompletion */
 .lesson-page {
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   background: #f3f4f6;
   display: flex;
   align-items: center;
@@ -1471,11 +1480,13 @@ button.profile-icon-chip:hover {
   padding: 24px;
 }
 
+/* shared: Lesson + Demo */
 .lesson-loading {
   text-align: center;
   color: #6b7280;
 }
 
+/* shared: Lesson + Demo */
 .lesson-container {
   background: #fff;
   border-radius: 20px;
@@ -1483,6 +1494,9 @@ button.profile-icon-chip:hover {
   max-width: 650px;
   width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .lesson-header {
@@ -1493,6 +1507,9 @@ button.profile-icon-chip:hover {
 }
 
 .lesson-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   background: none;
   border: none;
   color: #4f46e5;
@@ -1516,6 +1533,7 @@ button.profile-icon-chip:hover {
   margin-bottom: 20px;
 }
 
+/* shared: Lesson + Demo + TheoryContent */
 .lesson-theory {
   line-height: 1.7;
   color: #374151;
@@ -1527,7 +1545,7 @@ button.profile-icon-chip:hover {
 .lesson-theory h3 {
   margin-top: 20px;
   margin-bottom: 8px;
-  color: #1f2937;
+  color: #f1f7ff;
 }
 
 .lesson-theory pre {
@@ -1604,7 +1622,9 @@ button.profile-icon-chip:hover {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, background 0.2s;
+  transition:
+    transform 0.2s,
+    background 0.2s;
 }
 
 .lesson-solution-btn:hover:not(:disabled) {
@@ -1651,7 +1671,6 @@ button.profile-icon-chip:hover {
   line-height: 1.6;
 }
 
-/* Exercise styles */
 .exercise-header {
   margin-bottom: 24px;
 }
@@ -1813,7 +1832,11 @@ button.profile-icon-chip:hover {
   gap: 10px;
   padding: 10px 12px;
   border-bottom: 1px solid rgba(148, 163, 184, 0.25);
-  background: linear-gradient(90deg, rgba(11, 20, 37, 0.96), rgba(15, 23, 42, 0.95));
+  background: linear-gradient(
+    90deg,
+    rgba(11, 20, 37, 0.96),
+    rgba(15, 23, 42, 0.95)
+  );
 }
 
 .monaco-language-chip {
@@ -2000,7 +2023,12 @@ button.profile-icon-chip:hover {
 .editor-skeleton__line {
   display: inline-block;
   border-radius: 8px;
-  background: linear-gradient(90deg, rgba(51, 65, 85, 0.55), rgba(100, 116, 139, 0.45), rgba(51, 65, 85, 0.55));
+  background: linear-gradient(
+    90deg,
+    rgba(51, 65, 85, 0.55),
+    rgba(100, 116, 139, 0.45),
+    rgba(51, 65, 85, 0.55)
+  );
   background-size: 180% 100%;
   animation: editorShimmer 1.2s ease infinite;
 }
@@ -2106,7 +2134,9 @@ button.profile-icon-chip:hover {
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
 }
 
 .exercise-submit-btn {
@@ -2130,7 +2160,7 @@ button.profile-icon-chip:hover {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
-/* Lesson completed */
+/* shared: Lesson + DemoCompletion */
 .lesson-completed {
   text-align: center;
   background: #fff;
@@ -2139,6 +2169,9 @@ button.profile-icon-chip:hover {
   max-width: 450px;
   width: 100%;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  max-height: calc(100dvh - 48px);
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .completed-icon {
@@ -2174,9 +2207,7 @@ button.profile-icon-chip:hover {
   font-size: 1.8rem;
 }
 
-/* ============================================================
-   11. DASHBOARD - NEW SECTIONS
-   ============================================================ */
+/* --- 11. DASHBOARD (cont.) --- */
 
 .dashboard-languages {
   margin-top: 28px;
@@ -2456,7 +2487,6 @@ button.profile-icon-chip:hover {
   cursor: not-allowed;
 }
 
-/* Achievements */
 .dashboard-achievements {
   margin-top: 28px;
 }
@@ -2498,7 +2528,6 @@ button.profile-icon-chip:hover {
   font-weight: 500;
 }
 
-/* Activity chart */
 .dashboard-activity {
   margin-top: 28px;
 }
@@ -2572,7 +2601,11 @@ button.profile-icon-chip:hover {
   overflow: hidden;
   margin-bottom: 10px;
   background:
-    radial-gradient(circle at 50% 116%, rgba(56, 189, 248, 0.24), transparent 40%),
+    radial-gradient(
+      circle at 50% 116%,
+      rgba(56, 189, 248, 0.24),
+      transparent 40%
+    ),
     linear-gradient(180deg, rgba(9, 20, 37, 0.92), rgba(6, 16, 31, 0.95));
 }
 
@@ -2581,7 +2614,11 @@ button.profile-icon-chip:hover {
   top: -26px;
   width: 140px;
   height: 118px;
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.36), rgba(56, 189, 248, 0.04));
+  background: linear-gradient(
+    180deg,
+    rgba(56, 189, 248, 0.36),
+    rgba(56, 189, 248, 0.04)
+  );
   clip-path: polygon(18% 0%, 82% 0%, 100% 100%, 0% 100%);
   filter: blur(1px);
   opacity: 0.72;
@@ -2736,7 +2773,6 @@ button.profile-icon-chip:hover {
   line-height: 1;
 }
 
-
 .activity-bars {
   display: flex;
   gap: 8px;
@@ -2783,9 +2819,7 @@ button.profile-icon-chip:hover {
   font-weight: 600;
 }
 
-/* ============================================================
-   12. DESIGN SYSTEM v2
-   ============================================================ */
+/* --- 12. DESIGN SYSTEM v2 --- */
 
 html,
 body,
@@ -2799,8 +2833,16 @@ body {
   color: var(--cq-text);
   background:
     radial-gradient(circle at 4% 0%, rgba(16, 185, 129, 0.16), transparent 30%),
-    radial-gradient(circle at 95% 15%, rgba(139, 92, 246, 0.14), transparent 28%),
-    radial-gradient(circle at 70% 100%, rgba(245, 158, 11, 0.08), transparent 32%),
+    radial-gradient(
+      circle at 95% 15%,
+      rgba(139, 92, 246, 0.14),
+      transparent 28%
+    ),
+    radial-gradient(
+      circle at 70% 100%,
+      rgba(245, 158, 11, 0.08),
+      transparent 32%
+    ),
     linear-gradient(150deg, #050a16 0%, #0c162b 44%, #090f20 100%);
 }
 
@@ -2809,33 +2851,62 @@ body::before {
   position: fixed;
   inset: 0;
   pointer-events: none;
-  background-image: linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+  background-image:
+    linear-gradient(rgba(148, 163, 184, 0.05) 1px, transparent 1px),
     linear-gradient(90deg, rgba(148, 163, 184, 0.04) 1px, transparent 1px);
   background-size: 44px 44px;
-  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.8), transparent 85%);
+  mask-image: radial-gradient(
+    circle at center,
+    rgba(0, 0, 0, 0.8),
+    transparent 85%
+  );
   z-index: -1;
 }
 
-/* Capa C - Halos de saturacion PRODUCTO (default) */
+/* halos PRODUCTO (default) */
 body::after {
   content: '';
   position: fixed;
   inset: -20% -10%;
   pointer-events: none;
   background:
-    radial-gradient(circle at 15% 18%, rgba(16, 185, 129, 0.20), transparent 32%),
-    radial-gradient(circle at 82% 16%, rgba(139, 92, 246, 0.20), transparent 26%),
-    radial-gradient(circle at 52% 90%, rgba(245, 158, 11, 0.12), transparent 34%);
+    radial-gradient(
+      circle at 15% 18%,
+      rgba(16, 185, 129, 0.2),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 82% 16%,
+      rgba(139, 92, 246, 0.2),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 52% 90%,
+      rgba(245, 158, 11, 0.12),
+      transparent 34%
+    );
   filter: blur(6px);
   z-index: -1;
 }
 
-/* Capa C - Halos de saturacion MARKETING (override en / y /demo) */
+/* halos MARKETING (override en / y /demo) */
 body.theme-marketing::after {
   background:
-    radial-gradient(circle at 15% 18%, rgba(16, 185, 129, 0.36), transparent 32%),
-    radial-gradient(circle at 82% 16%, rgba(139, 92, 246, 0.36), transparent 26%),
-    radial-gradient(circle at 52% 90%, rgba(245, 158, 11, 0.24), transparent 34%);
+    radial-gradient(
+      circle at 15% 18%,
+      rgba(16, 185, 129, 0.36),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 82% 16%,
+      rgba(139, 92, 246, 0.36),
+      transparent 26%
+    ),
+    radial-gradient(
+      circle at 52% 90%,
+      rgba(245, 158, 11, 0.24),
+      transparent 34%
+    );
 }
 
 h1,
@@ -2899,10 +2970,17 @@ textarea:focus {
 button {
   border: 1px solid transparent;
   border-radius: 12px;
-  background: linear-gradient(135deg, var(--cq-primary), var(--cq-primary-strong));
+  background: linear-gradient(
+    135deg,
+    var(--cq-primary),
+    var(--cq-primary-strong)
+  );
   color: #f7fffb;
   font-weight: 700;
-  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
 
 button:hover:not(:disabled) {
@@ -2915,6 +2993,7 @@ button:disabled {
   cursor: not-allowed;
 }
 
+/* shared: global */
 .ui-jitter:hover:not(:disabled) {
   animation: ui-jitter 0.26s ease;
 }
@@ -2932,10 +3011,11 @@ button:disabled {
   }
 }
 
-/* ── Streak emoji ───────────────────────── */
 .streak-emoji {
   display: inline-block;
-  transition: filter 0.4s ease, opacity 0.4s ease;
+  transition:
+    filter 0.4s ease,
+    opacity 0.4s ease;
 }
 
 .streak-emoji--active {
@@ -3005,9 +3085,7 @@ button:disabled {
   color: #fca5a5;
 }
 
-/* ============================================================
-   13. LANDING
-   ============================================================ */
+/* --- 13. LANDING --- */
 
 .landing {
   position: relative;
@@ -3016,6 +3094,7 @@ button:disabled {
   padding: 28px 24px 40px;
 }
 
+/* shared: Home + DemoLanding */
 .landing__container {
   position: relative;
   max-width: 1220px;
@@ -3109,7 +3188,9 @@ button:disabled {
   border: 1px dashed rgba(245, 158, 11, 0.55);
   background: rgba(245, 158, 11, 0.12);
   color: #fbbf24;
-  transition: background 0.15s ease, transform 0.15s ease;
+  transition:
+    background 0.15s ease,
+    transform 0.15s ease;
 }
 
 .landing__demo-btn:hover {
@@ -3340,7 +3421,11 @@ button:disabled {
 .landing__showcase-screen {
   border-radius: 20px;
   border: 1px solid rgba(16, 185, 129, 0.38);
-  background: linear-gradient(160deg, rgba(16, 185, 129, 0.16), rgba(139, 92, 246, 0.14));
+  background: linear-gradient(
+    160deg,
+    rgba(16, 185, 129, 0.16),
+    rgba(139, 92, 246, 0.14)
+  );
   padding: 28px 18px;
 }
 
@@ -3367,9 +3452,7 @@ button:disabled {
   color: #9db1ca;
 }
 
-/* ============================================================
-   14. AUTH
-   ============================================================ */
+/* --- 14. AUTH --- */
 
 .auth-page {
   min-height: 100vh;
@@ -3378,6 +3461,7 @@ button:disabled {
   padding: 20px;
 }
 
+/* shared: auth pages */
 .auth-layout {
   width: min(100%, 1080px);
   display: grid;
@@ -3401,8 +3485,16 @@ button:disabled {
 .auth-visual {
   padding: 26px;
   background:
-    radial-gradient(circle at 80% 16%, rgba(139, 92, 246, 0.24), transparent 32%),
-    radial-gradient(circle at 14% 70%, rgba(16, 185, 129, 0.2), transparent 34%),
+    radial-gradient(
+      circle at 80% 16%,
+      rgba(139, 92, 246, 0.24),
+      transparent 32%
+    ),
+    radial-gradient(
+      circle at 14% 70%,
+      rgba(16, 185, 129, 0.2),
+      transparent 34%
+    ),
     rgba(8, 16, 30, 0.74);
 }
 
@@ -3527,9 +3619,7 @@ button:disabled {
   text-decoration: none;
 }
 
-/* ============================================================
-   15. CORE APP SURFACES (DS V2 OVERRIDES)
-   ============================================================ */
+/* --- 15. DS V2 OVERRIDES --- */
 
 .dashboard-page,
 .rbac-page,
@@ -3818,6 +3908,27 @@ button:disabled {
   color: #bde7d4;
 }
 
+/* Monaco read-only — teoría */
+.code-viewer {
+  margin: 16px 0;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid var(--cq-border);
+}
+
+
+.code-viewer__fallback {
+  margin: 0;
+  padding: 14px 16px;
+  background: #050d1a;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-x: auto;
+  color: #d4d4d4;
+  white-space: pre;
+}
+
 .spinner {
   border-color: rgba(148, 163, 184, 0.24);
   border-top-color: var(--cq-primary);
@@ -3897,7 +4008,9 @@ button:disabled {
   border-radius: inherit;
   pointer-events: none;
   border: 1px solid rgba(16, 185, 129, 0.3);
-  box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.1), 0 10px 24px rgba(16, 185, 129, 0.14);
+  box-shadow:
+    0 0 0 1px rgba(16, 185, 129, 0.1),
+    0 10px 24px rgba(16, 185, 129, 0.14);
   opacity: 0;
   animation: landing-target-soft 0.82s ease-out;
 }
@@ -4262,216 +4375,6 @@ button:disabled {
   background: rgba(76, 41, 9, 0.95) !important;
 }
 
-
-
-
-
-/* SOLO móvil */
-
-
-/* Desktop */
-
-
-
-
-/* ============================================================
-   16. DEMO PUBLICO (HU-025)
-   Estilos minimos: reusamos lesson-completed, landing__* y exercise-*.
-   Solo definimos aqui lo que no tiene equivalente en el sistema.
-   ============================================================ */
-
-/* Banner persistente en DemoLessonPage */
-.demo-banner {
-  position: sticky;
-  top: 0;
-  z-index: 1000;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-
-  padding: 10px 16px;
-}
-
-.demo-banner strong {
-  color: #fde68a;
-}
-
-.demo-banner__chip {
-  padding: 3px 10px;
-
-  background: rgba(16, 185, 129, 0.18);
-  color: #6ee7b7;
-
-  border-radius: 999px;
-
-  font-size: 11px;
-  font-weight: 600;
-}
-
-.demo-banner__cta {
-  margin-left: auto;
-  padding: 6px 14px;
-
-  border: 1px solid rgba(245, 158, 11, 0.5);
-  border-radius: 999px;
-
-  background: rgba(245, 158, 11, 0.18);
-  color: #fde68a;
-
-  font-size: 13px;
-  font-weight: 600;
-
-  cursor: pointer;
-}
-
-.demo-banner__cta:hover {
-  background: rgba(245, 158, 11, 0.32);
-}
-
-/* Bloques internos de DemoCompletionPage */
-.lesson-completed--demo {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 18px;
-
-  max-width: 640px;
-  padding: 36px 32px;
-}
-
-.lesson-completed--demo h1 {
-  font-size: 1.75rem;
-}
-
-.lesson-completed--demo h2 {
-  margin-bottom: 8px;
-
-  color: #4b5563;
-  font-size: 1.05rem;
-}
-
-.demo-completion__stats {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
-
-  width: 100%;
-}
-
-.demo-completion__stat {
-  padding: 18px 14px;
-
-  border: 1px solid var(--cq-border);
-  border-radius: var(--cq-radius-md, 14px);
-
-  background: rgba(16, 185, 129, 0.06);
-
-  text-align: center;
-}
-
-.demo-completion__stat-number {
-  display: block;
-
-  color: var(--cq-primary, #10b981);
-
-  font-size: 2rem;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-.demo-completion__stat-label {
-  display: block;
-  margin-top: 6px;
-
-  color: #374151;
-
-  font-size: 13px;
-  font-weight: 500;
-}
-
-.demo-completion__chips {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-
-  width: 100%;
-}
-
-.demo-completion__chip {
-  padding: 4px 12px;
-
-  border: 1px solid rgba(16, 185, 129, 0.32);
-  border-radius: 999px;
-
-  background: rgba(16, 185, 129, 0.12);
-  color: #047857;
-
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.demo-completion__next {
-  box-sizing: border-box;
-  width: 100%;
-  padding: 16px 18px;
-
-  border: 1px solid var(--cq-border);
-  border-radius: var(--cq-radius-md, 14px);
-
-  background: rgba(16, 185, 129, 0.04);
-
-  text-align: left;
-}
-
-.demo-completion__next h3 {
-  margin: 0 0 10px;
-
-  color: #111827;
-
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-.demo-completion__next ul {
-  margin: 0;
-  padding: 0;
-
-  list-style: none;
-}
-
-.demo-completion__next li {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-
-  padding: 8px 0;
-
-  border-bottom: 1px solid rgba(148, 163, 184, 0.22);
-
-  color: #374151;
-  font-size: 14px;
-}
-
-.demo-completion__next li:last-child {
-  border-bottom: none;
-}
-
-.demo-completion__footnote {
-  margin: 0;
-
-  color: #6b7280;
-
-  font-size: 12px;
-}
-
-/* Adaptacion suave */
-
-
 .profile-social-panel {
   margin-top: 24px;
   padding-top: 24px;
@@ -4571,8 +4474,14 @@ button:disabled {
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .social-list-card h3 {
@@ -4705,9 +4614,18 @@ button:disabled {
   text-align: center;
 }
 
-.ranking-item:nth-child(1) .ranking-rank-badge { color: #fbbf24; font-size: 1.55rem; }
-.ranking-item:nth-child(2) .ranking-rank-badge { color: #cbd5e1; font-size: 1.4rem; }
-.ranking-item:nth-child(3) .ranking-rank-badge { color: #fb923c; font-size: 1.3rem; }
+.ranking-item:nth-child(1) .ranking-rank-badge {
+  color: #fbbf24;
+  font-size: 1.55rem;
+}
+.ranking-item:nth-child(2) .ranking-rank-badge {
+  color: #cbd5e1;
+  font-size: 1.4rem;
+}
+.ranking-item:nth-child(3) .ranking-rank-badge {
+  color: #fb923c;
+  font-size: 1.3rem;
+}
 
 .ranking-item-main {
   display: grid;
@@ -4764,11 +4682,7 @@ button:disabled {
   background: rgba(11, 20, 37, 0.4);
 }
 
-/* ============================================================
-   17. RESPONSIVE
-   ============================================================ */
-
-/* -- 6. ROLE-BASED PAGES (RBAC) -- */
+/* --- 17. RESPONSIVE --- */
 
 @media (max-width: 860px) {
   .rbac-header,
@@ -4795,7 +4709,6 @@ button:disabled {
   }
 }
 
-
 @media (max-width: 560px) {
   .rbac-metric-grid,
   .rbac-metric-grid--admin {
@@ -4803,11 +4716,7 @@ button:disabled {
   }
 }
 
-
-/* -- 7. ONBOARDING PAGES -- */
-
 @media (max-width: 480px) {
-
   .onboarding-container {
     padding: 28px 20px;
   }
@@ -4821,9 +4730,6 @@ button:disabled {
   }
 }
 
-
-/* -- 8. DIAGNOSTIC TEST PAGE -- */
-
 @media (max-width: 640px) {
   .diagnostic-actions {
     grid-template-columns: 1fr;
@@ -4835,17 +4741,11 @@ button:disabled {
   }
 }
 
-
-/* -- 11. DASHBOARD - NEW SECTIONS -- */
-
 @media (max-width: 900px) {
   .dashboard-ranking-preview {
     width: 100%;
   }
 }
-
-
-/* -- 15. CORE APP SURFACES (DS V2 OVERRIDES) -- */
 
 @media (max-width: 760px) {
   .module-meta {
@@ -4863,14 +4763,12 @@ button:disabled {
   }
 }
 
-
 @media (max-width: 540px) {
   .cq-toast {
     min-width: 0;
     width: min(92vw, 420px);
   }
 }
-
 
 @media (max-width: 900px) {
   .landing__hero,
@@ -4924,7 +4822,6 @@ button:disabled {
     flex-wrap: wrap;
   }
 }
-
 
 @media (max-width: 760px) {
   .landing,
@@ -5000,7 +4897,6 @@ button:disabled {
   }
 }
 
-
 @media (max-width: 768px) {
   .landing__hero-actions,
   .landing__actions,
@@ -5018,7 +4914,6 @@ button:disabled {
   }
 }
 
-
 @media (min-width: 768px) {
   .landing__hero-actions {
     flex-direction: row;
@@ -5026,7 +4921,6 @@ button:disabled {
     align-items: center;
   }
 }
-
 
 @media (max-width: 480px) {
   .landing__hero-copy h1 {
@@ -5043,42 +4937,11 @@ button:disabled {
   .profile-edit-card {
     padding: 18px;
   }
-}
 
-
-/* -- 16. DEMO PUBLICO (HU-025) -- */
-
-@media (max-width: 480px) {
-  .lesson-completed--demo {
-    padding: 28px 22px;
-  }
-
-  .lesson-completed--demo h1 {
-    font-size: 1.5rem;
-  }
-
-  .demo-completion__stats {
-    grid-template-columns: 1fr;
-  }
-
-  .demo-completion__stat-number {
-    font-size: 1.75rem;
-  }
-
-  .demo-banner {
-    padding: 8px 12px;
-
-    font-size: 12px;
-  }
-
-  .demo-banner__cta {
-    width: 100%;
-    margin-left: 0;
-
-    text-align: center;
+  .lesson-container {
+    max-height: calc(100dvh - 32px);
   }
 }
-
 
 @media (max-width: 900px) {
   .social-columns {
@@ -5090,7 +4953,6 @@ button:disabled {
     grid-template-columns: 1fr;
   }
 }
-
 
 @media (max-width: 640px) {
   .social-summary-grid,
@@ -5105,4 +4967,3 @@ button:disabled {
     flex-direction: column;
   }
 }
-
