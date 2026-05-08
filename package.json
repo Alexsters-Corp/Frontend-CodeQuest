@@ -20,6 +20,9 @@
     "react-router-dom": "^7.13.1",
     "sonner": "^2.0.7"
   },
+  "overrides": {
+    "dompurify": "^3.4.2"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
     "@types/react": "^19.2.7",
