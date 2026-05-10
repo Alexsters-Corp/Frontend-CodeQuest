@@ -58,12 +58,17 @@ function ProfilePage() {
       const user = profileData.user || {}
       const countryCode = resolveCountryCode(user.countryCode, locale)
 
+      // El XP de overviewData es mas fiable porque calcula sumas reales si el denormalizado falla
+      const totalXp = overviewData?.xpTotal !== undefined 
+        ? Number(overviewData.xpTotal) 
+        : Number(user.totalXp || 0)
+
       setProfile({
         username: String(user.username || fallbackUsername(user.email)),
         nombre: user.nombre || '',
         email: user.email || '',
         avatar: String(user.avatar || PRESET_ICONS[0]),
-        totalXp: Number(user.totalXp || 0),
+        totalXp,
         currentLevel: Number(user.currentLevel || 1),
         countryCode,
         countryRaw: '',

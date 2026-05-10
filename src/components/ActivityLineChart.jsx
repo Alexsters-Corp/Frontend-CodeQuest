@@ -19,7 +19,11 @@ function ActivityLineChart({ data = [] }) {
         x,
         y: 100 - (d.xp / maxXP) * 100,
         xp: d.xp,
-        label: new Date(d.dia).toLocaleDateString(language === 'en' ? 'en-US' : 'es-CO', { weekday: 'short' }),
+        label: (() => {
+          const [year, month, day] = d.dia.split('-')
+          const date = new Date(year, month - 1, day)
+          return date.toLocaleDateString(language === 'en' ? 'en-US' : 'es-CO', { weekday: 'short' })
+        })(),
         rawDate: d.dia,
         percentX: (x / 1000) * 100
       }
