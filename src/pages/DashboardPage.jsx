@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
+import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
@@ -256,7 +257,10 @@ function DashboardPage() {
             </div>
 
             {loading ? (
-              <p className="loading-text">{t('dashboard.loading')}</p>
+              <div className="dashboard-loading-container">
+                <LoadingSpinner size="large" />
+                <p className="loading-text">{t('dashboard.loading')}</p>
+              </div>
             ) : overview?.languages?.length > 0 ? (
               <div className="language-cards-row">
                 {overview.languages.map((lang) => (

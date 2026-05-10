@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import ActivityLineChart from '../components/ActivityLineChart'
+import LoadingSpinner from '../components/LoadingSpinner'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
@@ -122,7 +123,10 @@ function ProfilePage() {
         </div>
 
         {loading ? (
-          <p className="profile-edit-loading">{t('common.loadingProfile')}</p>
+          <div className="profile-edit-loading-container">
+            <LoadingSpinner size="large" />
+            <p>{t('common.loadingProfile')}</p>
+          </div>
         ) : errorMessage ? (
           <div className="profile-edit-actions">
             <p className="profile-edit-message error">{errorMessage}</p>

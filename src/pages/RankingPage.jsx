@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
+import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
@@ -118,7 +119,10 @@ function RankingPage() {
         </div>
 
         {loading ? (
-          <p className="profile-edit-loading">{t('common.loading')}</p>
+          <div className="dashboard-loading-container">
+            <LoadingSpinner size="large" />
+            <p className="loading-text">{t('common.loading')}</p>
+          </div>
         ) : errorMessage ? (
           <div className="profile-edit-actions">
             <p className="profile-edit-message error">{errorMessage}</p>
