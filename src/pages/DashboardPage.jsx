@@ -329,31 +329,6 @@ function DashboardPage() {
               </div>
             </section>
           )}
-
-          {overview?.recentXP?.length > 0 && (
-            <section className="dashboard-activity" id="dashboard-activity">
-              <h2>{t('dashboard.activityWeek')}</h2>
-              <div className="activity-bars">
-                {overview.recentXP.map((day) => {
-                  const maxXP = Math.max(...overview.recentXP.map((d) => d.xp), 1)
-                  return (
-                    <div key={day.dia} className="activity-bar-col">
-                      <div className="activity-bar-wrapper">
-                        <div
-                          className="activity-bar"
-                          style={{ height: `${(day.xp / maxXP) * 100}%` }}
-                        />
-                      </div>
-                      <span className="activity-day">
-                        {new Date(day.dia).toLocaleDateString(language === 'en' ? 'en-US' : 'es-CO', { weekday: 'short' })}
-                      </span>
-                      <span className="activity-xp">{day.xp}</span>
-                    </div>
-                  )
-                })}
-              </div>
-            </section>
-          )}
         </div>
 
         <aside className="dashboard-ranking-sidebar">
