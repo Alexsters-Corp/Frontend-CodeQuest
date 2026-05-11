@@ -21,6 +21,7 @@ function HomePage() {
   const [previewForm, setPreviewForm] = useState({
     nombre: '',
     email: '',
+    username: '',
     password: '',
   })
   const highlightTimeoutRef = useRef(null)
@@ -93,6 +94,11 @@ function HomePage() {
       return
     }
 
+    if (previewMode === 'register' && !previewForm.username.trim()) {
+      notifyInfo(t('home.preview.enterUsername') || 'Por favor ingresa un nombre de usuario')
+      return
+    }
+
     setPreviewLoading(true)
 
     try {
@@ -105,6 +111,7 @@ function HomePage() {
         : {
           nombre: previewForm.nombre,
           email: previewForm.email,
+          username: previewForm.username,
           password: previewForm.password,
         }
 
@@ -222,6 +229,15 @@ function HomePage() {
                     onChange={handlePreviewChange}
                     placeholder="Alex Dev"
                     autoComplete="name"
+                  />
+
+                  <label htmlFor="landing-username">{t('home.preview.username') || 'Nombre de usuario'}</label>
+                  <input
+                    id="landing-username"
+                    name="username"
+                    value={previewForm.username}
+                    onChange={handlePreviewChange}
+                    placeholder="alexdev"
                   />
                 </>
               )}
