@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
+import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
+import { useAuth } from '../context/useAuth'
 import {
   clearSelectedLanguageId,
   deleteLanguageSelection,
@@ -13,7 +14,7 @@ import {
   setSelectedLanguageId,
 } from '../services/learningApi'
 import { getLeaderboard } from '../services/socialApi'
-import { notifyError, notifyPending, notifySuccess } from '../utils/notify'
+import { notifyError, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -52,6 +53,7 @@ function translateDiagnosticLevel(level, t) {
 function DashboardPage() {
   const navigate = useNavigate()
   const { t } = useLanguage()
+  const { user } = useAuth()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
@@ -60,6 +62,7 @@ function DashboardPage() {
   const [deleteProgressInput, setDeleteProgressInput] = useState('')
   const [deleteSubmitting, setDeleteSubmitting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [openCardMenuId, setOpenCardMenuId] = useState(null)
   const [rankingPreview, setRankingPreview] = useState([])
   const [rankingPreviewLoading, setRankingPreviewLoading] = useState(true)
   const [rankingPosition, setRankingPosition] = useState(null)
@@ -79,6 +82,13 @@ function DashboardPage() {
   useEffect(() => {
     loadOverview()
   }, [loadOverview])
+
+  useEffect(() => {
+    if (!openCardMenuId) return
+    const close = () => setOpenCardMenuId(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [openCardMenuId])
 
   const loadRankingPreview = useCallback(async () => {
     setRankingPreviewLoading(true)
@@ -206,9 +216,10 @@ function DashboardPage() {
   const fourthEntry = getPodiumEntry(4)
 
   return (
-    <MotionPage className="dashboard-page" delay={0.06}>
+    <SidebarLayout>
+      <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar
-        title={t('dashboard.title')}
+        title={user?.nombre || t('nav.defaultName')}
         hideActions
         headerAside={(
           <div className="dashboard-header-summary__grid">
@@ -237,23 +248,11 @@ function DashboardPage() {
         )}
       />
 
-      <div className="dashboard-layout">
-        <Sidebar />
-
-        <div className="dashboard-main">
+      <div className="dashboard-content-layout">
+      <div className="dashboard-main">
           <section className="dashboard-languages" id="dashboard-languages">
             <div className="section-header">
               <h2>{t('dashboard.myLanguages')}</h2>
-              <button
-                className="add-language-btn"
-                onClick={() => {
-                  notifyPending(t('dashboard.addLanguageHint'))
-                  navigate('/onboarding/language')
-                }}
-                type="button"
-              >
-                {t('dashboard.addLanguage')}
-              </button>
             </div>
 
             {loading ? (
@@ -269,12 +268,20 @@ function DashboardPage() {
                     className="dashboard-lang-card"
                   >
                     <button
-                      className="lang-remove-btn"
-                      onClick={() => openDeleteDialog(lang)}
                       type="button"
+                      className="lang-menu-trigger"
+                      onClick={(e) => { e.stopPropagation(); setOpenCardMenuId(openCardMenuId === lang.lenguaje_id ? null : lang.lenguaje_id) }}
+                      aria-label="Opciones"
                     >
-                      {t('dashboard.remove')}
+                      ⋯
                     </button>
+                    {openCardMenuId === lang.lenguaje_id && (
+                      <div className="lang-card-menu" role="menu">
+                        <button type="button" className="lang-card-menu__item lang-card-menu__item--danger" onClick={() => { openDeleteDialog(lang); setOpenCardMenuId(null) }}>
+                          🗑️ {t('dashboard.remove')}
+                        </button>
+                      </div>
+                    )}
 
                     <button
                       className="lang-open-btn"
@@ -284,7 +291,7 @@ function DashboardPage() {
                       <span className="lang-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
                       <span className="lang-name">{lang.nombre}</span>
                       {lang.diagnostico_completado ? (
-                        <div className="lang-progress">
+                        <>
                           <div className="lang-progress-bar">
                             <div
                               className="lang-progress-fill"
@@ -299,7 +306,7 @@ function DashboardPage() {
                               total: lang.modulosTotal,
                             })}
                           </span>
-                        </div>
+                        </>
                       ) : (
                         <span className="lang-diagnostic-badge">{t('dashboard.pendingDiagnostic')}</span>
                       )}
@@ -468,7 +475,8 @@ function DashboardPage() {
           </div>
         </div>
       )}
-    </MotionPage>
+      </MotionPage>
+    </SidebarLayout>
   )
 }
 

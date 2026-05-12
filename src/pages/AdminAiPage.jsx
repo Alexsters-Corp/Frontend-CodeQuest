@@ -5,7 +5,7 @@ import { IoMdHelpCircleOutline } from 'react-icons/io'
 import CodeViewer from '../components/CodeViewer'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
+import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
 import { generateExercise, generateLesson, validateContent } from '../services/aiAdminApi'
 import { notifyError, notifySuccess } from '../utils/notify'
@@ -538,8 +538,8 @@ function AdminAiPage() {
   }
 
   return (
-    <MotionPage className="dashboard-page" delay={0.06}>
-      <Sidebar />
+    <SidebarLayout>
+      <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar title={t('admin.ai.title')} hideActions />
 
       <section className="rbac-page ai-admin-page">
@@ -764,7 +764,8 @@ function AdminAiPage() {
         </div>
       </section>
       <GuideModal type={activeGuide} onClose={() => setActiveGuide(null)} t={t} />
-    </MotionPage>
+      </MotionPage>
+    </SidebarLayout>
   )
 }
 

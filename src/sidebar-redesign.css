@@ -1,109 +1,132 @@
-.dashboard-sidebar {
-  position: fixed;
-  left: 0;
-  top: 0;
+/* ── Tipografía estándar del dashboard ── */
+
+.sidebar-layout {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
+  --cq-border: rgba(148, 163, 184, 0.12);
+}
+
+/* Nombre de usuario en header */
+.dashboard-header-text h1 {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 1.2rem !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0;
+}
+
+/* Títulos de sección del contenido (h2) */
+.sidebar-layout .section-header h2,
+.sidebar-layout .dashboard-achievements h2,
+.sidebar-layout .dashboard-activity h2,
+.sidebar-layout .dashboard-main h2 {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* Sub-secciones (h3) en contenido */
+.sidebar-layout .dashboard-main h3 {
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 0;
+}
+
+/* ── Shell: dos columnas hermanas ── */
+
+.sidebar-layout {
+  display: flex;
+  gap: 20px;
   height: 100vh;
+  height: 100dvh;
+  padding: 12px;
+  overflow: hidden;
+}
+
+.sidebar-layout__sidebar {
+  flex-shrink: 0;
   width: 240px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  z-index: 1000;
+}
+
+.sidebar-layout__content {
+  flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  padding: 24px 12px;
-  background: rgba(10, 18, 32, 0.35);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ── Sidebar card ── */
+
+.dashboard-sidebar {
+  height: 100%;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 20px 12px;
+  background: rgba(11, 20, 37, 0.66);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
-  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s;
-}
-
-.dashboard-sidebar:hover {
-  background: rgba(10, 18, 32, 0.55);
-}
-
-.dashboard-sidebar--collapsed {
-  width: 72px;
+  border: 1px solid var(--cq-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(2, 8, 23, 0.48);
 }
 
 .dashboard-sidebar__logo-container {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 24px;
-  padding-left: 4px;
-  flex-shrink: 0;
-}
-
-.dashboard-sidebar__toggle {
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  padding: 0;
-  display: flex;
-  align-items: center;
   justify-content: center;
+  padding-bottom: 4px;
+  margin-bottom: 12px;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   flex-shrink: 0;
-}
-
-.dashboard-sidebar__logo-text {
-  font-size: 1.35rem;
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  color: #e0eeff;
-  white-space: nowrap;
 }
 
 .dashboard-sidebar h2,
 .dashboard-sidebar h3 {
-  font-size: 0.72rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.70rem;
+  font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #64748b;
-  margin-bottom: 12px;
+  margin-bottom: 6px;
   padding-left: 10px;
   white-space: nowrap;
 }
 
+/* ── Página (columna derecha) ── */
+
 .dashboard-page {
+  flex: 1;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  padding-left: 240px;
-  transition: padding-left 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  min-height: 0;
   background: transparent;
 }
 
-body.sidebar-is-collapsed .dashboard-page {
-  padding-left: 72px;
+/* ── Grid interior del dashboard ── */
+
+.dashboard-content-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
+  align-items: start;
+  flex: 1;
 }
 
-.landing__brand-mark {
-  background: linear-gradient(135deg, #58cc02, #22c55e);
-  color: #060e1b;
-  width: 36px;
-  height: 36px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  font-weight: 900;
-  font-family: 'Fira Code', monospace;
-  font-size: 1.15rem;
-  box-shadow: 0 4px 12px rgba(88, 204, 2, 0.3);
+/* ── Nav buttons ── */
+
+.dashboard-sidebar__menu-block {
+  display: grid;
+  gap: 4px;
 }
 
-.dashboard-sidebar--collapsed .dashboard-nav-btn,
-.dashboard-sidebar--collapsed .dashboard-logout-btn {
-  justify-content: center;
-  padding: 10px;
-}
-
-.dashboard-sidebar--collapsed h2,
-.dashboard-sidebar--collapsed h3 {
-  display: none;
-}
-
-.dashboard-sidebar__menu-block,
 .dashboard-sidebar__account-block {
   display: grid;
   gap: 6px;
@@ -114,7 +137,7 @@ body.sidebar-is-collapsed .dashboard-page {
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 6px;
+  gap: 3px;
 }
 
 .dashboard-nav-btn,
@@ -124,11 +147,12 @@ body.sidebar-is-collapsed .dashboard-page {
   align-items: center;
   gap: 10px;
   text-align: left;
-  background: transparent;
-  border: 1px solid transparent;
-  padding: 8px 12px;
+  background: rgba(12, 22, 41, 0.72);
+  border: 1px solid var(--cq-border);
+  padding: 6px 10px;
   border-radius: 10px;
-  font-size: 0.92rem;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
   font-weight: 500;
   transition: all 0.2s;
   cursor: pointer;
@@ -140,7 +164,7 @@ body.sidebar-is-collapsed .dashboard-page {
 
 .dashboard-logout-btn {
   color: #fca5a5;
-  border: 1px solid rgba(239, 68, 68, 0.25);
+  border-color: rgba(239, 68, 68, 0.35);
 }
 
 .dashboard-nav-btn:hover {
@@ -163,10 +187,29 @@ body.sidebar-is-collapsed .dashboard-page {
   width: 24px;
 }
 
+/* ── Account block ── */
+
 .dashboard-sidebar__account-block {
   margin-top: auto;
   padding-top: 14px;
-  border-top: 1px solid rgba(148, 163, 184, 0.24);
+  border-top: 1px solid rgba(148, 163, 184, 0.12);
+}
+
+.dashboard-sidebar__lang {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+  padding: 12px 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+  margin-bottom: 16px;
+}
+
+.dashboard-sidebar__lang .language-switcher {
+  position: static;
+  box-shadow: none;
+  background: rgba(8, 16, 30, 0.5);
+  backdrop-filter: none;
+  border-color: rgba(148, 163, 184, 0.18);
 }
 
 .dashboard-sidebar__account-actions {
@@ -178,6 +221,242 @@ body.sidebar-is-collapsed .dashboard-page {
 .dashboard-sidebar__account-actions .dashboard-logout-btn {
   margin: 0;
   width: 100%;
-  min-height: 38px;
-  justify-content: center;
+  min-height: 44px;
+  font-size: 0.9rem;
+  padding: 10px 12px;
+}
+
+/* ── Mobile: header + bottom nav ── */
+
+.mobile-header,
+.mobile-bottom-nav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  /* Layout principal */
+  .sidebar-layout {
+    flex-direction: column;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+    padding: 0;
+    gap: 0;
+  }
+
+  .sidebar-layout__sidebar {
+    display: none;
+  }
+
+  .sidebar-layout__content {
+    flex: 1;
+    overflow-y: visible;
+    padding-top: 56px;    /* espacio para header fijo */
+    padding-bottom: 72px; /* espacio para bottom nav */
+  }
+
+  .dashboard-page {
+    padding: 10px 12px 12px;
+  }
+
+  /* Grid interior: columna única, mis lenguajes arriba */
+  .dashboard-content-layout {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  /* Top bar móvil — fixed para que sea visible desde el portal */
+  .mobile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 500;
+    padding: 10px 16px;
+    background: rgba(11, 20, 37, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--cq-border);
+  }
+
+  /* Dropdown compacto en mobile header — ancho natural, no full width */
+  .mobile-header .sidebar-lang-dropdown {
+    width: auto;
+  }
+
+  .mobile-header .sidebar-lang-dropdown__trigger {
+    padding: 5px 10px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    width: auto;
+  }
+
+  /* El menú del dropdown abre hacia abajo */
+  .mobile-header .sidebar-lang-dropdown__menu {
+    top: calc(100% + 6px);
+    bottom: auto;
+    right: 0;
+    left: auto;
+    min-width: 130px;
+  }
+
+  /* Stats (racha/logro/nivel): pegados a la pared, alineados con el avatar */
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .dashboard-header-aside {
+    width: 100%;
+    flex: none;
+    justify-content: flex-start;
+    padding: 0;
+  }
+
+  .dashboard-header-summary__grid {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 8px;
+  }
+
+  .dashboard-header-summary__grid .stat-card {
+    flex: 1;
+    min-width: 0;
+    padding: 8px 10px;
+  }
+
+  /* Bottom nav móvil */
+  .mobile-bottom-nav {
+    display: flex;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 500;
+    background: rgba(11, 20, 37, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--cq-border);
+    padding: 6px 0 max(6px, env(safe-area-inset-bottom));
+  }
+
+  .mobile-bottom-nav__item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px 2px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #64748b;
+    transition: color 0.2s;
+  }
+
+  .mobile-bottom-nav__item:hover:not(:disabled) {
+    color: #f1f7ff;
+    transform: none;
+    box-shadow: none;
+  }
+
+  .mobile-bottom-nav__icon {
+    font-size: 1.3rem;
+    line-height: 1;
+  }
+
+  .mobile-bottom-nav__label {
+    font-family: 'Inter', system-ui, sans-serif;
+    font-size: 0.62rem;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+}
+
+/* ── Dropdown de idioma (solo /dashboard) ── */
+
+.sidebar-lang-dropdown {
+  position: relative;
+  width: 100%;
+}
+
+.sidebar-lang-dropdown__trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 12px;
+  background: rgba(12, 22, 41, 0.72);
+  border: 1px solid var(--cq-border);
+  border-radius: 10px;
+  color: #94a3b8;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-lang-dropdown__trigger:hover:not(:disabled) {
+  background: rgba(148, 163, 184, 0.1);
+  color: #f1f7ff;
+  transform: none;
+  box-shadow: none;
+}
+
+.sidebar-lang-dropdown__arrow {
+  font-size: 1rem;
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.sidebar-lang-dropdown__arrow--open {
+  transform: rotate(180deg);
+}
+
+.sidebar-lang-dropdown__menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: rgba(11, 20, 37, 0.97);
+  border: 1px solid var(--cq-border);
+  border-radius: 10px;
+  padding: 4px;
+  z-index: 300;
+  box-shadow: 0 8px 24px rgba(2, 8, 23, 0.5);
+}
+
+.sidebar-lang-dropdown__option {
+  width: 100%;
+  display: block;
+  padding: 8px 12px;
+  border: none;
+  background: transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  font-family: 'Inter', system-ui, sans-serif;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #94a3b8;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.sidebar-lang-dropdown__option:hover:not(:disabled) {
+  background: rgba(148, 163, 184, 0.1);
+  color: #f1f7ff;
+  transform: none;
+  box-shadow: none;
+}
+
+.sidebar-lang-dropdown__option--active {
+  color: var(--cq-primary);
 }

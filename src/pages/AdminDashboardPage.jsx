@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
+import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
 import { useRole } from '../hooks/useRole'
 import { getAdminAnalytics, listAdminUsers, updateAdminUser } from '../services/rbacApi'
@@ -164,8 +164,8 @@ function AdminDashboardPage() {
   }
 
   return (
-    <MotionPage className="dashboard-page" delay={0.06}>
-      <Sidebar />
+    <SidebarLayout>
+      <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar title={t('admin.title')} hideActions />
 
       <section className="rbac-page">
@@ -340,8 +340,9 @@ function AdminDashboardPage() {
         )}
       </section>
     </section>
-  </MotionPage>
-)
+      </MotionPage>
+    </SidebarLayout>
+  )
 }
 
 export default AdminDashboardPage

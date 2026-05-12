@@ -31,8 +31,15 @@ import DemoLandingPage from './pages/DemoLandingPage'
 import DemoLessonPage from './pages/DemoLessonPage'
 import DemoCompletionPage from './pages/DemoCompletionPage'
 
+const SIDEBAR_ROUTES = [
+  '/dashboard', '/favorites', '/profile', '/ranking',
+  '/social', '/instructor', '/admin',
+]
+
 function App() {
   const { pathname } = useLocation()
+  const isDemo = pathname.startsWith('/demo')
+  const hasSidebar = SIDEBAR_ROUTES.some(r => pathname.startsWith(r))
 
   useEffect(() => {
     const isMarketingRoute = pathname === '/' || pathname === '/demo'
@@ -45,7 +52,7 @@ function App() {
   return (
     <LanguageProvider>
       <AuthProvider>
-        {!pathname.startsWith('/demo') && <LanguageSwitcher />}
+        {!isDemo && !hasSidebar && <LanguageSwitcher />}
 
         <Toaster
           position="top-right"

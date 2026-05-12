@@ -1,0 +1,33 @@
+[33m630954c[m[33m ([m[1;36mHEAD[m[33m, [m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: rebase (start): checkout origin/main
+[33m5a16115[m[33m ([m[1;31morigin/feat/dashboard-responsive-design[m[33m, [m[1;32mfeat/dashboard-responsive-design[m[33m)[m HEAD@{1}: reset: moving to ORIG_HEAD
+[33m5a16115[m[33m ([m[1;31morigin/feat/dashboard-responsive-design[m[33m, [m[1;32mfeat/dashboard-responsive-design[m[33m)[m HEAD@{2}: reset: moving to HEAD
+[33m5a16115[m[33m ([m[1;31morigin/feat/dashboard-responsive-design[m[33m, [m[1;32mfeat/dashboard-responsive-design[m[33m)[m HEAD@{3}: reset: moving to HEAD
+[33m5a16115[m[33m ([m[1;31morigin/feat/dashboard-responsive-design[m[33m, [m[1;32mfeat/dashboard-responsive-design[m[33m)[m HEAD@{4}: commit: Ajuste de logotipo
+[33m8ddb103[m HEAD@{5}: reset: moving to HEAD
+[33m8ddb103[m HEAD@{6}: reset: moving to HEAD
+[33m8ddb103[m HEAD@{7}: commit: Aplicando responsividad para pantallas pequeñas
+[33m2b5bd44[m HEAD@{8}: commit: Ajuste de componentes para diseño de responsividad
+[33mef0e24f[m[33m ([m[1;32mmain[m[33m)[m HEAD@{9}: checkout: moving from main to feat/dashboard-responsive-design
+[33mef0e24f[m[33m ([m[1;32mmain[m[33m)[m HEAD@{10}: pull origin main: Fast-forward
+[33m84b70f3[m HEAD@{11}: pull: Fast-forward
+[33m0a0942b[m HEAD@{12}: commit: CI Frontend
+[33me258a4b[m HEAD@{13}: pull origin main: Fast-forward
+[33mb3f8573[m HEAD@{14}: checkout: moving from feat/demo-responsive-design to main
+[33md6e570c[m[33m ([m[1;31morigin/feat/demo-responsive-design[m[33m, [m[1;32mfeat/demo-responsive-design[m[33m)[m HEAD@{15}: rebase (finish): returning to refs/heads/feat/demo-responsive-design
+[33md6e570c[m[33m ([m[1;31morigin/feat/demo-responsive-design[m[33m, [m[1;32mfeat/demo-responsive-design[m[33m)[m HEAD@{16}: rebase (continue): Refactorización de comentarios en archivos css
+[33m411f341[m HEAD@{17}: rebase (pick): Implementacion de guardar el proceso del usuario y aviso mediante toast
+[33m1e4d1f7[m HEAD@{18}: rebase (pick): Implementacion completa de responsividad para el demo
+[33me3acd92[m HEAD@{19}: rebase (pick): Implementacion visual de monaco en ejemplos
+[33m1fdb4b0[m HEAD@{20}: rebase (pick): Implementacion de card para mostrar lenguajes con imagen en el demo
+[33mb61a164[m HEAD@{21}: rebase (continue): ajuste de diseño para apartado demo
+[33mcbc0e81[m HEAD@{22}: rebase (start): checkout origin/main
+[33m3ec2c19[m HEAD@{23}: commit: Manejo de errores Slint
+[33m744e0a3[m HEAD@{24}: commit: Refactorización de comentarios en archivos css
+[33mea5ed0c[m HEAD@{25}: commit: Implementacion de guardar el proceso del usuario y aviso mediante toast
+[33m21dbc65[m HEAD@{26}: commit: Implementacion completa de responsividad para el demo
+[33mfc2a51b[m HEAD@{27}: commit: Implementacion visual de monaco en ejemplos
+[33mf403f5f[m HEAD@{28}: commit: Implementacion de card para mostrar lenguajes con imagen en el demo
+[33m1c62b1a[m HEAD@{29}: commit: ajuste de diseño para apartado demo
+[33m048f17c[m HEAD@{30}: commit: Ajuste de fondo de pantalla global
+[33mb3f8573[m HEAD@{31}: checkout: moving from main to feat/demo-responsive-design
+[33mb3f8573[m HEAD@{32}: clone: from github.com:Alexsters-Corp/Frontend-CodeQuest.git
