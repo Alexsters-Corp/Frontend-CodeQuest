@@ -22,6 +22,7 @@ function HomePage() {
   const [previewForm, setPreviewForm] = useState({
     nombre: '',
     email: '',
+    username: '',
     password: '',
   })
   const highlightTimeoutRef = useRef(null)
@@ -111,6 +112,7 @@ function HomePage() {
         : {
           nombre: previewForm.nombre,
           email: previewForm.email,
+          username: previewForm.username,
           password: previewForm.password,
         }
 

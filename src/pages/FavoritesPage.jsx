@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
+import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
 import Sidebar from '../components/Sidebar'
 import { useLanguage } from '../context/useLanguage'
@@ -15,14 +16,18 @@ function FavoritesPage() {
   const navigate = useNavigate()
   const { t } = useLanguage()
   const [favorites, setFavorites] = useState([])
+  const [loading, setLoading] = useState(true)
 
   const loadFavorites = useCallback(async () => {
+    setLoading(true)
     try {
       const items = await listFavoriteLessons()
       setFavorites(Array.isArray(items) ? items : [])
     } catch (error) {
       notifyError(error.message || t('favorites.toggleError'))
       setFavorites([])
+    } finally {
+      setLoading(false)
     }
   }, [t])
 
@@ -79,7 +84,12 @@ function FavoritesPage() {
           </button>
         </div>
 
-        {favorites.length === 0 ? (
+        {loading ? (
+          <div className="dashboard-loading-container">
+            <LoadingSpinner size="large" />
+            <p className="loading-text">{t('common.loading')}</p>
+          </div>
+        ) : favorites.length === 0 ? (
           <div className="favorites-empty">
             <p>{t('favorites.empty')}</p>
             <button type="button" className="profile-cancel-btn" onClick={() => navigate('/modules')}>

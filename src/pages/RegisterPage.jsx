@@ -13,6 +13,7 @@ function RegisterPage() {
   const [formData, setFormData] = useState({
     nombre: '',
     email: '',
+    username: '',
     password: '',
   })
   const [isLoading, setIsLoading] = useState(false)
@@ -105,6 +106,17 @@ function RegisterPage() {
               value={formData.email}
               onChange={handleChange}
               placeholder="dev@codequest.io"
+            />
+
+            <label htmlFor="username">{t('profile.username')}</label>
+            <input
+              id="username"
+              name="username"
+              type="text"
+              required
+              value={formData.username}
+              onChange={handleChange}
+              placeholder="alexdev"
             />
 
             <label htmlFor="password">{t('auth.password')}</label>

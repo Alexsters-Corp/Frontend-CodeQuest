@@ -3,6 +3,7 @@ import { motion as Motion } from 'framer-motion'
 import { useNavigate, useParams } from 'react-router-dom'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
+import LoadingSpinner from '../components/LoadingSpinner'
 import MotionPage from '../components/MotionPage'
 import { useLanguage } from '../context/useLanguage'
 import { executeCode } from '../services/codeExecutionService'
@@ -446,7 +447,7 @@ function LessonPage() {
     return (
       <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
-          <div className="spinner" />
+          <LoadingSpinner size="large" />
           <p>{t('lesson.loading')}</p>
         </div>
       </MotionPage>
@@ -739,7 +740,14 @@ function LessonPage() {
                           disabled={isExecuting || !!feedback}
                           onClick={handleRunCode}
                         >
-                          {isExecuting ? t('lesson.runningCode') : t('lesson.runCode')}
+                          {isExecuting ? (
+                            <span className="btn-content-loading">
+                              <span className="mini-spinner" />
+                              {t('lesson.runningCode')}
+                            </span>
+                          ) : (
+                            t('lesson.runCode')
+                          )}
                         </button>
                         <span className="exercise-code-shortcut">{t('lesson.runShortcut')}</span>
                       </div>
@@ -794,7 +802,14 @@ function LessonPage() {
               }
               type="button"
             >
-              {submitting ? t('lesson.checking') : t('lesson.check')}
+              {submitting ? (
+                <span className="btn-content-loading">
+                  <span className="mini-spinner" />
+                  {t('lesson.checking')}
+                </span>
+              ) : (
+                t('lesson.check')
+              )}
             </button>
           ) : (
             <button className="exercise-next-btn" onClick={handleNextExercise} type="button">

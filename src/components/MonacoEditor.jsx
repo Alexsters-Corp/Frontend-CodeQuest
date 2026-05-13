@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import { motion as Motion } from 'framer-motion'
 import Editor from '@monaco-editor/react'
 import { monacoReady, monacoError, monacoPromise } from '../utils/monacoLoader'
+import LoadingOverlay from './LoadingOverlay'
 
 const DEFAULT_OPTIONS = Object.freeze({
   minimap: { enabled: false },
@@ -129,7 +130,14 @@ function MonacoEditor({
             onClick={onRun}
             disabled={!canRun}
           >
-            {isExecuting ? runningLabel : runLabel}
+            {isExecuting ? (
+              <span className="btn-content-loading">
+                <span className="mini-spinner" />
+                {runningLabel}
+              </span>
+            ) : (
+              runLabel
+            )}
           </button>
         )}
       </div>
@@ -149,15 +157,18 @@ function MonacoEditor({
             />
           </div>
         ) : loaderReady ? (
-          <Editor
-            height={height}
-            value={value}
-            language={language}
-            onChange={handleEditorChange}
-            theme={theme}
-            onMount={handleEditorMount}
-            options={editorOptions}
-          />
+          <>
+            <Editor
+              height={height}
+              value={value}
+              language={language}
+              onChange={handleEditorChange}
+              theme={theme}
+              onMount={handleEditorMount}
+              options={editorOptions}
+            />
+            <LoadingOverlay show={isExecuting} message={runningLabel} transparent />
+          </>
         ) : (
           <div className="monaco-inline-loading">{loadingLabel}</div>
         )}

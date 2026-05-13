@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
+import LoadingSpinner from '../components/LoadingSpinner'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import { listAvailableLanguages, selectLanguage } from '../services/learningApi'
@@ -112,7 +113,10 @@ function OnboardingLanguagePage() {
 
         <div className="language-grid">
           {loadingLanguages ? (
-            <p className="onboarding-loading-message">{t('onboarding.loadingLanguages')}</p>
+            <div className="onboarding-loading-container">
+              <LoadingSpinner size="large" />
+              <p className="onboarding-loading-message">{t('onboarding.loadingLanguages')}</p>
+            </div>
           ) : (
             languages.map((lang) => (
               <button

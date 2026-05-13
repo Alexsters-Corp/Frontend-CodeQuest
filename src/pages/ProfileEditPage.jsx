@@ -232,13 +232,8 @@ function ProfileEditPage() {
   return (
     <MotionPage className="dashboard-page" delay={0.06}>
       <Sidebar />
-      <Navbar
-        title={t('profile.title')}
-        profileActionLabel={t('profile.viewTitle')}
-        profileActionTo="/profile"
-      />
 
-      <section className="profile-edit-card">
+      <section className="profile-edit-card" style={{ marginTop: '24px' }}>
         <div className="profile-edit-header">
           <h2>{t('profile.infoTitle')}</h2>
           <p>{t('profile.infoDescription')}</p>

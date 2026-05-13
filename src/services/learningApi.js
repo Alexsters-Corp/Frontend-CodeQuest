@@ -228,10 +228,10 @@ function readFavoriteLessons() {
   }
 }
 
-function writeFavoriteLessons(favorites) {
+function writeFavoriteLessons(favorites, { emitEvent = true } = {}) {
   localStorage.setItem(STORAGE_KEYS.favoriteLessons, JSON.stringify(favorites))
 
-  if (typeof window !== 'undefined') {
+  if (emitEvent && typeof window !== 'undefined') {
     window.dispatchEvent(new CustomEvent(FAVORITES_UPDATED_EVENT))
   }
 }
@@ -365,7 +365,8 @@ export function isLessonFavorite(lessonId) {
 export async function listFavoriteLessons() {
   if (await isBackendLessonFavoritesAvailable()) {
     const favorites = await listBackendFavoriteLessons()
-    writeFavoriteLessons(favorites)
+    // Sync local cache without emitting update events to avoid fetch loops.
+    writeFavoriteLessons(favorites, { emitEvent: false })
     return favorites
   }
 
