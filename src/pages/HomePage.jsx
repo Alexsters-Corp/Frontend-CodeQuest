@@ -2,6 +2,7 @@ import { useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import MotionPage from '../components/MotionPage'
+import ScrollToTopButton from '../components/ScrollToTopButton'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import { API_URL } from '../services/api'
@@ -93,6 +94,11 @@ function HomePage() {
       return
     }
 
+    if (previewMode === 'register' && !previewForm.username.trim()) {
+      notifyInfo(t('home.preview.enterUsername'))
+      return
+    }
+
     setPreviewLoading(true)
 
     try {
@@ -149,9 +155,8 @@ function HomePage() {
           </div>
 
           <nav className="landing__nav">
-            <button type="button" onClick={() => scrollTo('features')}>{t('home.nav.features')}</button>
-            <button type="button" onClick={() => scrollTo('pricing')}>{t('home.nav.pricing')}</button>
-            <button type="button" onClick={() => scrollTo('about')}>{t('home.nav.about')}</button>
+            <button type="button" onClick={() => scrollTo('features')}>{t('home.nav.modules')}</button>
+            <button type="button" onClick={() => scrollTo('pricing')}>{t('home.nav.roadmap')}</button>
           </nav>
 
           <div className="landing__actions">
@@ -177,9 +182,6 @@ function HomePage() {
               <Link className="landing__cta-btn ui-jitter" to="/demo">
                 {t('home.hero.start')}
               </Link>
-              <button className="landing__ghost-btn" type="button" onClick={() => scrollTo('features')}>
-                {t('home.hero.viewCurriculum')}
-              </button>
             </div>
 
             <p className="landing__companies">{t('home.hero.companies')}</p>
@@ -222,6 +224,15 @@ function HomePage() {
                     onChange={handlePreviewChange}
                     placeholder="Alex Dev"
                     autoComplete="name"
+                  />
+
+                  <label htmlFor="landing-username">{t('home.preview.username')}</label>
+                  <input
+                    id="landing-username"
+                    name="username"
+                    value={previewForm.username}
+                    onChange={handlePreviewChange}
+                    placeholder="alexdev"
                   />
                 </>
               )}
@@ -276,7 +287,7 @@ function HomePage() {
                 className="landing__feature-card"
                 initial={{ opacity: 0, y: 18 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-20%' }}
+                viewport={{ once: true, amount: 0.15 }}
                 transition={{ duration: 0.45, delay: index * 0.08 }}
               >
                 <h3>{card.title}</h3>
@@ -311,6 +322,7 @@ function HomePage() {
           <span>© 2026 CodeQuest. {t('home.footer')}</span>
         </footer>
       </div>
+      <ScrollToTopButton />
     </MotionPage>
   )
 }
