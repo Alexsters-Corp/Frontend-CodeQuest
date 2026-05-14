@@ -29,24 +29,26 @@ function ensurePositiveInt(value, label) {
   return parsed
 }
 
-export async function generateLesson({ topic, language, level }) {
+export async function generateLesson({ topic, language, level, model }) {
   return requestJson('/api/admin/generate-lesson', {
     method: 'POST',
     body: JSON.stringify({
       topic: ensureText(topic, 'topic'),
       language: ensureText(language, 'language'),
       level: ensureText(level, 'level'),
+      model: ensureText(model, 'model'),
     }),
   })
 }
 
-export async function generateExercise({ concept, difficulty, languageId }) {
+export async function generateExercise({ concept, difficulty, languageId, model }) {
   return requestJson('/api/admin/generate-exercise', {
     method: 'POST',
     body: JSON.stringify({
       concept: ensureText(concept, 'concept'),
       difficulty: ensureText(difficulty, 'difficulty'),
       languageId: ensurePositiveInt(languageId, 'languageId'),
+      model: ensureText(model, 'model'),
     }),
   })
 }
