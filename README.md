@@ -1,103 +1,173 @@
-# Frontend CodeQuest
+# CodeQuest Frontend
 
-Frontend de CodeQuest construido con React 19 + Vite.
+Aplicacion frontend de **CodeQuest**, una plataforma de aprendizaje gamificado para desarrollo de software. Este cliente implementa la experiencia de estudiante, instructor y administrador, y se integra con el API Gateway del backend para autenticacion, rutas de aprendizaje, evaluaciones, analitica y generacion de contenido con IA.
 
-## Requisitos
+## Fin de CodeQuest dentro del proyecto
 
-- Node.js 20+
-- npm 10+
-- Backend de CodeQuest ejecutandose (API Gateway en `http://localhost:4000`)
+CodeQuest resuelve cuatro objetivos de producto:
 
-## Instalacion
+1. **Onboarding tecnico guiado**: seleccion de lenguaje, diagnostico inicial y rutas por modulos/lecciones.
+2. **Practica ejecutable**: ejercicios con editor de codigo y ejecucion remota (Judge0 via backend).
+3. **Gamificacion medible**: XP, ranking, progreso, favoritos y seguimiento de avance.
+4. **Operacion academica escalable**: paneles de instructor/admin, RBAC y herramientas IA para asistencia de contenido.
 
-```bash
-npm install
-```
+## Stack tecnico
 
-## Variables de entorno
+| Capa             | Tecnologias                                 |
+| ---------------- | ------------------------------------------- |
+| Runtime          | Node.js 20+, npm 10+                        |
+| UI               | React 19, React DOM 19                      |
+| Build/Tooling    | Vite 7, @vitejs/plugin-react                |
+| Routing          | react-router-dom 7                          |
+| Animaciones      | framer-motion (LazyMotion + domAnimation)   |
+| Notificaciones   | sonner                                      |
+| Editor de codigo | @monaco-editor/react, @monaco-editor/loader |
+| Calidad          | ESLint 9 (flat config)                      |
+| Contenedor       | Docker multi-stage + Nginx 1.27-alpine      |
 
-Crea un archivo `.env` en la raiz del frontend.
+## Arquitectura funcional (frontend)
+
+`src/` se organiza por dominios de UI y acceso a datos:
+
+- `pages/`: pantallas principales (home, auth, dashboard, lesson, social, ranking, admin, instructor, demo).
+- `components/`: componentes reutilizables y guards (`PrivateRoute`, `PublicRoute`, `RoleGuard`).
+- `services/`: capa de integracion HTTP con backend (`apiFetch`, `learningApi`, `rbacApi`, `aiAdminApi`, `demoApi`).
+- `context/`: estado global de autenticacion e idioma.
+- `i18n/`: mensajes y resolucion de idioma (`es` y `en`).
+
+### Seguridad y sesion
+
+- JWT en `localStorage` (`accessToken`, `refreshToken`, `user`).
+- `apiFetch` inyecta `Authorization: Bearer <token>`.
+- En `401` con `TOKEN_EXPIRED`, intenta `POST /api/auth/refresh` y reintenta la solicitud original.
+- `AuthProvider` valida sesion al montar usando `GET /api/users/me`.
+
+### Routing y control de acceso
+
+- Rutas publicas: `/`, `/login`, `/registro`, recuperacion de password y demo (`/demo/*`).
+- Rutas privadas: dashboard, diagnostico, modulos, lecciones, perfil, social, ranking.
+- Rutas protegidas por rol:
+  - `/instructor` para `instructor` y `admin`.
+  - `/admin` y `/admin/ai` solo para `admin`.
+
+## Contratos API relevantes
+
+Base URL: `VITE_API_URL` (default `http://localhost:4000`).
+
+### Learning
+
+- `GET /api/learning/dashboard`
+- `GET /api/learning/languages`
+- `POST /api/learning/languages/select`
+- `POST /api/learning/diagnostic/start`
+- `GET /api/learning/lessons/:lessonId/session`
+- `POST /api/learning/lessons/:lessonId/exercises/:exerciseId/submit`
+- `POST /api/learning/lessons/:lessonId/submit`
+- `GET /api/learning/lessons/:lessonId/solution`
+- `POST /api/learning/execute` (ejecucion de codigo autenticada)
+
+### Demo publica (sin auth)
+
+- `GET /api/learning/demo/lesson`
+- `GET /api/learning/demo/preview`
+- `POST /api/learning/demo/lessons/:lessonId/exercises/:exerciseId/submit`
+- `POST /api/learning/demo/execute`
+
+### RBAC / Operacion
+
+- `GET /api/instructor/classes`
+- `POST /api/instructor/classes`
+- `GET /api/admin/users`
+- `PATCH /api/admin/users/:id`
+- `GET /api/admin/analytics`
+
+### IA para administracion
+
+- `POST /api/admin/generate-lesson`
+- `POST /api/admin/generate-exercise`
+- `POST /api/admin/validate-content`
+
+## Feature flags y entorno
+
+Crea `.env` en la raiz del frontend:
 
 ```env
 VITE_API_URL=http://localhost:4000
 VITE_FEATURE_CODE_EXECUTION_ENABLED=true
 ```
 
-- `VITE_API_URL`: URL del API Gateway.
-- `VITE_FEATURE_CODE_EXECUTION_ENABLED`: habilita o deshabilita Monaco + ejecucion de codigo en lecciones.
+Notas:
 
-## Comandos disponibles
+- `VITE_FEATURE_CODE_EXECUTION_ENABLED` controla disponibilidad de Monaco/ejecucion en lecciones.
+- `LessonPage` tambien soporta fallback `FEATURE_CODE_EXECUTION_ENABLED` si existe en build-time env.
+- Si Monaco no puede cargar o el dispositivo es movil (`max-width: 767px`), se usa fallback a `textarea`.
+
+## Desarrollo local
 
 ```bash
-npm run dev      # desarrollo en http://localhost:5000
-npm run lint     # validacion ESLint
-npm run build    # build de produccion
-npm run preview  # preview del build
+npm install
+npm run dev
 ```
 
-## Integracion Monaco en lecciones
+Comandos de trabajo:
 
-La pagina de lecciones carga Monaco solo cuando:
-
-- el ejercicio es `completar_codigo`
-- la feature flag esta activa
-- la vista no es movil (<768px)
-- Monaco no ha fallado en carga
-
-Se incluye fallback graceful a `textarea` para:
-
-- movil
-- error de carga de Monaco
-- feature flag deshabilitada
-
-Tambien soporta:
-
-- `Ctrl/Cmd + Enter` para ejecutar codigo
-- panel de salida de consola
-- notificaciones con Sonner
-- loading skeleton mientras carga Monaco
-
-## Uso del componente MonacoEditor
-
-```jsx
-<MonacoEditor
-	value={codeAnswer}
-	onChange={setCodeAnswer}
-	language="javascript"
-	languageLabel="JavaScript"
-	theme="vs-dark"
-	height="400px"
-	onRun={handleRunCode}
-	isExecuting={isExecuting}
-	consoleOutput={consoleOutput}
-/>
+```bash
+npm run lint
+npm run build
+npm run preview
 ```
 
-## Configuracion backend para ejecucion (Judge0)
+Puerto local de Vite: `http://localhost:5000`.
 
-El frontend consume:
+## Build y despliegue
 
-- `POST /api/learning/execute`
+### Docker local
 
-Body esperado:
+`docker-compose.yml` compila imagen y publica `5000:80`.
 
-```json
-{
-	"code": "console.log('Hello CodeQuest')",
-	"languageId": 2
-}
+```bash
+docker compose up --build
 ```
 
-Para habilitar ejecucion en backend, verifica estas settings/env:
+### Produccion
 
-- `FEATURE_CODE_EXECUTION_ENABLED=true`
-- `JUDGE0_API_URL=https://ce.judge0.com`
-- `JUDGE0_API_KEY=<tu_key_si_aplica>`
+- Imagen esperada: `ghcr.io/<org>/codequest-frontend:latest`.
+- `docker-compose.prod.yml` expone `5000:80` con healthcheck HTTP sobre `/`.
 
-El servicio frontend aplica timeout de 5 segundos por ejecucion.
+## Consideraciones tecnicas de ejecucion de codigo
 
-## Notas tecnicas
+- Servicio: `src/services/codeExecutionService.js`.
+- Endpoint: `POST /api/learning/execute`.
+- Timeout cliente: **5 segundos**.
+- Sanitizacion: elimina null chars y limita payload a **16000** caracteres.
+- Respuesta normalizada: `{ output: string[], errors: string[], executionTime: number }`.
 
-- Monaco se integra via `@monaco-editor/react` y `@monaco-editor/loader`.
-- La carga es lazy (`React.lazy + Suspense`) para reducir impacto en bundle inicial.
-- El editor mantiene coherencia visual con el design system dark de CodeQuest.
+## Troubleshooting senior (caso 503 en IA admin)
+
+Si `/api/admin/generate-lesson` responde `503 Service Unavailable`, normalmente el backend tiene IA deshabilitada o sin proveedor operativo.
+
+Validar en backend:
+
+```env
+FEATURE_AI_CONTENT_ENABLED=true
+GROQ_API_KEY=<tu_api_key_real>
+```
+
+Luego reiniciar servicios para recargar entorno:
+
+```bash
+docker compose down
+docker compose up -d
+docker compose logs
+```
+
+## Proyeccion de CodeQuest
+
+La evolucion tecnica prevista del frontend apunta a:
+
+1. **Personalizacion adaptativa** basada en telemetria de rendimiento por habilidad y lenguaje.
+2. **Escalamiento de authoring IA** para generar lecciones/ejercicios con guardrails de calidad.
+3. **Mayor observabilidad de aprendizaje** (metricas de efectividad por modulo, cohortes y funnels).
+4. **Experiencia enterprise-ready**: hardening de RBAC, trazabilidad de cambios y flujos multi-tenant.
+
+Este repositorio ya tiene la base para esa proyeccion: separacion por servicios, guards de acceso, feature flags, i18n, demo publica y pipeline de despliegue containerizado.

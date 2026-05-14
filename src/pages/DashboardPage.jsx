@@ -51,7 +51,7 @@ function translateDiagnosticLevel(level, t) {
 
 function DashboardPage() {
   const navigate = useNavigate()
-  const { language, t } = useLanguage()
+  const { t } = useLanguage()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
