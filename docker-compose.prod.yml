@@ -7,9 +7,9 @@ services:
     container_name: codequest-frontend
     restart: unless-stopped
     ports:
-      - '5000:80'
+      - '${FRONTEND_PORT:-5000}:80'
     healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://localhost/']
+      test: ['CMD', 'wget', '-qO-', 'http://localhost/health']
       interval: 15s
       timeout: 5s
       retries: 10
