@@ -1,10 +1,10 @@
 function LogoCQ({ height = 38 }) {
-  const w = Math.round((214 / 44) * height)
+  const w = Math.round((212 / 44) * height)
 
   return (
     <svg
       xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 214 44"
+      viewBox="0 0 212 44"
       width={w}
       height={height}
       aria-label="CodeQuest"
@@ -23,19 +23,26 @@ function LogoCQ({ height = 38 }) {
       {/* ── Bracket izquierdo < ── */}
       <text
         x="2" y="22"
-        dominantBaseline="middle"
+        dominantBaseline="central"
         fontFamily="'Fira Code','Cascadia Code','Consolas','Courier New',monospace"
         fontSize="32" fontWeight="700"
         fill="#8b5cf6"
+        stroke="#8b5cf6"
+        strokeWidth="0.8"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        paintOrder="stroke fill"
         filter="url(#cqGlw)"
+        textLength="14"
+        lengthAdjust="spacingAndGlyphs"
       >
         {'<'}
       </text>
 
       {/* ── Nombre CodeQuest ── */}
       <text
-        x="26" y="22"
-        dominantBaseline="middle"
+        x="26" y="21"
+        dominantBaseline="central"
         fontFamily="'Inter','Segoe UI',system-ui,-apple-system,sans-serif"
         fontSize="26" fontWeight="700"
         fill="#e8eef8"
@@ -43,16 +50,42 @@ function LogoCQ({ height = 38 }) {
         CodeQuest
       </text>
 
-      {/* ── Bracket derecho /> ── */}
+      {/* ── Slash / ── */}
       <text
-        x="170" y="22"
-        dominantBaseline="middle"
+        x="172" y="22"
+        dominantBaseline="central"
+        fontFamily="'Fira Code','Cascadia Code','Consolas','Courier New',monospace"
+        fontSize="30" fontWeight="700"
+        fill="#10b981"
+        stroke="#10b981"
+        strokeWidth="0.8"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        paintOrder="stroke fill"
+        filter="url(#cqGlw)"
+        textLength="14"
+        lengthAdjust="spacingAndGlyphs"
+      >
+        /
+      </text>
+
+      {/* ── Bracket derecho > ── */}
+      <text
+        x="191" y="22"
+        dominantBaseline="central"
         fontFamily="'Fira Code','Cascadia Code','Consolas','Courier New',monospace"
         fontSize="32" fontWeight="700"
         fill="#10b981"
+        stroke="#10b981"
+        strokeWidth="0.8"
+        strokeLinejoin="round"
+        strokeLinecap="round"
+        paintOrder="stroke fill"
         filter="url(#cqGlw)"
+        textLength="14"
+        lengthAdjust="spacingAndGlyphs"
       >
-        {'/>'}
+        &gt;
       </text>
     </svg>
   )

@@ -2631,12 +2631,13 @@ button.profile-icon-chip:hover {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .section-header h2 {
   font-size: 1.1rem;
   color: #1f2937;
+  margin-bottom: 0;
 }
 
 .add-language-btn {
@@ -3027,7 +3028,8 @@ button.profile-icon-chip:hover {
   width: 100%;
   border: 1px solid var(--cq-border);
   border-radius: 14px;
-  background: rgba(11, 20, 37, 0.72);
+  background: rgba(11, 20, 37, 0.66);
+  box-shadow: 0 4px 24px rgba(2, 8, 23, 0.18);
   padding: 14px;
 }
 
@@ -4155,7 +4157,7 @@ button:disabled {
 .dashboard-page,
 .rbac-page {
   width: 100%;
-  padding: 6px 16px 20px;
+  padding: 0;
 }
 
 .dashboard-header,
@@ -4598,9 +4600,7 @@ button:disabled {
   border: 1px solid var(--cq-border);
   border-radius: var(--cq-radius-md);
   background: rgba(11, 20, 37, 0.66);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 32px rgba(2, 8, 23, 0.48);
+  box-shadow: 0 4px 24px rgba(2, 8, 23, 0.18);
   padding: 14px;
   display: flex;
   flex-direction: column;

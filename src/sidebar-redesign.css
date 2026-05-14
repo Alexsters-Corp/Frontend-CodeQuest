@@ -38,16 +38,18 @@
 
 .sidebar-layout {
   display: flex;
-  gap: 20px;
+  gap: 12px;
   height: 100vh;
   height: 100dvh;
   padding: 12px;
   overflow: hidden;
+  background: transparent;
 }
 
 .sidebar-layout__sidebar {
   flex-shrink: 0;
   width: 240px;
+  background: transparent;
 }
 
 .sidebar-layout__content {
@@ -57,6 +59,7 @@
   flex-direction: column;
   overflow-y: auto;
   overflow-x: hidden;
+  background: transparent;
 }
 
 /* ── Sidebar card ── */
@@ -70,19 +73,16 @@
   flex-direction: column;
   padding: 20px 12px;
   background: rgba(11, 20, 37, 0.66);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--cq-border);
   border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(2, 8, 23, 0.48);
+  box-shadow: 0 4px 24px rgba(2, 8, 23, 0.18);
 }
 
 .dashboard-sidebar__logo-container {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding-bottom: 4px;
-  margin-bottom: 12px;
+  margin-bottom: 0;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   flex-shrink: 0;
 }
@@ -199,9 +199,9 @@
   display: flex;
   justify-content: center;
   width: 100%;
-  padding: 12px 0;
+  padding: 6px 0;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .dashboard-sidebar__lang .language-switcher {
@@ -392,6 +392,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+  margin-top: 0;
   padding: 7px 12px;
   background: rgba(12, 22, 41, 0.72);
   border: 1px solid var(--cq-border);
