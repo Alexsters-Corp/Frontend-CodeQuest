@@ -23,7 +23,6 @@ function Navbar({
       <div className="dashboard-header-main">
         <span className="navbar-avatar" aria-hidden="true">{profileAvatar}</span>
         <div className="dashboard-header-text">
-          <p className="dashboard-eyebrow">{t('nav.greeting', { name: user?.nombre || t('nav.defaultName') })}</p>
           <h1>{resolvedTitle}</h1>
           <span className="dashboard-role-badge">{t('nav.role', { role: roleLabel })}</span>
         </div>

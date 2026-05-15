@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
+import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
 import { followUserByUsername, getLeaderboard, unfollowUserByUsername } from '../services/socialApi'
 import { countryNameFromCode } from '../utils/countries'
@@ -84,8 +84,8 @@ function RankingPage() {
   }
 
   return (
-    <MotionPage className="dashboard-page" delay={0.06}>
-      <Sidebar />
+    <SidebarLayout>
+      <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar title={t('ranking.title')} hideActions />
 
       <section className="profile-edit-card ranking-card">
@@ -177,7 +177,8 @@ function RankingPage() {
           </div>
         )}
       </section>
-    </MotionPage>
+      </MotionPage>
+    </SidebarLayout>
   )
 }
 

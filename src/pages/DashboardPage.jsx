@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
+import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
+import { useAuth } from '../context/useAuth'
 import {
   clearSelectedLanguageId,
   deleteLanguageSelection,
@@ -13,7 +14,7 @@ import {
   setSelectedLanguageId,
 } from '../services/learningApi'
 import { getLeaderboard } from '../services/socialApi'
-import { notifyError, notifyPending, notifySuccess } from '../utils/notify'
+import { notifyError, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -51,15 +52,20 @@ function translateDiagnosticLevel(level, t) {
 
 function DashboardPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t } = useLanguage()
+  const { user } = useAuth()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [streakJitter, setStreakJitter] = useState(false)
+  const [pendingJitter, setPendingJitter] = useState(false)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
   const [deleteLanguageNameInput, setDeleteLanguageNameInput] = useState('')
   const [deleteActionInput, setDeleteActionInput] = useState('')
   const [deleteProgressInput, setDeleteProgressInput] = useState('')
   const [deleteSubmitting, setDeleteSubmitting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
+  const [openCardMenuId, setOpenCardMenuId] = useState(null)
   const [rankingPreview, setRankingPreview] = useState([])
   const [rankingPreviewLoading, setRankingPreviewLoading] = useState(true)
   const [rankingPosition, setRankingPosition] = useState(null)
@@ -79,6 +85,30 @@ function DashboardPage() {
   useEffect(() => {
     loadOverview()
   }, [loadOverview])
+
+  useEffect(() => {
+    if (!location.state?.fromLesson) return
+    window.history.replaceState({}, document.title)
+    setPendingJitter(true)
+  }, [location.state])
+
+  useEffect(() => {
+    if (!pendingJitter || loading || !overview?.streakActiveToday) return
+    setPendingJitter(false)
+    const startTimer = setTimeout(() => {
+      setStreakJitter(true)
+      const endTimer = setTimeout(() => setStreakJitter(false), 1900)
+      return () => clearTimeout(endTimer)
+    }, 350)
+    return () => clearTimeout(startTimer)
+  }, [pendingJitter, loading, overview?.streakActiveToday])
+
+  useEffect(() => {
+    if (!openCardMenuId) return
+    const close = () => setOpenCardMenuId(null)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [openCardMenuId])
 
   const loadRankingPreview = useCallback(async () => {
     setRankingPreviewLoading(true)
@@ -186,6 +216,13 @@ function DashboardPage() {
     ? '...'
     : overview?.nivel || 1
 
+  const streakEmojiClass = [
+    'stat-card__icon',
+    'streak-emoji',
+    overview?.streakActiveToday ? 'streak-emoji--active' : 'streak-emoji--inactive',
+    streakJitter ? 'streak-emoji--jitter' : '',
+  ].filter(Boolean).join(' ')
+
   const getPodiumEntry = (targetRank) => {
     if (!Array.isArray(rankingPreview) || rankingPreview.length === 0) {
       return null
@@ -206,14 +243,15 @@ function DashboardPage() {
   const fourthEntry = getPodiumEntry(4)
 
   return (
-    <MotionPage className="dashboard-page" delay={0.06}>
+    <SidebarLayout>
+      <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar
-        title={t('dashboard.title')}
+        title={user?.nombre || t('nav.defaultName')}
         hideActions
         headerAside={(
           <div className="dashboard-header-summary__grid">
             <article className="stat-card">
-              <span className="stat-card__icon">🔥</span>
+              <span className={streakEmojiClass}>🔥</span>
               <div className="stat-card__content">
                 <p>{t('dashboard.streak')}</p>
                 <strong>{streakLabel}</strong>
@@ -237,23 +275,11 @@ function DashboardPage() {
         )}
       />
 
-      <div className="dashboard-layout">
-        <Sidebar />
-
-        <div className="dashboard-main">
+      <div className="dashboard-content-layout">
+      <div className="dashboard-main">
           <section className="dashboard-languages" id="dashboard-languages">
             <div className="section-header">
               <h2>{t('dashboard.myLanguages')}</h2>
-              <button
-                className="add-language-btn"
-                onClick={() => {
-                  notifyPending(t('dashboard.addLanguageHint'))
-                  navigate('/onboarding/language')
-                }}
-                type="button"
-              >
-                {t('dashboard.addLanguage')}
-              </button>
             </div>
 
             {loading ? (
@@ -269,12 +295,20 @@ function DashboardPage() {
                     className="dashboard-lang-card"
                   >
                     <button
-                      className="lang-remove-btn"
-                      onClick={() => openDeleteDialog(lang)}
                       type="button"
+                      className="lang-menu-trigger"
+                      onClick={(e) => { e.stopPropagation(); setOpenCardMenuId(openCardMenuId === lang.lenguaje_id ? null : lang.lenguaje_id) }}
+                      aria-label="Opciones"
                     >
-                      {t('dashboard.remove')}
+                      ⋯
                     </button>
+                    {openCardMenuId === lang.lenguaje_id && (
+                      <div className="lang-card-menu" role="menu">
+                        <button type="button" className="lang-card-menu__item lang-card-menu__item--danger" onClick={() => { openDeleteDialog(lang); setOpenCardMenuId(null) }}>
+                          🗑️ {t('dashboard.remove')}
+                        </button>
+                      </div>
+                    )}
 
                     <button
                       className="lang-open-btn"
@@ -284,7 +318,7 @@ function DashboardPage() {
                       <span className="lang-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
                       <span className="lang-name">{lang.nombre}</span>
                       {lang.diagnostico_completado ? (
-                        <div className="lang-progress">
+                        <>
                           <div className="lang-progress-bar">
                             <div
                               className="lang-progress-fill"
@@ -299,7 +333,7 @@ function DashboardPage() {
                               total: lang.modulosTotal,
                             })}
                           </span>
-                        </div>
+                        </>
                       ) : (
                         <span className="lang-diagnostic-badge">{t('dashboard.pendingDiagnostic')}</span>
                       )}
@@ -468,7 +502,8 @@ function DashboardPage() {
           </div>
         </div>
       )}
-    </MotionPage>
+      </MotionPage>
+    </SidebarLayout>
   )
 }
 

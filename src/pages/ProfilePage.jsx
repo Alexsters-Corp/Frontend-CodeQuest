@@ -4,7 +4,7 @@ import ActivityLineChart from '../components/ActivityLineChart'
 import LoadingSpinner from '../components/LoadingSpinner'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
-import Sidebar from '../components/Sidebar'
+import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
 import { apiFetch } from '../services/api'
 import { getDashboardOverview } from '../services/learningApi'
@@ -93,9 +93,8 @@ function ProfilePage() {
   }, [loadProfileData])
 
   return (
-    <MotionPage className="dashboard-page" delay={0.06}>
-      <Sidebar />
-
+    <SidebarLayout>
+      <MotionPage className="dashboard-page" delay={0.06}>
       <section className="profile-edit-card" style={{ marginTop: '24px' }}>
         <div className="profile-header-row">
           <div className="profile-edit-header">
@@ -236,7 +235,8 @@ function ProfilePage() {
           </div>
         )}
       </section>
-    </MotionPage>
+      </MotionPage>
+    </SidebarLayout>
   )
 }
 

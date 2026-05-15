@@ -138,12 +138,13 @@ button {
 .dashboard-header-main {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 14px;
 }
 
 .dashboard-header-text {
-  display: grid;
-  gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .dashboard-role-badge {
@@ -199,16 +200,16 @@ button {
 }
 
 .navbar-avatar {
-  width: 40px;
-  height: 40px;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
   border-radius: 999px;
   border: 1px solid #d1d5db;
   background: #f8fafc;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.15rem;
-  margin-bottom: 8px;
+  font-size: 1.8rem;
 }
 
 .profile-header-row {
@@ -2623,19 +2624,20 @@ button.profile-icon-chip:hover {
 /* --- 11. DASHBOARD (cont.) --- */
 
 .dashboard-languages {
-  margin-top: 28px;
+  margin-top: 0;
 }
 
 .section-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
 }
 
 .section-header h2 {
   font-size: 1.1rem;
   color: #1f2937;
+  margin-bottom: 0;
 }
 
 .add-language-btn {
@@ -2659,10 +2661,77 @@ button.profile-icon-chip:hover {
   display: flex;
   gap: 14px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+
+.lang-menu-trigger {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 2px 5px;
+  border-radius: 6px;
+  font-size: 1rem;
+  color: #64748b;
+  line-height: 1;
+  transition: background 0.15s, color 0.15s;
+  z-index: 1;
+}
+
+.lang-menu-trigger:hover {
+  background: rgba(148, 163, 184, 0.15);
+  color: #e2e8f0;
+}
+
+.lang-card-menu {
+  position: absolute;
+  top: 28px;
+  right: 6px;
+  background: rgba(11, 20, 37, 0.97);
+  border: 1px solid var(--cq-border);
+  border-radius: 10px;
+  padding: 4px;
+  min-width: 170px;
+  z-index: 200;
+  box-shadow: 0 8px 24px rgba(2, 8, 23, 0.5);
+}
+
+.lang-card-menu__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 7px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: #94a3b8;
+  text-align: left;
+  transition: background 0.15s, color 0.15s;
+}
+
+.lang-card-menu__item:hover {
+  background: rgba(148, 163, 184, 0.1);
+  color: #f1f7ff;
+}
+
+.lang-card-menu__item--danger {
+  color: #fca5a5;
+}
+
+.lang-card-menu__item--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  color: #fee2e2;
 }
 
 .dashboard-lang-card {
+  position: relative;
   flex-shrink: 0;
   width: 160px;
   padding: 10px;
@@ -2670,7 +2739,6 @@ button.profile-icon-chip:hover {
   border-radius: 14px;
   background: #fff;
   transition: all 0.2s;
-  position: relative;
 }
 
 .lang-open-btn {
@@ -2691,6 +2759,11 @@ button.profile-icon-chip:hover {
 .dashboard-lang-card:hover {
   border-color: #4f46e5;
   box-shadow: 0 4px 12px rgba(79, 70, 229, 0.1);
+}
+
+.dashboard-lang-card button:hover:not(:disabled) {
+  transform: none;
+  box-shadow: none;
 }
 
 .lang-remove-btn {
@@ -2743,6 +2816,7 @@ button.profile-icon-chip:hover {
 }
 
 .lang-progress-bar {
+  width: 100%;
   background: #e5e7eb;
   border-radius: 4px;
   height: 6px;
@@ -2955,7 +3029,8 @@ button.profile-icon-chip:hover {
   width: 100%;
   border: 1px solid var(--cq-border);
   border-radius: 14px;
-  background: rgba(11, 20, 37, 0.72);
+  background: rgba(11, 20, 37, 0.66);
+  box-shadow: 0 4px 24px rgba(2, 8, 23, 0.18);
   padding: 14px;
 }
 
@@ -3408,7 +3483,7 @@ button {
 
 button:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 14px 24px rgba(16, 185, 129, 0.24);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.12);
 }
 
 button:disabled {
@@ -3452,20 +3527,23 @@ button:disabled {
 }
 
 .streak-emoji--jitter {
-  animation: streak-jitter 0.5s ease 3;
+  animation: streak-celebrate 1.8s ease-in-out 1;
 }
 
-@keyframes streak-jitter {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-18deg);
-  }
-  75% {
-    transform: rotate(18deg);
-  }
+@keyframes streak-celebrate {
+  /* Fase 1: salta */
+  0%   { transform: scale(1)    translateX(0); }
+  18%  { transform: scale(1.55) translateX(0); }
+  38%  { transform: scale(1)    translateX(0); }
+  /* pausa breve */
+  42%  { transform: scale(1)    translateX(0); }
+  /* Fase 2: movimiento suave izq/der */
+  52%  { transform: scale(1)    translateX(-5px); }
+  63%  { transform: scale(1)    translateX(5px); }
+  74%  { transform: scale(1)    translateX(-3px); }
+  85%  { transform: scale(1)    translateX(3px); }
+  93%  { transform: scale(1)    translateX(-1px); }
+  100% { transform: scale(1)    translateX(0); }
 }
 
 .page {
@@ -4082,9 +4160,8 @@ button:disabled {
 
 .dashboard-page,
 .rbac-page {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 26px 16px 42px;
+  width: 100%;
+  padding: 0;
 }
 
 .dashboard-header,
@@ -4099,7 +4176,14 @@ button:disabled {
 .dashboard-page > .dashboard-header {
   background: transparent;
   border: none;
-  padding: 16px 0;
+  padding: 8px 0 10px;
+}
+
+.dashboard-header-text h1 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin-bottom: 0;
 }
 
 .dashboard-page .stat-card {
@@ -4122,8 +4206,6 @@ button:disabled {
   color: #86efac;
 }
 
-.dashboard-nav-btn,
-.dashboard-logout-btn,
 .rbac-actions-inline button,
 .modules-back,
 .diagnostic-back-btn,
@@ -4160,6 +4242,12 @@ button:disabled {
 .activity-bar-wrapper {
   border: 1px solid var(--cq-border);
   background: rgba(12, 22, 41, 0.72);
+}
+
+.dashboard-lang-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(16, 185, 129, 0.4);
+  box-shadow: 0 6px 16px rgba(16, 185, 129, 0.12);
 }
 
 .stat-card strong,
@@ -4509,17 +4597,18 @@ button:disabled {
 }
 
 .dashboard-layout {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(240px, 280px);
-  gap: 16px;
-  align-items: start;
+  display: block;
 }
 
 .dashboard-main {
   border: 1px solid var(--cq-border);
   border-radius: var(--cq-radius-md);
   background: rgba(11, 20, 37, 0.66);
+  box-shadow: 0 4px 24px rgba(2, 8, 23, 0.18);
   padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
 .dashboard-header-aside {
@@ -5253,18 +5342,6 @@ button:disabled {
   .landing__header {
     grid-template-columns: 1fr;
     border-radius: var(--cq-radius-md);
-  }
-
-  .dashboard-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .dashboard-sidebar {
-    display: none;
-  }
-
-  .dashboard-page {
-    margin-left: 0;
   }
 
   .dashboard-main {
