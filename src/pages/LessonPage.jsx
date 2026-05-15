@@ -9,7 +9,7 @@ import { useLanguage } from '../context/useLanguage'
 import { executeCode } from '../services/codeExecutionService'
 import { getLessonContent, getLessonSolution, submitLessonExercise, submitLessonSolution } from '../services/learningApi'
 import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
-import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
+import { notifyError, notifyInfo } from '../utils/notify'
 
 import TheoryContent from '../components/TheoryContent'
 
@@ -277,7 +277,7 @@ function LessonPage() {
         return
       }
 
-      notifyError(e?.message || 'No se pudo cargar la solución.')
+      notifyError(e?.message || t('lesson.solutionLoadError'))
     } finally {
       setLoadingSolution(false)
     }
@@ -285,26 +285,27 @@ function LessonPage() {
 
   const currentExercise = exercises[currentExerciseIdx]
 
-  const handleRunCode = useCallback(async () => {
+  const handleRunCode = useCallback(async (editorValue) => {
     if (!FEATURE_CODE_EXECUTION_ENABLED) {
-      notifyInfo(t('lesson.executionDisabled'))
+      notifyInfo(t('lesson.executionDisabled'), { id: 'lesson-execution-disabled', rateLimitKey: 'lesson-execution-disabled' })
       return
     }
 
     if (executionUnavailable) {
-      notifyInfo(t('lesson.executionUnavailable'))
+      notifyInfo(t('lesson.executionUnavailable'), { id: 'lesson-execution-unavailable', rateLimitKey: 'lesson-execution-unavailable' })
       return
     }
 
-    const executionSource = buildExecutionSource(currentExercise, codeAnswer)
+    const answerForExecution = typeof editorValue === 'string' ? editorValue : codeAnswer
+    const executionSource = buildExecutionSource(currentExercise, answerForExecution)
 
     if (!executionSource.trim()) {
-      notifyInfo(t('lesson.noCodeToRun'))
+      notifyInfo(t('lesson.noCodeToRun'), { id: 'lesson-no-code-to-run', rateLimitKey: 'lesson-no-code-to-run' })
       return
     }
 
     if (!lessonLanguageId) {
-      notifyError(t('lesson.runError'))
+      notifyError(t('lesson.runError'), { id: 'lesson-run-error', rateLimitKey: 'lesson-run-error' })
       return
     }
 
@@ -321,9 +322,8 @@ function LessonPage() {
       setConsoleOutput(nextOutput)
 
       if (Array.isArray(result.errors) && result.errors.length > 0) {
-        notifyError(result.errors[0])
+        notifyError(result.errors[0], { id: 'lesson-code-error', rateLimitKey: 'lesson-code-error', rateLimitMs: 2200 })
       } else {
-        notifySuccess(t('lesson.codeExecuted'))
         setRunCelebrationTick((prev) => prev + 1)
       }
     } catch (error) {
@@ -333,11 +333,11 @@ function LessonPage() {
           t('lesson.executionUnavailable'),
           t('lesson.executionUnavailableHint'),
         ])
-        notifyInfo(t('lesson.executionUnavailable'))
+        notifyInfo(t('lesson.executionUnavailable'), { id: 'lesson-execution-unavailable', rateLimitKey: 'lesson-execution-unavailable' })
         return
       }
 
-      notifyError(error?.message || t('lesson.runError'))
+      notifyError(error?.message || t('lesson.runError'), { id: 'lesson-run-error', rateLimitKey: 'lesson-run-error', rateLimitMs: 2200 })
     } finally {
       setIsExecuting(false)
     }
@@ -383,11 +383,8 @@ function LessonPage() {
 
       setFeedback(data)
 
-      if (data.isCorrect) {
-        notifySuccess(t('lesson.correctToast', { xp: data.xpGained || 0 }))
-      } else {
+      if (!data.isCorrect) {
         setErrorsInAttempt((prev) => prev + 1)
-        notifyInfo(t('lesson.incorrectToast'))
       }
     } catch (e) {
       console.error(e)
