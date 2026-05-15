@@ -5513,3 +5513,812 @@ button:disabled {
     flex-direction: column;
   }
 }
+
+
+/* Instructor & Student Join UX Improvements */
+.rbac-dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.rbac-form-compact {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.rbac-form-compact input {
+  flex: 1;
+  padding: 0.5rem;
+  background: rgba(9, 18, 33, 0.72);
+  border: 1px solid var(--cq-border);
+  border-radius: 6px;
+  color: white;
+}
+
+.rbac-form-compact button {
+  padding: 0.5rem 1rem;
+  background: var(--cq-primary);
+  border: none;
+  border-radius: 6px;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.rbac-mini-metrics {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.rbac-mini-metrics article {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.4);
+  padding: 0.75rem;
+  border-radius: 8px;
+  text-align: center;
+  border: 1px solid var(--cq-border);
+}
+
+.rbac-mini-metrics small {
+  display: block;
+  color: var(--cq-muted);
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.rbac-mini-metrics strong {
+  font-size: 1.25rem;
+  color: var(--cq-primary);
+}
+
+.rbac-code-badge {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--cq-primary);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-family: 'Fira Code', monospace;
+  font-size: 0.9rem;
+}
+
+.rbac-action-btn {
+  background: transparent;
+  border: 1px solid var(--cq-border);
+  color: white;
+  padding: 0.4rem;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rbac-action-btn:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--cq-primary);
+}
+
+.rbac-action-btn.active {
+  background: var(--cq-primary);
+  border-color: var(--cq-primary);
+  color: #032014;
+}
+
+.rbac-center {
+  text-align: center;
+}
+
+.rbac-btn-refresh {
+  background: transparent;
+  border: none;
+  color: var(--cq-muted);
+  font-size: 1.2rem;
+  cursor: pointer;
+}
+
+.rbac-btn-refresh:hover {
+  color: white;
+}
+
+.rbac-empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: var(--cq-muted);
+  border: 2px dashed var(--cq-border);
+  border-radius: 8px;
+}
+
+.join-class-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cq-border);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.join-class-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: white;
+}
+
+.join-class-modal input {
+  width: 100%;
+  padding: 1rem;
+  background: rgba(7, 15, 30, 0.72);
+  border: 2px solid var(--cq-border);
+  border-radius: 8px;
+  color: white;
+  font-size: 1.2rem;
+  text-align: center;
+  letter-spacing: 0.1em;
+  margin: 1rem 0;
+}
+
+.join-class-modal input:focus {
+  border-color: var(--cq-primary);
+  outline: none;
+}
+
+.join-confirm-btn {
+  background: var(--cq-primary) !important;
+  color: #032014 !important;
+}
+
+.rbac-btn-secondary {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--cq-border);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background 0.2s;
+}
+
+.rbac-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.rbac-loading-text {
+  text-align: center;
+  padding: 1rem;
+  color: var(--cq-muted);
+  font-style: italic;
+}
+
+.rbac-mini-metrics article strong {
+  display: block;
+}
+
+.rbac-mini-metrics article small {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.rbac-cell-code code {
+  font-weight: bold;
+}
+
+.rbac-dashboard-grid > .rbac-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.rbac-dashboard-grid .rbac-table-wrap {
+  flex: 1;
+}
+
+.join-class-modal h3 {
+  margin-top: 0;
+  color: var(--cq-primary);
+}
+
+@media (max-width: 1024px) {
+  .rbac-dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Instructor V2 Layout */
+.instructor-v2 {
+  max-width: 1400px !important;
+}
+
+.rbac-header.v2 {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.instructor-layout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.instructor-sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.class-list-scroll {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-top: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding-right: 4px;
+}
+
+.class-item-card {
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--cq-border);
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s;
+}
+
+.class-item-card:hover {
+  border-color: var(--cq-primary);
+  background: rgba(16, 185, 129, 0.05);
+}
+
+.class-item-card.active {
+  border-color: var(--cq-primary);
+  background: rgba(16, 185, 129, 0.1);
+  box-shadow: 0 0 15px rgba(16, 185, 129, 0.1);
+}
+
+.class-item-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.class-item-info strong {
+  color: #f1f7ff;
+  font-size: 1rem;
+}
+
+.class-item-info span {
+  font-size: 0.8rem;
+  color: var(--cq-muted);
+}
+
+.invites-mini-card h3 {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+}
+
+.invites-list-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.invite-row-compact {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 8px;
+}
+
+.class-tag {
+  font-size: 0.7rem;
+  color: var(--cq-muted);
+  background: rgba(148, 163, 184, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.main-detail-card {
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+}
+
+.rbac-empty-state-large {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 3rem;
+  color: var(--cq-muted);
+}
+
+.empty-icon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  opacity: 0.5;
+}
+
+.hint {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--cq-border);
+  margin-bottom: 1.5rem;
+}
+
+.detail-title h2 {
+  margin: 0;
+  font-size: 1.75rem;
+}
+
+.detail-title p {
+  margin: 0.5rem 0 0;
+}
+
+.detail-stats-pills {
+  display: flex;
+  gap: 1rem;
+}
+
+.stat-pill {
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--cq-border);
+  padding: 0.75rem 1.25rem;
+  border-radius: 12px;
+  text-align: center;
+  min-width: 100px;
+}
+
+.stat-pill small {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--cq-muted);
+  margin-bottom: 0.25rem;
+}
+
+.stat-pill strong {
+  font-size: 1.25rem;
+  color: var(--cq-primary);
+}
+
+.student-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.student-avatar {
+  width: 36px;
+  height: 36px;
+  background: var(--cq-primary);
+  color: #032014;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.student-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-info strong {
+  color: #f1f7ff;
+  font-size: 0.9rem;
+}
+
+.student-info span {
+  font-size: 0.75rem;
+  color: var(--cq-muted);
+}
+
+.xp-badge {
+  background: rgba(245, 158, 11, 0.1);
+  color: #fbbf24;
+  padding: 0.25rem 0.75rem;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.mini-progress-bar {
+  width: 100px;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 3px;
+  overflow: hidden;
+  margin: 0 auto;
+}
+
+.mini-progress-bar .fill {
+  height: 100%;
+  background: var(--cq-primary);
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.3);
+}
+
+@media (max-width: 1200px) {
+  .instructor-layout {
+    grid-template-columns: 1fr;
+  }
+  .instructor-sidebar-panel {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .instructor-sidebar-panel {
+    grid-template-columns: 1fr;
+  }
+  .detail-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+}
+
+/* Instructor V3 - 3 Blocks Layout */
+.instructor-3-blocks-grid {
+  display: grid;
+  grid-template-columns: 350px 1fr 400px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.block-classes .class-list-container {
+  max-height: 500px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.class-row-item {
+  padding: 1rem;
+  background: rgba(15, 23, 42, 0.4);
+  border: 1px solid var(--cq-border);
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.class-row-item:hover {
+  border-color: var(--cq-primary);
+}
+
+.class-row-item.active {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: var(--cq-primary);
+}
+
+.class-row-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.class-row-info strong {
+  color: #f1f7ff;
+}
+
+.class-row-info span {
+  font-size: 0.8rem;
+  color: var(--cq-muted);
+}
+
+.class-row-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.rbac-icon-btn {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--cq-border);
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rbac-icon-btn:hover {
+  background: rgba(16, 185, 129, 0.2);
+  border-color: var(--cq-primary);
+}
+
+.rbac-empty-state-centered {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem 2rem;
+  color: var(--cq-muted);
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+.mini-metric-pill {
+  flex: 1;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid var(--cq-border);
+  padding: 0.75rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.mini-metric-pill small {
+  display: block;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  color: var(--cq-muted);
+}
+
+.mini-metric-pill strong {
+  font-size: 1.25rem;
+  color: var(--cq-primary);
+}
+
+.student-compact-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.student-initial {
+  width: 32px;
+  height: 32px;
+  background: var(--cq-primary);
+  color: #032014;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.student-name-email {
+  display: flex;
+  flex-direction: column;
+}
+
+.student-name-email small {
+  font-size: 0.7rem;
+  color: var(--cq-muted);
+}
+
+.row-inactive {
+  opacity: 0.5;
+}
+
+.rbac-code-badge.inactive {
+  background: rgba(148, 163, 184, 0.1);
+  color: var(--cq-muted);
+  text-decoration: line-through;
+}
+
+.rbac-revoke-btn {
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.rbac-revoke-btn:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #f87171;
+}
+
+.cell-truncate {
+  max-width: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 1400px) {
+  .instructor-3-blocks-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+  .block-invites {
+    grid-column: span 2;
+  }
+}
+
+@media (max-width: 1024px) {
+  .instructor-3-blocks-grid {
+    grid-template-columns: 1fr;
+  }
+  .block-invites {
+    grid-column: span 1;
+  }
+}
+
+/* Inline Edit Form for Instructor Classes */
+.inline-edit-form {
+  display: flex;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.inline-edit-form input {
+  flex: 1;
+  background: var(--bg-dark);
+  border: 1px solid var(--cq-primary);
+  border-radius: 4px;
+  color: white;
+  padding: 0.25rem 0.5rem;
+  font-size: 0.9rem;
+}
+
+.inline-edit-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.inline-edit-actions button {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+}
+
+/* Scrollbar styling for containers */
+.class-list-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.class-list-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.class-list-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.class-list-container::-webkit-scrollbar-thumb:hover {
+  background: var(--cq-primary);
+}
+
+/* Compact Instructor Dashboard */
+.instructor-v3 {
+  padding-top: 12px !important;
+  gap: 12px !important;
+  max-width: 1500px !important; /* Allow more width */
+}
+
+.instructor-v3 .rbac-header {
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.instructor-v3 .rbac-header h1 {
+  font-size: 1.6rem;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.instructor-v3 .rbac-subtitle {
+  font-size: 0.85rem;
+  margin-top: 2px;
+  color: var(--cq-muted);
+}
+
+.instructor-v3 .rbac-actions-inline {
+  gap: 6px;
+}
+
+.instructor-v3 .rbac-role-chip {
+  font-size: 0.75rem;
+  padding: 2px 8px;
+}
+
+.instructor-3-blocks-grid {
+  gap: 1rem !important;
+}
+
+.instructor-v3 .rbac-card {
+  padding: 1.25rem !important;
+}
+
+.rbac-compact-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.5rem;
+}
+
+.instructor-v3 .rbac-page {
+  padding-top: 0 !important;
+}
+
+.rbac-page {
+  padding-top: 12px !important;
+}
+
+.rbac-compact-actions {
+  margin-bottom: 0.25rem !important;
+}
+
+.instructor-3-blocks-grid {
+  margin-top: 0 !important;
+}
+
+/* Spacing and Column Fixes for Instructor Dashboard */
+.instructor-v3 {
+  max-width: 100% !important; /* Take full available width */
+  margin: 0 !important;
+  padding: 1rem 2rem !important;
+}
+
+.instructor-3-blocks-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px !important; /* Thinner side columns */
+  gap: 1rem !important;
+}
+
+.instructor-v3 .rbac-card {
+  padding: 1rem !important; /* Smaller padding */
+}
+
+.rbac-table.compact td, 
+.rbac-table.compact th {
+  padding: 0.5rem !important;
+  font-size: 0.85rem;
+}
+
+.class-row-info strong {
+  font-size: 0.9rem;
+}
+
+.mini-metric-pill strong {
+  font-size: 1.1rem;
+}
+
+@media (max-width: 1400px) {
+  .instructor-3-blocks-grid {
+    grid-template-columns: 300px 1fr !important;
+  }
+  .block-invites {
+    grid-column: span 1 !important;
+    order: 3;
+  }
+}

@@ -169,22 +169,6 @@ function AdminDashboardPage() {
       <Navbar title={t('admin.title')} hideActions />
 
       <section className="rbac-page">
-        <div className="rbac-header">
-        <div>
-          <p className="rbac-kicker">{t('route.rolePanel')}</p>
-          <h1>{t('admin.header')}</h1>
-          <p className="rbac-subtitle">
-            {t('admin.subtitle')}
-          </p>
-        </div>
-        <div className="rbac-actions-inline">
-          <span className="rbac-role-chip">{t('admin.currentRole', { role })}</span>
-          <button type="button" onClick={() => navigate('/dashboard')}>
-            {t('admin.backDashboard')}
-          </button>
-        </div>
-      </div>
-
       <section className="rbac-card ai-admin-entry">
         <div className="rbac-section-head">
           <h2>{t('admin.ai.toolsTitle')}</h2>
