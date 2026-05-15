@@ -55,7 +55,7 @@ function App() {
         {!isDemo && !hasSidebar && <LanguageSwitcher />}
 
         <Toaster
-          position="top-right"
+          position="top-center"
           richColors
           closeButton
           theme="dark"

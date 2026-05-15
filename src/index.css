@@ -2661,7 +2661,8 @@ button.profile-icon-chip:hover {
   display: flex;
   gap: 14px;
   overflow-x: auto;
-  padding-bottom: 2px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 .lang-menu-trigger {
@@ -3526,20 +3527,23 @@ button:disabled {
 }
 
 .streak-emoji--jitter {
-  animation: streak-jitter 0.5s ease 3;
+  animation: streak-celebrate 1.8s ease-in-out 1;
 }
 
-@keyframes streak-jitter {
-  0%,
-  100% {
-    transform: rotate(0deg);
-  }
-  25% {
-    transform: rotate(-18deg);
-  }
-  75% {
-    transform: rotate(18deg);
-  }
+@keyframes streak-celebrate {
+  /* Fase 1: salta */
+  0%   { transform: scale(1)    translateX(0); }
+  18%  { transform: scale(1.55) translateX(0); }
+  38%  { transform: scale(1)    translateX(0); }
+  /* pausa breve */
+  42%  { transform: scale(1)    translateX(0); }
+  /* Fase 2: movimiento suave izq/der */
+  52%  { transform: scale(1)    translateX(-5px); }
+  63%  { transform: scale(1)    translateX(5px); }
+  74%  { transform: scale(1)    translateX(-3px); }
+  85%  { transform: scale(1)    translateX(3px); }
+  93%  { transform: scale(1)    translateX(-1px); }
+  100% { transform: scale(1)    translateX(0); }
 }
 
 .page {

@@ -83,6 +83,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 0;
+  padding: 0 0 10px 0;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   flex-shrink: 0;
 }
@@ -137,7 +138,7 @@
   padding: 0;
   margin: 0;
   display: grid;
-  gap: 3px;
+  gap: 1px;
 }
 
 .dashboard-nav-btn,
@@ -167,9 +168,12 @@
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-.dashboard-nav-btn:hover {
+.dashboard-nav-btn:hover,
+.dashboard-nav-btn--active {
   background: rgba(148, 163, 184, 0.1);
   color: #f1f7ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.1);
 }
 
 .dashboard-logout-btn:hover {
@@ -201,7 +205,7 @@
   width: 100%;
   padding: 6px 0;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-  margin-bottom: 12px;
+  margin-bottom: 6px;
 }
 
 .dashboard-sidebar__lang .language-switcher {
@@ -214,16 +218,13 @@
 
 .dashboard-sidebar__account-actions {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .dashboard-sidebar__account-actions .dashboard-nav-btn,
 .dashboard-sidebar__account-actions .dashboard-logout-btn {
   margin: 0;
   width: 100%;
-  min-height: 44px;
-  font-size: 0.9rem;
-  padding: 10px 12px;
 }
 
 /* ── Mobile: header + bottom nav ── */
@@ -393,7 +394,7 @@
   justify-content: space-between;
   gap: 8px;
   margin-top: 0;
-  padding: 7px 12px;
+  padding: 6px 10px;
   background: rgba(12, 22, 41, 0.72);
   border: 1px solid var(--cq-border);
   border-radius: 10px;

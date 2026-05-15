@@ -9,9 +9,10 @@ function LogoCQ({ height = 38 }) {
       height={height}
       aria-label="CodeQuest"
       role="img"
+      overflow="visible"
     >
       <defs>
-        <filter id="cqGlw" x="-40%" y="-40%" width="180%" height="180%">
+        <filter id="cqGlw" x="-15" y="-15" width="242" height="74" filterUnits="userSpaceOnUse">
           <feGaussianBlur stdDeviation="1.2" result="b" />
           <feMerge>
             <feMergeNode in="b" />
@@ -20,24 +21,16 @@ function LogoCQ({ height = 38 }) {
         </filter>
       </defs>
 
-      {/* ── Bracket izquierdo < ── */}
-      <text
-        x="2" y="22"
-        dominantBaseline="central"
-        fontFamily="'Fira Code','Cascadia Code','Consolas','Courier New',monospace"
-        fontSize="32" fontWeight="700"
-        fill="#8b5cf6"
+      {/* ── Bracket izquierdo < — chevron redondeado ── */}
+      <path
+        d="M 15,16 L 8,22 L 15,28"
+        fill="none"
         stroke="#8b5cf6"
-        strokeWidth="0.8"
-        strokeLinejoin="round"
+        strokeWidth="4"
         strokeLinecap="round"
-        paintOrder="stroke fill"
+        strokeLinejoin="round"
         filter="url(#cqGlw)"
-        textLength="14"
-        lengthAdjust="spacingAndGlyphs"
-      >
-        {'<'}
-      </text>
+      />
 
       {/* ── Nombre CodeQuest ── */}
       <text
@@ -55,10 +48,10 @@ function LogoCQ({ height = 38 }) {
         x="172" y="22"
         dominantBaseline="central"
         fontFamily="'Fira Code','Cascadia Code','Consolas','Courier New',monospace"
-        fontSize="30" fontWeight="700"
+        fontSize="29" fontWeight="700"
         fill="#10b981"
         stroke="#10b981"
-        strokeWidth="0.8"
+        strokeWidth="1.5"
         strokeLinejoin="round"
         strokeLinecap="round"
         paintOrder="stroke fill"
@@ -69,24 +62,16 @@ function LogoCQ({ height = 38 }) {
         /
       </text>
 
-      {/* ── Bracket derecho > ── */}
-      <text
-        x="191" y="22"
-        dominantBaseline="central"
-        fontFamily="'Fira Code','Cascadia Code','Consolas','Courier New',monospace"
-        fontSize="32" fontWeight="700"
-        fill="#10b981"
+      {/* ── Bracket derecho > — chevron redondeado ── */}
+      <path
+        d="M 191,16 L 198,22 L 191,28"
+        fill="none"
         stroke="#10b981"
-        strokeWidth="0.8"
-        strokeLinejoin="round"
+        strokeWidth="4"
         strokeLinecap="round"
-        paintOrder="stroke fill"
+        strokeLinejoin="round"
         filter="url(#cqGlw)"
-        textLength="14"
-        lengthAdjust="spacingAndGlyphs"
-      >
-        &gt;
-      </text>
+      />
     </svg>
   )
 }

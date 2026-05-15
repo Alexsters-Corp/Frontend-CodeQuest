@@ -26,6 +26,9 @@ export default function Sidebar() {
     return () => document.removeEventListener('click', close)
   }, [langOpen])
 
+  const navBtn = (path) =>
+    `dashboard-nav-btn${location.pathname.startsWith(path) ? ' dashboard-nav-btn--active' : ''}`
+
   const goToDashboardSection = (sectionId) => {
     if (location.pathname === '/dashboard') {
       const target = document.getElementById(sectionId)
@@ -91,7 +94,7 @@ export default function Sidebar() {
       {/* Top bar móvil */}
       <header className="mobile-header">
         <LogoCQ height={32} />
-        {location.pathname === '/dashboard' ? langDropdown : <LanguageSwitcher />}
+        {langDropdown}
       </header>
 
       {/* Bottom nav móvil */}
@@ -130,14 +133,14 @@ export default function Sidebar() {
         </div>
 
         <div className="dashboard-sidebar__lang">
-          {location.pathname === '/dashboard' ? langDropdown : <LanguageSwitcher />}
+          {langDropdown}
         </div>
 
         <div className="dashboard-sidebar__menu-block">
           <h2>{t('dashboard.sidebar.navigate')}</h2>
           <ul className="dashboard-sidebar-nav">
             <li>
-              <button type="button" className="dashboard-nav-btn" onClick={() => navigate('/dashboard')} title={t('dashboard.sidebar.languages')}>
+              <button type="button" className={navBtn('/dashboard')} onClick={() => navigate('/dashboard')} title={t('dashboard.sidebar.languages')}>
                 <span className="nav-icon">🏠</span>
                 {t('dashboard.sidebar.languages')}
               </button>
@@ -155,26 +158,26 @@ export default function Sidebar() {
               </button>
             </li>
             <li>
-              <button type="button" className="dashboard-nav-btn" onClick={() => navigate('/favorites')} title={t('dashboard.sidebar.favorites')}>
+              <button type="button" className={navBtn('/favorites')} onClick={() => navigate('/favorites')} title={t('dashboard.sidebar.favorites')}>
                 <span className="nav-icon">⭐</span>
                 {t('dashboard.sidebar.favorites')}
               </button>
             </li>
             <li>
-              <button type="button" className="dashboard-nav-btn" onClick={() => navigate('/ranking?scope=global')} title={t('dashboard.sidebar.ranking')}>
+              <button type="button" className={navBtn('/ranking')} onClick={() => navigate('/ranking?scope=global')} title={t('dashboard.sidebar.ranking')}>
                 <span className="nav-icon">🥇</span>
                 {t('dashboard.sidebar.ranking')}
               </button>
             </li>
             <li>
-              <button type="button" className="dashboard-nav-btn" onClick={() => navigate('/social')} title={t('dashboard.sidebar.followers')}>
+              <button type="button" className={navBtn('/social')} onClick={() => navigate('/social')} title={t('dashboard.sidebar.followers')}>
                 <span className="nav-icon">👥</span>
                 {t('dashboard.sidebar.followers')}
               </button>
             </li>
             {(isInstructor || isAdmin) && (
               <li>
-                <button type="button" className="dashboard-nav-btn" onClick={() => navigate('/instructor')} title={t('nav.instructor')}>
+                <button type="button" className={navBtn('/instructor')} onClick={() => navigate('/instructor')} title={t('nav.instructor')}>
                   <span className="nav-icon">👨‍🏫</span>
                   {t('nav.instructor')}
                 </button>
@@ -182,7 +185,7 @@ export default function Sidebar() {
             )}
             {isAdmin && (
               <li>
-                <button type="button" className="dashboard-nav-btn" onClick={() => navigate('/admin')} title={t('nav.admin')}>
+                <button type="button" className={navBtn('/admin')} onClick={() => navigate('/admin')} title={t('nav.admin')}>
                   <span className="nav-icon">🛡️</span>
                   {t('nav.admin')}
                 </button>
@@ -190,7 +193,7 @@ export default function Sidebar() {
             )}
             <li>
               <button type="button" className="dashboard-nav-btn" onClick={handleOnboarding} title={t('dashboard.sidebar.onboarding')}>
-                <span className="nav-icon">🔍</span>
+                <span className="nav-icon">➕</span>
                 {t('dashboard.sidebar.onboarding')}
               </button>
             </li>
@@ -200,7 +203,7 @@ export default function Sidebar() {
         <div className="dashboard-sidebar__account-block">
           <h3>{t('dashboard.sidebar.accountActions')}</h3>
           <div className="dashboard-sidebar__account-actions">
-            <button type="button" className="dashboard-nav-btn" onClick={() => navigate('/profile')} title={t('nav.profile')}>
+            <button type="button" className={navBtn('/profile')} onClick={() => navigate('/profile')} title={t('nav.profile')}>
               <span className="nav-icon">👤</span>
               {t('nav.profile')}
             </button>

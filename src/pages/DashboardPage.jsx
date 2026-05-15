@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
@@ -52,10 +52,13 @@ function translateDiagnosticLevel(level, t) {
 
 function DashboardPage() {
   const navigate = useNavigate()
+  const location = useLocation()
   const { t } = useLanguage()
   const { user } = useAuth()
   const [overview, setOverview] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [streakJitter, setStreakJitter] = useState(false)
+  const [pendingJitter, setPendingJitter] = useState(false)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
   const [deleteLanguageNameInput, setDeleteLanguageNameInput] = useState('')
   const [deleteActionInput, setDeleteActionInput] = useState('')
@@ -82,6 +85,23 @@ function DashboardPage() {
   useEffect(() => {
     loadOverview()
   }, [loadOverview])
+
+  useEffect(() => {
+    if (!location.state?.fromLesson) return
+    window.history.replaceState({}, document.title)
+    setPendingJitter(true)
+  }, [location.state])
+
+  useEffect(() => {
+    if (!pendingJitter || loading || !overview?.streakActiveToday) return
+    setPendingJitter(false)
+    const startTimer = setTimeout(() => {
+      setStreakJitter(true)
+      const endTimer = setTimeout(() => setStreakJitter(false), 1900)
+      return () => clearTimeout(endTimer)
+    }, 350)
+    return () => clearTimeout(startTimer)
+  }, [pendingJitter, loading, overview?.streakActiveToday])
 
   useEffect(() => {
     if (!openCardMenuId) return
@@ -196,6 +216,13 @@ function DashboardPage() {
     ? '...'
     : overview?.nivel || 1
 
+  const streakEmojiClass = [
+    'stat-card__icon',
+    'streak-emoji',
+    overview?.streakActiveToday ? 'streak-emoji--active' : 'streak-emoji--inactive',
+    streakJitter ? 'streak-emoji--jitter' : '',
+  ].filter(Boolean).join(' ')
+
   const getPodiumEntry = (targetRank) => {
     if (!Array.isArray(rankingPreview) || rankingPreview.length === 0) {
       return null
@@ -224,7 +251,7 @@ function DashboardPage() {
         headerAside={(
           <div className="dashboard-header-summary__grid">
             <article className="stat-card">
-              <span className="stat-card__icon">🔥</span>
+              <span className={streakEmojiClass}>🔥</span>
               <div className="stat-card__content">
                 <p>{t('dashboard.streak')}</p>
                 <strong>{streakLabel}</strong>
