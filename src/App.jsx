@@ -3,10 +3,13 @@ import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
+import { useLanguage } from './context/useLanguage'
 import PrivateRoute from './components/PrivateRoute'
 import PublicRoute from './components/PublicRoute'
 import RoleGuard from './components/guards/RoleGuard'
 import LanguageSwitcher from './components/LanguageSwitcher'
+import { useToastPosition } from './hooks/useToastPosition'
+import { configureNotifications } from './utils/notify'
 import DashboardPage from './pages/DashboardPage'
 import HomePage from './pages/HomePage'
 import LoginPage from './pages/LoginPage'
@@ -37,9 +40,28 @@ const SIDEBAR_ROUTES = [
 ]
 
 function App() {
+  return (
+    <LanguageProvider>
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </LanguageProvider>
+  )
+}
+
+function AppContent() {
   const { pathname } = useLocation()
+  const { t } = useLanguage()
+  const toastPosition = useToastPosition()
   const isDemo = pathname.startsWith('/demo')
   const hasSidebar = SIDEBAR_ROUTES.some(r => pathname.startsWith(r))
+
+  useEffect(() => {
+    configureNotifications({
+      close: t('notifications.close'),
+      closeAria: t('notifications.close_aria'),
+    })
+  }, [t])
 
   useEffect(() => {
     const isMarketingRoute = pathname === '/' || pathname === '/demo'
@@ -50,18 +72,15 @@ function App() {
   }, [pathname])
 
   return (
-    <LanguageProvider>
-      <AuthProvider>
+    <>
         {!isDemo && !hasSidebar && <LanguageSwitcher />}
 
         <Toaster
-          position="top-center"
-          richColors
-          closeButton
+          position={toastPosition}
+          offset="72px"
           theme="dark"
           toastOptions={{
             className: 'cq-toast',
-            descriptionClassName: 'cq-toast-description',
           }}
         />
 
@@ -226,8 +245,7 @@ function App() {
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
-      </AuthProvider>
-    </LanguageProvider>
+    </>
   )
 }
 

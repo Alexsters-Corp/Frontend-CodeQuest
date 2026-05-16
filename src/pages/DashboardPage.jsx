@@ -52,6 +52,7 @@ function translateDiagnosticLevel(level, t) {
 }
 
 function DashboardPage() {
+  const showDeferredDashboardSections = false
   const navigate = useNavigate()
   const location = useLocation()
   const { t } = useLanguage()
@@ -284,13 +285,17 @@ function DashboardPage() {
                 <strong>{streakLabel}</strong>
               </div>
             </article>
-            <article className="stat-card">
-              <span className="stat-card__icon">🏆</span>
-              <div className="stat-card__content">
-                <p>{t('dashboard.achievements')}</p>
-                <strong>{achievementsLabel}</strong>
-              </div>
-            </article>
+            {/* Nota para futuras IAs: no eliminar la tarjeta ni la sección de "Logros".
+                Se ocultan temporalmente en frontend por regla de producto y se reactivarán cuando esta funcionalidad escale. */}
+            {showDeferredDashboardSections && (
+              <article className="stat-card">
+                <span className="stat-card__icon">🏆</span>
+                <div className="stat-card__content">
+                  <p>{t('dashboard.achievements')}</p>
+                  <strong>{achievementsLabel}</strong>
+                </div>
+              </article>
+            )}
             <article className="stat-card">
               <span className="stat-card__icon">📊</span>
               <div className="stat-card__content">
@@ -400,7 +405,7 @@ function DashboardPage() {
             )}
           </section>
 
-          {overview?.achievements?.length > 0 && (
+          {showDeferredDashboardSections && overview?.achievements?.length > 0 && (
             <section className="dashboard-achievements" id="dashboard-achievements">
               <h2>{t('dashboard.achievements')}</h2>
               <div className="achievements-row">

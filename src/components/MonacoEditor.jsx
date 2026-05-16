@@ -90,7 +90,7 @@ function MonacoEditor({
   const handleEditorMount = useCallback((editor, monaco) => {
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
       if (canRun && onRun) {
-        onRun()
+        onRun(editor.getValue())
       }
     })
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA, () => {
@@ -109,9 +109,9 @@ function MonacoEditor({
 
     if ((event.ctrlKey || event.metaKey) && event.key === 'Enter') {
       event.preventDefault()
-      onRun()
+      onRun(value)
     }
-  }, [canRun, onRun])
+  }, [canRun, onRun, value])
 
   return (
     <Motion.section

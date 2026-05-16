@@ -17,6 +17,9 @@ export const messages = {
     'common.yes': 'Sí',
     'common.no': 'No',
 
+    'notifications.close': 'Cerrar',
+    'notifications.close_aria': 'Cerrar notificaciÃ³n',
+
     'language.selector': 'Idioma',
     'language.es': 'Español',
     'language.en': 'Inglés',
@@ -85,6 +88,16 @@ export const messages = {
     'home.toast.loginSuccess': 'Inicio de sesión exitoso. Bienvenido a CodeQuest.',
     'home.toast.registerSuccess': 'Cuenta creada correctamente. Bienvenido a CodeQuest.',
     'home.scroll.highlight': 'Te diriges a {section}',
+    'demo.toast.resume': 'Continuamos donde lo dejaste.',
+    'demo.toast.loadError': 'No fue posible cargar la lección demo.',
+    'demo.toast.writeCode': 'Escribe código antes de ejecutar.',
+    'demo.toast.invalidLanguage': 'No se encontró un lenguaje válido.',
+    'demo.toast.codeExecuted': 'Código ejecutado.',
+    'demo.toast.runError': 'No fue posible ejecutar el código.',
+    'demo.toast.answerRequired': 'Selecciona o escribe una respuesta.',
+    'demo.toast.correct': '¡Correcto!',
+    'demo.toast.tryAgain': 'Inténtalo de nuevo.',
+    'demo.toast.submitError': 'No fue posible validar la respuesta.',
 
     'auth.login.visualBadge': 'System Status: Operativo',
     'auth.login.visualTitle1': 'Entra al',
@@ -273,6 +286,7 @@ export const messages = {
     'lesson.executionUnavailableHint': 'Puedes continuar resolviendo y usar Comprobar para validar tu respuesta.',
     'lesson.solutionUnavailable': 'La ruta de solución no está disponible en este backend.',
     'lesson.solutionRequiresCompletion': 'Debes completar la lección antes de ver la solución oficial.',
+    'lesson.solutionLoadError': 'No se pudo cargar la solución.',
 
     'diagnostic.loading': 'Preparando tu diagnóstico...',
     'diagnostic.completed': 'Diagnóstico completado',
@@ -626,6 +640,9 @@ export const messages = {
     'common.yes': 'Yes',
     'common.no': 'No',
 
+    'notifications.close': 'Close',
+    'notifications.close_aria': 'Close notification',
+
     'language.selector': 'Language',
     'language.es': 'Spanish',
     'language.en': 'English',
@@ -694,6 +711,16 @@ export const messages = {
     'home.toast.loginSuccess': 'Login successful. Welcome to CodeQuest.',
     'home.toast.registerSuccess': 'Account created successfully. Welcome to CodeQuest.',
     'home.scroll.highlight': 'Navigating to {section}',
+    'demo.toast.resume': 'Continuing where you left off.',
+    'demo.toast.loadError': 'Unable to load the demo lesson.',
+    'demo.toast.writeCode': 'Write code before running it.',
+    'demo.toast.invalidLanguage': 'A valid language was not found.',
+    'demo.toast.codeExecuted': 'Code executed.',
+    'demo.toast.runError': 'Unable to run the code.',
+    'demo.toast.answerRequired': 'Select or type an answer.',
+    'demo.toast.correct': 'Correct!',
+    'demo.toast.tryAgain': 'Try again.',
+    'demo.toast.submitError': 'Unable to validate the answer.',
 
     'auth.login.visualBadge': 'System Status: Operational',
     'auth.login.visualTitle1': 'Enter the',
@@ -882,6 +909,7 @@ export const messages = {
     'lesson.executionUnavailableHint': 'You can keep solving and use Check to validate your answer.',
     'lesson.solutionUnavailable': 'The solution endpoint is not available in this backend.',
     'lesson.solutionRequiresCompletion': 'You must complete the lesson before seeing the official solution.',
+    'lesson.solutionLoadError': 'Unable to load the solution.',
 
     'diagnostic.loading': 'Preparing your diagnostic...',
     'diagnostic.completed': 'Diagnostic completed',

@@ -9,7 +9,8 @@ import { buildExecutionSource, normalizeCodeExerciseAnswer } from '../utils/less
 import { detectLanguageMismatch, getLanguageConfig, getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
 import TheoryContent from '../components/TheoryContent'
 import CodeViewer from '../components/CodeViewer'
-import { notifyError, notifyInfo, notifyPending, notifySuccess } from '../utils/notify'
+import { notifyError, notifyInfo, notifyPending } from '../utils/notify'
+import { useLanguage } from '../context/useLanguage'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
 
@@ -60,6 +61,7 @@ function hasRealProgress(saved) {
 
 function DemoLessonPage() {
   const navigate = useNavigate()
+  const { t } = useLanguage()
   const [lesson, setLesson] = useState(null)
   const [exercises, setExercises] = useState([])
   const [lessonId, setLessonId] = useState(null)
@@ -125,7 +127,7 @@ function DemoLessonPage() {
           setCurrentStep(saved.currentStep || 'theory')
           // Si ya estaba en ejercicios, va directo sin pasar por el boton: mostrar toast aqui
           if (saved.currentStep === 'exercise' && hasRealProgress(saved)) {
-            notifyPending('Continuamos donde lo dejaste.', { icon: <CiSaveDown1 size={22} style={{ display: 'block', flexShrink: 0 }} /> })
+            notifyPending(t('demo.toast.resume'), { icon: <CiSaveDown1 size={22} style={{ display: 'block', flexShrink: 0 }} /> })
           }
         }
       } catch (error) {
@@ -133,7 +135,7 @@ function DemoLessonPage() {
           return
         }
 
-        notifyError(error?.message || 'No fue posible cargar la leccion demo.')
+        notifyError(error?.message || t('demo.toast.loadError'))
       } finally {
         if (active) {
           setLoading(false)
@@ -146,7 +148,7 @@ function DemoLessonPage() {
     return () => {
       active = false
     }
-  }, [])
+  }, [t])
 
   // Autosave con debounce a sessionStorage
   useEffect(() => {
@@ -207,24 +209,25 @@ function DemoLessonPage() {
       return
     }
     if (hasRealProgress(initialAutosaveRef.current)) {
-      notifyPending('Continuamos donde lo dejaste.', { icon: <CiSaveDown1 size={22} style={{ display: 'block', flexShrink: 0 }} /> })
+      notifyPending(t('demo.toast.resume'), { icon: <CiSaveDown1 size={22} style={{ display: 'block', flexShrink: 0 }} /> })
     }
     setCurrentStep('exercise')
   }
 
-  const handleRunCode = useCallback(async () => {
+  const handleRunCode = useCallback(async (editorValue) => {
     if (!currentExercise) {
       return
     }
 
-    const executionSource = buildExecutionSource(currentExercise, currentCodeAnswer)
+    const answerForExecution = typeof editorValue === 'string' ? editorValue : currentCodeAnswer
+    const executionSource = buildExecutionSource(currentExercise, answerForExecution)
     if (!executionSource.trim()) {
-      notifyInfo('Escribe codigo antes de ejecutar.')
+      notifyInfo(t('demo.toast.writeCode'), { id: 'demo-no-code-to-run', rateLimitKey: 'demo-no-code-to-run' })
       return
     }
 
     if (!lessonLanguageId) {
-      notifyError('No se encontro un lenguaje valido.')
+      notifyError(t('demo.toast.invalidLanguage'), { id: 'demo-invalid-language', rateLimitKey: 'demo-invalid-language' })
       return
     }
 
@@ -244,17 +247,15 @@ function DemoLessonPage() {
       const nextOutput = [...(result.output || [])]
       if (Array.isArray(result.errors) && result.errors.length > 0) {
         nextOutput.push(...result.errors.map((line) => `[error] ${line}`))
-        notifyError(result.errors[0])
-      } else {
-        notifySuccess('Codigo ejecutado.')
+        notifyError(result.errors[0], { id: 'demo-code-error', rateLimitKey: 'demo-code-error', rateLimitMs: 2200 })
       }
       setConsoleOutput(nextOutput)
     } catch (error) {
-      notifyError(error?.message || 'No fue posible ejecutar el codigo.')
+      notifyError(error?.message || t('demo.toast.runError'), { id: 'demo-run-error', rateLimitKey: 'demo-run-error', rateLimitMs: 2200 })
     } finally {
       setIsExecuting(false)
     }
-  }, [currentExercise, currentCodeAnswer, lessonLanguageId])
+  }, [currentExercise, currentCodeAnswer, lessonLanguageId, t])
 
   const handleSubmitExercise = async () => {
     if (!currentExercise || !lessonId) {
@@ -267,7 +268,7 @@ function DemoLessonPage() {
         : selectedAnswer
 
     if (!String(answer || '').trim()) {
-      notifyInfo('Selecciona o escribe una respuesta.')
+      notifyInfo(t('demo.toast.answerRequired'))
       return
     }
 
@@ -280,13 +281,8 @@ function DemoLessonPage() {
       })
 
       setFeedback(data)
-      if (data.isCorrect) {
-        notifySuccess('¡Correcto!')
-      } else {
-        notifyInfo('Intentalo de nuevo.')
-      }
     } catch (error) {
-      notifyError(error?.message || 'No fue posible validar la respuesta.')
+      notifyError(error?.message || t('demo.toast.submitError'))
     } finally {
       setSubmitting(false)
     }

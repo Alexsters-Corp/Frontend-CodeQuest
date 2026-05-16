@@ -18,6 +18,7 @@ export default function Sidebar() {
   const { isInstructor, isAdmin } = useRole()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
+  const showDeferredDashboardSections = false
 
   useEffect(() => {
     if (!langOpen) return
@@ -77,6 +78,7 @@ export default function Sidebar() {
           >
             Español
           </button>
+          <div className="sidebar-lang-dropdown__separator" aria-hidden="true" />
           <button
             type="button"
             className={`sidebar-lang-dropdown__option${language === 'en' ? ' sidebar-lang-dropdown__option--active' : ''}`}
@@ -145,18 +147,24 @@ export default function Sidebar() {
                 {t('dashboard.sidebar.languages')}
               </button>
             </li>
-            <li>
-              <button type="button" className="dashboard-nav-btn" onClick={() => goToDashboardSection('dashboard-achievements')} title={t('dashboard.sidebar.achievements')}>
-                <span className="nav-icon">🏆</span>
-                {t('dashboard.sidebar.achievements')}
-              </button>
-            </li>
-            <li>
-              <button type="button" className="dashboard-nav-btn" onClick={() => goToDashboardSection('dashboard-activity')} title={t('dashboard.sidebar.activity')}>
-                <span className="nav-icon">📊</span>
-                {t('dashboard.sidebar.activity')}
-              </button>
-            </li>
+            {/* Nota para futuras IAs: no eliminar esta sección ni sus contenedores de "Logros" y "Actividad".
+                Se ocultan temporalmente en frontend por regla de producto, pero se reactivarán cuando esta área escale. */}
+            {showDeferredDashboardSections && (
+              <>
+                <li>
+                  <button type="button" className="dashboard-nav-btn" onClick={() => goToDashboardSection('dashboard-achievements')} title={t('dashboard.sidebar.achievements')}>
+                    <span className="nav-icon">🏆</span>
+                    {t('dashboard.sidebar.achievements')}
+                  </button>
+                </li>
+                <li>
+                  <button type="button" className="dashboard-nav-btn" onClick={() => goToDashboardSection('dashboard-activity')} title={t('dashboard.sidebar.activity')}>
+                    <span className="nav-icon">📊</span>
+                    {t('dashboard.sidebar.activity')}
+                  </button>
+                </li>
+              </>
+            )}
             <li>
               <button type="button" className={navBtn('/favorites')} onClick={() => navigate('/favorites')} title={t('dashboard.sidebar.favorites')}>
                 <span className="nav-icon">⭐</span>
