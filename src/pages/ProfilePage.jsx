@@ -172,19 +172,6 @@ function ProfilePage() {
               readOnly
             />
 
-            <label>{t('profile.presetIcons')}</label>
-            <div className="profile-icon-list" role="list">
-              {PRESET_ICONS.map((icon) => (
-                <span
-                  key={icon}
-                  className={`profile-icon-chip ${profile.avatar === icon ? 'active' : ''}`}
-                  role="listitem"
-                >
-                  {icon}
-                </span>
-              ))}
-            </div>
-
             <div className="profile-edit-header" style={{ marginTop: '28px' }}>
               <h3>{t('profile.progressTitle')}</h3>
             </div>
@@ -212,26 +199,6 @@ function ProfilePage() {
                 <ActivityLineChart data={recentXP} />
               </div>
             )}
-
-            <label htmlFor="profile-view-country" style={{ marginTop: '20px' }}>{t('profile.country')}</label>
-            <input
-              id="profile-view-country"
-              type="text"
-              value={
-                countryNameFromCode(profile.countryCode, locale, '')
-                || profile.countryRaw
-                || t('profile.notSet')
-              }
-              readOnly
-            />
-
-            <label htmlFor="profile-view-birthdate">{t('profile.birthDate')}</label>
-            <input
-              id="profile-view-birthdate"
-              type="text"
-              value={profile.birthDate || t('profile.notSet')}
-              readOnly
-            />
           </div>
         )}
       </section>
