@@ -8,6 +8,66 @@ import {
 } from '../services/socialApi'
 import { notifyError, notifySuccess } from '../utils/notify'
 
+function UserCard({
+  user,
+  actionLoading,
+  onFollow,
+  onUnfollow,
+  t,
+  showXp = false,
+  showFollowsYou = false,
+}) {
+  const initial = (user.username?.[0] || 'U').toUpperCase()
+
+  return (
+    <article className="social-user-card" role="listitem">
+      <div className="social-user-info">
+        <div className="social-user-avatar">
+          {user.avatar ? user.avatar : initial}
+        </div>
+        <div className="social-user-meta">
+          <strong>@{user.username}</strong>
+          <p>{user.nombre || t('nav.defaultName')}</p>
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px', flexWrap: 'wrap' }}>
+            {showXp && user.totalXp !== undefined && (
+              <span style={{ fontSize: '0.75rem', color: 'var(--cq-secondary)', fontWeight: 'bold' }}>
+                ✨ {t('ranking.xpLabel', { value: user.totalXp })}
+              </span>
+            )}
+            {showFollowsYou && user.isFollower && (
+              <span className="social-follow-badge">
+                {t('social.followingBack')}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="social-card-actions">
+        {user.isFollowing ? (
+          <button
+            type="button"
+            className="profile-cancel-btn"
+            onClick={() => onUnfollow(user.username)}
+            disabled={actionLoading}
+          >
+            {actionLoading ? '...' : t('social.unfollowAction')}
+          </button>
+        ) : (
+          <button
+            type="button"
+            className="profile-save-btn"
+            onClick={() => onFollow(user.username)}
+            disabled={actionLoading}
+          >
+            {actionLoading ? '...' : t('social.followAction')}
+          </button>
+        )}
+      </div>
+    </article>
+  )
+}
+
 function SocialPanel() {
   const { t } = useLanguage()
   const [socialQuery, setSocialQuery] = useState('')
@@ -23,11 +83,11 @@ function SocialPanel() {
 
   const loadSocialDirectory = useCallback(async () => {
     try {
-      const data = await getFollowDirectory(12)
+      const data = await getFollowDirectory(24)
       setSocialState({
         counts: data.counts || { followers: 0, following: 0 },
-        following: Array.isArray(data.following) ? data.following : [],
-        followers: Array.isArray(data.followers) ? data.followers : [],
+        following: (Array.isArray(data.following) ? data.following : []).map(u => ({ ...u, isFollowing: true })),
+        followers: (Array.isArray(data.followers) ? data.followers : []).map(u => ({ ...u, isFollower: true, isFollowing: u.isFollowingBack })),
       })
     } catch (error) {
       notifyError(error.message || t('social.loadError'))
@@ -52,11 +112,11 @@ function SocialPanel() {
         const users = await searchUsersByUsername(query, 10)
         setSocialResults(users)
       } catch {
-        // silent — auto-search no muestra popups de error
+        // silent
       } finally {
         setSocialLoading(false)
       }
-    }, 400) // 400ms debounce
+    }, 400)
 
     return () => clearTimeout(timer)
   }, [socialQuery])
@@ -71,7 +131,6 @@ function SocialPanel() {
       notifySuccess(t('social.followSuccess', { username: normalizedUsername }))
       await loadSocialDirectory()
 
-      // Refresh search results if we are on the search tab
       if (socialQuery.trim()) {
         const users = await searchUsersByUsername(socialQuery, 10)
         setSocialResults(users)
@@ -93,7 +152,6 @@ function SocialPanel() {
       notifySuccess(t('social.unfollowSuccess', { username: normalizedUsername }))
       await loadSocialDirectory()
       
-      // Update search results state locally
       setSocialResults((current) => current.map((item) => (
         item.username === normalizedUsername
           ? { ...item, isFollowing: false }
@@ -108,11 +166,11 @@ function SocialPanel() {
 
   return (
     <section className="profile-social-panel">
-      <div className="profile-edit-header" style={{ marginBottom: '20px', borderBottom: '1px solid var(--cq-border)', paddingBottom: '12px' }}>
-        <p style={{ margin: 0, fontSize: '0.95rem', color: 'var(--cq-muted)' }}>{t('social.description')}</p>
+      <div className="profile-edit-header" style={{ marginBottom: '24px' }}>
+        <p>{t('social.description')}</p>
       </div>
 
-      <div className="ranking-scope-tabs" style={{ marginTop: '20px' }}>
+      <div className="ranking-scope-tabs">
         <button
           type="button"
           className={`ranking-tab ${activeTab === 'search' ? 'ranking-tab--active' : ''}`}
@@ -136,19 +194,24 @@ function SocialPanel() {
         </button>
       </div>
 
-      <div className="social-search-row" style={{ gridTemplateColumns: '1fr' }}>
-        <input
-          type="text"
-          value={socialQuery}
-          onChange={(event) => {
-            setSocialQuery(event.target.value)
-            if (activeTab !== 'search') setActiveTab('search')
-          }}
-          placeholder={t('social.usernamePlaceholder')}
-          aria-label={t('social.usernameLabel')}
-          className="social-unified-input"
-        />
-        {socialLoading && <span className="social-search-spinner">🔍 {t('common.loading')}</span>}
+      <div className="social-search-row" style={{ marginTop: '20px' }}>
+        <div style={{ position: 'relative', width: '100%' }}>
+          <input
+            type="text"
+            value={socialQuery}
+            onChange={(event) => {
+              setSocialQuery(event.target.value)
+              if (activeTab !== 'search') setActiveTab('search')
+            }}
+            placeholder={t('social.usernamePlaceholder')}
+            className="social-unified-input"
+          />
+          {socialLoading && (
+            <div style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', opacity: 0.6 }}>
+              ⏳
+            </div>
+          )}
+        </div>
       </div>
 
       <div className="social-active-content">
@@ -159,35 +222,16 @@ function SocialPanel() {
                 {socialQuery.trim() ? t('social.noResults') : t('social.searchHint')}
               </p>
             ) : (
-              <div className="social-user-list" role="list">
+              <div className="social-user-list">
                 {socialResults.map((item) => (
-                  <article key={`search-${item.id}`} className="social-user-card" role="listitem">
-                    <div className="social-user-info">
-                      <div className="social-user-avatar">
-                        {(item.username?.[0] || 'U').toUpperCase()}
-                      </div>
-                      <div className="social-user-meta">
-                        <strong>@{item.username}</strong>
-                        <p>{item.nombre || t('profile.notSet')}</p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      className={item.isFollowing ? 'profile-cancel-btn' : 'profile-save-btn'}
-                      onClick={() => (
-                        item.isFollowing
-                          ? handleUnfollow(item.username)
-                          : handleFollow(item.username)
-                      )}
-                      disabled={socialActionUsername === item.username}
-                    >
-                      {socialActionUsername === item.username
-                        ? '...'
-                        : item.isFollowing
-                          ? t('social.unfollowAction')
-                          : t('social.followAction')}
-                    </button>
-                  </article>
+                  <UserCard
+                    key={`search-${item.id}`}
+                    user={item}
+                    actionLoading={socialActionUsername === item.username}
+                    onFollow={handleFollow}
+                    onUnfollow={handleUnfollow}
+                    t={t}
+                  />
                 ))}
               </div>
             )}
@@ -199,27 +243,17 @@ function SocialPanel() {
             {socialState.following.length === 0 ? (
               <p className="social-empty-text">{t('social.noFollowing')}</p>
             ) : (
-              <div className="social-user-list" role="list">
+              <div className="social-user-list">
                 {socialState.following.map((item) => (
-                  <article key={`following-${item.id}`} className="social-user-card" role="listitem">
-                    <div className="social-user-info">
-                      <div className="social-user-avatar">
-                        {(item.username?.[0] || 'U').toUpperCase()}
-                      </div>
-                      <div className="social-user-meta">
-                        <strong>@{item.username}</strong>
-                        <p>{t('ranking.xpLabel', { value: item.totalXp || 0 })}</p>
-                      </div>
-                    </div>
-                    <button
-                      type="button"
-                      className="profile-cancel-btn"
-                      onClick={() => handleUnfollow(item.username)}
-                      disabled={socialActionUsername === item.username}
-                    >
-                      {socialActionUsername === item.username ? '...' : t('social.unfollowAction')}
-                    </button>
-                  </article>
+                  <UserCard
+                    key={`following-${item.id}`}
+                    user={item}
+                    actionLoading={socialActionUsername === item.username}
+                    onFollow={handleFollow}
+                    onUnfollow={handleUnfollow}
+                    t={t}
+                    showXp
+                  />
                 ))}
               </div>
             )}
@@ -231,29 +265,17 @@ function SocialPanel() {
             {socialState.followers.length === 0 ? (
               <p className="social-empty-text">{t('social.noFollowers')}</p>
             ) : (
-              <div className="social-user-list" role="list">
+              <div className="social-user-list">
                 {socialState.followers.map((item) => (
-                  <article key={`followers-${item.id}`} className="social-user-card" role="listitem">
-                    <div className="social-user-info">
-                      <div className="social-user-avatar">
-                        {(item.username?.[0] || 'U').toUpperCase()}
-                      </div>
-                      <div className="social-user-meta">
-                        <strong>@{item.username}</strong>
-                        <p>{item.isFollowingBack ? t('social.followingBack') : t('social.notFollowingBack')}</p>
-                      </div>
-                    </div>
-                    {!item.isFollowingBack && (
-                      <button
-                        type="button"
-                        className="profile-save-btn"
-                        onClick={() => handleFollow(item.username)}
-                        disabled={socialActionUsername === item.username}
-                      >
-                        {socialActionUsername === item.username ? '...' : t('social.followAction')}
-                      </button>
-                    )}
-                  </article>
+                  <UserCard
+                    key={`followers-${item.id}`}
+                    user={item}
+                    actionLoading={socialActionUsername === item.username}
+                    onFollow={handleFollow}
+                    onUnfollow={handleUnfollow}
+                    t={t}
+                    showFollowsYou
+                  />
                 ))}
               </div>
             )}

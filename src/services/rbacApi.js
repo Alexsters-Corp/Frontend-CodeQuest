@@ -55,6 +55,11 @@ export async function listInstructorClasses() {
   return Array.isArray(data.classes) ? data.classes : []
 }
 
+export async function listInstructorInvites() {
+  const data = await requestJson('/api/instructor/invites')
+  return Array.isArray(data.invites) ? data.invites : []
+}
+
 export async function createInstructorClass({ name, description }) {
   return requestJson('/api/instructor/classes', {
     method: 'POST',
@@ -62,6 +67,66 @@ export async function createInstructorClass({ name, description }) {
       name: String(name || '').trim(),
       description: String(description || '').trim(),
     }),
+  })
+}
+
+export async function updateInstructorClass({ id, name, description }) {
+  const normalizedId = parsePositiveInt(id)
+  if (!normalizedId) {
+    throw new Error('Clase no válida para actualizar.')
+  }
+
+  return requestJson(`/api/instructor/classes/${normalizedId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      name: name ? String(name).trim() : undefined,
+      description: description !== undefined ? String(description || '').trim() : undefined,
+    }),
+  })
+}
+
+export async function generateClassInvite({ classId, email, expiresAt, maxUses }) {
+  const normalizedClassId = parsePositiveInt(classId)
+  if (!normalizedClassId) {
+    throw new Error('Clase no válida para generar invitación.')
+  }
+
+  return requestJson(`/api/instructor/classes/${normalizedClassId}/invite`, {
+    method: 'POST',
+    body: JSON.stringify({
+      email: email ? String(email).trim() : null,
+      expiresAt: expiresAt || null,
+      maxUses: parsePositiveInt(maxUses) || null,
+    }),
+  })
+}
+
+export async function revokeClassInvite(inviteId) {
+  const normalizedId = parsePositiveInt(inviteId)
+  return requestJson(`/api/instructor/invites/${normalizedId}/revoke`, {
+    method: 'PATCH',
+  })
+}
+
+export async function rotateClassCode(classId) {
+  const normalizedClassId = parsePositiveInt(classId)
+  return requestJson(`/api/instructor/classes/${normalizedClassId}/rotate-code`, {
+    method: 'POST',
+  })
+}
+
+export async function deleteInstructorClass(classId) {
+  const normalizedClassId = parsePositiveInt(classId)
+  return requestJson(`/api/instructor/classes/${normalizedClassId}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function kickStudentFromClass({ classId, studentId }) {
+  const normalizedClassId = parsePositiveInt(classId)
+  const normalizedStudentId = parsePositiveInt(studentId)
+  return requestJson(`/api/instructor/classes/${normalizedClassId}/students/${normalizedStudentId}`, {
+    method: 'DELETE',
   })
 }
 

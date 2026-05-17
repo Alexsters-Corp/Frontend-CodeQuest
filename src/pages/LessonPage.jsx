@@ -11,6 +11,7 @@ import { getLessonContent, getLessonSolution, submitLessonExercise, submitLesson
 import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
 import { notifyError, notifyInfo } from '../utils/notify'
 
+import SidebarLayout from '../components/SidebarLayout'
 import TheoryContent from '../components/TheoryContent'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
@@ -442,23 +443,26 @@ function LessonPage() {
 
   if (loading) {
     return (
-      <MotionPage className="lesson-page" delay={0.05}>
-        <div className="lesson-loading">
-          <LoadingSpinner size="large" />
-          <p>{t('lesson.loading')}</p>
-        </div>
-      </MotionPage>
+      <SidebarLayout>
+        <MotionPage className="lesson-page" delay={0.05}>
+          <div className="lesson-loading">
+            <LoadingSpinner size="large" />
+            <p>{t('lesson.loading')}</p>
+          </div>
+        </MotionPage>
+      </SidebarLayout>
     )
   }
 
   if (!lesson) {
     return (
-      <MotionPage className="lesson-page" delay={0.05}>
-        <div className="lesson-loading">
-          <p>{t('lesson.notFound')}</p>
-          <button onClick={() => navigate('/dashboard')} type="button">{t('common.back')}</button>
-        </div>
-      </MotionPage>
+      <SidebarLayout>
+        <MotionPage className="lesson-page" delay={0.05}>
+          <div className="lesson-loading">
+            <p>{t('lesson.notFound')}</p>
+          </div>
+        </MotionPage>
+      </SidebarLayout>
     )
   }
 
@@ -467,123 +471,51 @@ function LessonPage() {
     const wasPerfect = errorsInAttempt === 0
 
     return (
-      <MotionPage className="lesson-page" delay={0.06}>
-        <div className="lesson-completed">
-          <div className="completed-icon">{wasPerfect ? '🏆' : '🎉'}</div>
-          <h1>{t('lesson.completed')}</h1>
-          <h2>{lesson.titulo}</h2>
+      <SidebarLayout>
+        <MotionPage className="lesson-page" delay={0.06}>
+          <div className="lesson-completed">
+            <div className="completed-icon">{wasPerfect ? '🏆' : '🎉'}</div>
+            <h1>{t('lesson.completed')}</h1>
+            <h2>{lesson.titulo}</h2>
 
-          <div className="completed-xp">
-            <span className="xp-icon">⭐</span>
-            <span>+{xpEarned} XP</span>
-          </div>
-
-          {bonusAwarded && (
-            <div className="completed-bonus">
-              <span className="bonus-icon">🔥</span>
-              <span>¡Reintento perfecto! +{RETRY_BONUS_XP} XP bonus</span>
+            <div className="completed-xp">
+              <span className="xp-icon">⭐</span>
+              <span>+{xpEarned} XP</span>
             </div>
-          )}
 
-          {isRetry && !wasPerfect && (
-            <p className="completed-hint">
-              Tuviste {errorsInAttempt} error{errorsInAttempt > 1 ? 'es' : ''}.
-              ¡Repite la lección sin errores para ganar el bonus!
-            </p>
-          )}
-
-          <div className="completed-actions">
-            {errorsInAttempt > 0 && (
-              <button
-                className="lesson-solution-btn ui-jitter"
-                onClick={handleViewSolution}
-                disabled={loadingSolution || solutionUnavailable}
-                type="button"
-              >
-                {loadingSolution ? '⏳ Cargando...' : showSolution ? '🙈 Ocultar solución' : '💡 Ver solución'}
-              </button>
+            {bonusAwarded && (
+              <div className="completed-bonus">
+                <span className="bonus-icon">🔥</span>
+                <span>¡Reintento perfecto! +{RETRY_BONUS_XP} XP bonus</span>
+              </div>
             )}
-            <button
-              className="lesson-retry-btn ui-jitter"
-              onClick={handleRetryLesson}
-              type="button"
-            >
-              🔄 Repetir lección
-            </button>
-            <button
-              className="lesson-back-btn ui-jitter"
-              onClick={() => navigate('/dashboard', { state: { fromLesson: true } })}
-              type="button"
-            >
-              {t('lesson.backDashboard')}
-            </button>
-          </div>
 
-          {solutionUnavailable && (
-            <p className="exercise-editor-flag-note lesson-inline-note">{t('lesson.solutionUnavailable')}</p>
-          )}
+            {isRetry && !wasPerfect && (
+              <p className="completed-hint">
+                Tuviste {errorsInAttempt} error{errorsInAttempt > 1 ? 'es' : ''}.
+                ¡Repite la lección sin errores para ganar el bonus!
+              </p>
+            )}
 
-          {showSolution && solution && (
-            <div className="lesson-solution-panel">
-              <h3 className="solution-title">💡 Solución oficial</h3>
-              {solution.explanation && (
-                <p className="solution-explanation">{solution.explanation}</p>
-              )}
-              <pre className="solution-code">
-                <code>{solution.solved_code}</code>
-              </pre>
-            </div>
-          )}
-        </div>
-      </MotionPage>
-    )
-  }
-
-  // Teoría
-  if (currentStep === 'theory') {
-    const alreadyCompleted = exercises.length > 0 && exercises[0]?.resuelto === true
-
-    return (
-      <MotionPage className="lesson-page" delay={0.06}>
-        <div className="lesson-container">
-          <div className="lesson-header">
-            <button className="lesson-back-link" onClick={() => navigate('/dashboard')} type="button">
-              <IoMdArrowRoundBack /> {t('lesson.back')}
-            </button>
-            <span className="lesson-modulo">{lesson.modulo_nombre}</span>
-          </div>
-
-          <h1 className="lesson-title">{lesson.titulo}</h1>
-
-          {alreadyCompleted && (
-            <div className="lesson-completed-badge">
-              ✅ Ya completaste esta lección
-            </div>
-          )}
-
-          {lesson.contenido_teoria ? (
-            <TheoryContent html={lesson.contenido_teoria} language={editorLanguage} />
-          ) : (
-            <div className="lesson-theory">
-              <p>{lesson.descripcion}</p>
-            </div>
-          )}
-
-          <div className="lesson-actions">
-            {alreadyCompleted ? (
-              <>
-                <button className="lesson-solution-btn ui-jitter" onClick={handleViewSolution} disabled={loadingSolution || solutionUnavailable} type="button">
+            <div className="completed-actions">
+              {errorsInAttempt > 0 && (
+                <button
+                  className="lesson-solution-btn ui-jitter"
+                  onClick={handleViewSolution}
+                  disabled={loadingSolution || solutionUnavailable}
+                  type="button"
+                >
                   {loadingSolution ? '⏳ Cargando...' : showSolution ? '🙈 Ocultar solución' : '💡 Ver solución'}
                 </button>
-                <button className="lesson-start-btn lesson-retry-btn ui-jitter" onClick={handleRetryLesson} type="button">
-                  🔄 Repetir lección
-                </button>
-              </>
-            ) : (
-              <button className="lesson-start-btn ui-jitter" onClick={handleStartExercises} type="button">
-                {exercises.length > 0 ? t('lesson.startExercises') : t('lesson.completeLesson')}
+              )}
+              <button
+                className="lesson-retry-btn ui-jitter"
+                onClick={handleRetryLesson}
+                type="button"
+              >
+                🔄 Repetir lección
               </button>
-            )}
+            </div>
 
             {solutionUnavailable && (
               <p className="exercise-editor-flag-note lesson-inline-note">{t('lesson.solutionUnavailable')}</p>
@@ -601,8 +533,77 @@ function LessonPage() {
               </div>
             )}
           </div>
-        </div>
-      </MotionPage>
+        </MotionPage>
+      </SidebarLayout>
+    )
+  }
+
+  // Teoría
+  if (currentStep === 'theory') {
+    const alreadyCompleted = exercises.length > 0 && exercises[0]?.resuelto === true
+
+    return (
+      <SidebarLayout>
+        <MotionPage className="lesson-page" delay={0.06}>
+          <div className="lesson-container">
+            <div className="lesson-header">
+              <button className="lesson-back-link" onClick={() => navigate('/modules')} type="button">
+                <IoMdArrowRoundBack /> {t('lesson.back')}
+              </button>
+              <span className="lesson-modulo">{lesson.modulo_nombre}</span>
+            </div>
+
+            <h1 className="lesson-title">{lesson.titulo}</h1>
+
+            {alreadyCompleted && (
+              <div className="lesson-completed-badge">
+                ✅ Ya completaste esta lección
+              </div>
+            )}
+
+            {lesson.contenido_teoria ? (
+              <TheoryContent html={lesson.contenido_teoria} language={editorLanguage} />
+            ) : (
+              <div className="lesson-theory">
+                <p>{lesson.descripcion}</p>
+              </div>
+            )}
+
+            <div className="lesson-actions">
+              {alreadyCompleted ? (
+                <>
+                  <button className="lesson-solution-btn ui-jitter" onClick={handleViewSolution} disabled={loadingSolution || solutionUnavailable} type="button">
+                    {loadingSolution ? '⏳ Cargando...' : showSolution ? '🙈 Ocultar solución' : '💡 Ver solución'}
+                  </button>
+                  <button className="lesson-start-btn lesson-retry-btn ui-jitter" onClick={handleRetryLesson} type="button">
+                    🔄 Repetir lección
+                  </button>
+                </>
+              ) : (
+                <button className="lesson-start-btn ui-jitter" onClick={handleStartExercises} type="button">
+                  {exercises.length > 0 ? t('lesson.startExercises') : t('lesson.completeLesson')}
+                </button>
+              )}
+
+              {solutionUnavailable && (
+                <p className="exercise-editor-flag-note lesson-inline-note">{t('lesson.solutionUnavailable')}</p>
+              )}
+
+              {showSolution && solution && (
+                <div className="lesson-solution-panel">
+                  <h3 className="solution-title">💡 Solución oficial</h3>
+                  {solution.explanation && (
+                    <p className="solution-explanation">{solution.explanation}</p>
+                  )}
+                  <pre className="solution-code">
+                    <code>{solution.solved_code}</code>
+                  </pre>
+                </div>
+              )}
+            </div>
+          </div>
+        </MotionPage>
+      </SidebarLayout>
     )
   }
 
@@ -610,212 +611,214 @@ function LessonPage() {
   const options = currentExercise?.opciones || []
 
   return (
-    <MotionPage className="lesson-page" delay={0.06}>
-      <div className="lesson-container">
-        <div className="exercise-header">
-          <span className="exercise-progress">
-            {t('lesson.exerciseProgress', { current: currentExerciseIdx + 1, total: exercises.length })}
-          </span>
-          {isRetry && (
-            <span className="exercise-retry-badge">🔄 Reintento</span>
-          )}
-          <div className="exercise-progress-bar">
-            <div
-              className="exercise-progress-fill"
-              style={{ width: `${((currentExerciseIdx + 1) / exercises.length) * 100}%` }}
-            />
+    <SidebarLayout>
+      <MotionPage className="lesson-page" delay={0.06}>
+        <div className="lesson-container">
+          <div className="exercise-header">
+            <span className="exercise-progress">
+              {t('lesson.exerciseProgress', { current: currentExerciseIdx + 1, total: exercises.length })}
+            </span>
+            {isRetry && (
+              <span className="exercise-retry-badge">🔄 Reintento</span>
+            )}
+            <div className="exercise-progress-bar">
+              <div
+                className="exercise-progress-fill"
+                style={{ width: `${((currentExerciseIdx + 1) / exercises.length) * 100}%` }}
+              />
+            </div>
           </div>
-        </div>
 
-        <div className="exercise-content">
-          <span className="exercise-type-badge">
-            {currentExercise.tipo === 'opcion_multiple'
-              ? t('lesson.exerciseType.multi')
-              : currentExercise.tipo === 'verdadero_falso'
-                ? t('lesson.exerciseType.trueFalse')
-                : currentExercise.tipo === 'completar_codigo'
-                  ? t('lesson.exerciseType.code')
-                  : currentExercise.tipo}
-          </span>
-          <h2 className="exercise-question">{currentExercise.enunciado}</h2>
+          <div className="exercise-content">
+            <span className="exercise-type-badge">
+              {currentExercise.tipo === 'opcion_multiple'
+                ? t('lesson.exerciseType.multi')
+                : currentExercise.tipo === 'verdadero_falso'
+                  ? t('lesson.exerciseType.trueFalse')
+                  : currentExercise.tipo === 'completar_codigo'
+                    ? t('lesson.exerciseType.code')
+                    : currentExercise.tipo}
+            </span>
+            <h2 className="exercise-question">{currentExercise.enunciado}</h2>
 
-          {currentExercise.codigo_base && (
-            <pre className="exercise-code">
-              <code>{currentExercise.codigo_base}</code>
-            </pre>
-          )}
+            {currentExercise.codigo_base && (
+              <pre className="exercise-code">
+                <code>{currentExercise.codigo_base}</code>
+              </pre>
+            )}
 
-          {/* Opciones para opcion_multiple y verdadero_falso */}
-          {(currentExercise.tipo === 'opcion_multiple' || currentExercise.tipo === 'verdadero_falso') && (
-            <div className="exercise-options">
-              {options.map((opt, idx) => (
-                <button
-                  key={idx}
-                  className={`exercise-option ${
-                    selectedAnswer === opt ? 'selected' : ''
-                  } ${
-                    feedback
-                      ? opt === selectedAnswer
-                        ? feedback.isCorrect
-                          ? 'correct'
-                          : 'incorrect'
+            {/* Opciones para opcion_multiple y verdadero_falso */}
+            {(currentExercise.tipo === 'opcion_multiple' || currentExercise.tipo === 'verdadero_falso') && (
+              <div className="exercise-options">
+                {options.map((opt, idx) => (
+                  <button
+                    key={idx}
+                    className={`exercise-option ${
+                      selectedAnswer === opt ? 'selected' : ''
+                    } ${
+                      feedback
+                        ? opt === selectedAnswer
+                          ? feedback.isCorrect
+                            ? 'correct'
+                            : 'incorrect'
+                          : ''
                         : ''
-                      : ''
-                  }`}
-                  onClick={() => !feedback && setSelectedAnswer(opt)}
-                  type="button"
-                  disabled={!!feedback}
-                >
-                  {opt}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Input para completar_codigo */}
-          {currentExercise.tipo === 'completar_codigo' && (
-            <div className="exercise-code-input">
-              {executionUnavailable && (
-                <p className="exercise-editor-flag-note lesson-inline-note">{t('lesson.executionUnavailableHint')}</p>
-              )}
-
-              {shouldRenderMonaco ? (
-                <Suspense fallback={<EditorLoadingSkeleton />}>
-                  <MonacoEditor
-                    value={codeAnswer}
-                    onChange={setCodeAnswer}
-                    language={editorLanguage}
-                    languageLabel={editorLanguageLabel}
-                    theme="vs-dark"
-                    height="clamp(180px, 28vh, 400px)"
-                    readOnly={!!feedback}
-                    options={monacoOptions}
-                    onRun={canExecuteCode ? handleRunCode : undefined}
-                    isExecuting={isExecuting}
-                    consoleOutput={consoleOutput}
-                    runLabel={t('lesson.runCode')}
-                    runningLabel={t('lesson.runningCode')}
-                    outputLabel={t('lesson.outputTitle')}
-                    outputEmptyLabel={t('lesson.outputEmpty')}
-                    shortcutHint={t('lesson.runShortcut')}
-                    ariaLabel={t('lesson.codeEditorAria')}
-                    loadingLabel={t('lesson.editorLoadLabel')}
-                    editorErrorLabel={t('lesson.editorFallbackNotice')}
-                    placeholder={t('lesson.answerPlaceholder')}
-                    onEditorError={handleEditorLoadError}
-                    celebrationTick={runCelebrationTick}
-                  />
-                </Suspense>
-              ) : (
-                <div className="exercise-code-fallback">
-                  <label htmlFor="lesson-code-fallback" className="sr-only">
-                    {t('lesson.codeEditorAria')}
-                  </label>
-                  {isMobileFallback && FEATURE_CODE_EXECUTION_ENABLED && (
-                    <p className="exercise-editor-flag-note">{t('lesson.mobileFallbackNotice')}</p>
-                  )}
-                  {!FEATURE_CODE_EXECUTION_ENABLED && (
-                    <p className="exercise-editor-flag-note">{t('lesson.executionDisabled')}</p>
-                  )}
-                  <textarea
-                    id="lesson-code-fallback"
-                    value={codeAnswer}
-                    onChange={(event) => setCodeAnswer(event.target.value)}
-                    onKeyDown={handleFallbackCodeKeyDown}
-                    placeholder={t('lesson.answerPlaceholder')}
-                    rows={10}
+                    }`}
+                    onClick={() => !feedback && setSelectedAnswer(opt)}
+                    type="button"
                     disabled={!!feedback}
-                    className="code-textarea"
-                  />
+                  >
+                    {opt}
+                  </button>
+                ))}
+              </div>
+            )}
 
-                  {canExecuteCode && (
-                    <>
-                      <div className="exercise-code-fallback-actions">
-                        <button
-                          type="button"
-                          className={`monaco-run-btn ${isExecuting ? 'is-running' : ''}`}
-                          disabled={isExecuting || !!feedback}
-                          onClick={handleRunCode}
-                        >
-                          {isExecuting ? (
-                            <span className="btn-content-loading">
-                              <span className="mini-spinner" />
-                              {t('lesson.runningCode')}
-                            </span>
-                          ) : (
-                            t('lesson.runCode')
-                          )}
-                        </button>
-                        <span className="exercise-code-shortcut">{t('lesson.runShortcut')}</span>
-                      </div>
+            {/* Input para completar_codigo */}
+            {currentExercise.tipo === 'completar_codigo' && (
+              <div className="exercise-code-input">
+                {executionUnavailable && (
+                  <p className="exercise-editor-flag-note lesson-inline-note">{t('lesson.executionUnavailableHint')}</p>
+                )}
 
-                      <Motion.div
-                        className="monaco-console"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.2 }}
-                        role="status"
-                        aria-live="polite"
-                      >
-                        <div className="monaco-console__header">
-                          <h3>{t('lesson.outputTitle')}</h3>
+                {shouldRenderMonaco ? (
+                  <Suspense fallback={<EditorLoadingSkeleton />}>
+                    <MonacoEditor
+                      value={codeAnswer}
+                      onChange={setCodeAnswer}
+                      language={editorLanguage}
+                      languageLabel={editorLanguageLabel}
+                      theme="vs-dark"
+                      height="clamp(180px, 28vh, 400px)"
+                      readOnly={!!feedback}
+                      options={monacoOptions}
+                      onRun={canExecuteCode ? handleRunCode : undefined}
+                      isExecuting={isExecuting}
+                      consoleOutput={consoleOutput}
+                      runLabel={t('lesson.runCode')}
+                      runningLabel={t('lesson.runningCode')}
+                      outputLabel={t('lesson.outputTitle')}
+                      outputEmptyLabel={t('lesson.outputEmpty')}
+                      shortcutHint={t('lesson.runShortcut')}
+                      ariaLabel={t('lesson.codeEditorAria')}
+                      loadingLabel={t('lesson.editorLoadLabel')}
+                      editorErrorLabel={t('lesson.editorFallbackNotice')}
+                      placeholder={t('lesson.answerPlaceholder')}
+                      onEditorError={handleEditorLoadError}
+                      celebrationTick={runCelebrationTick}
+                    />
+                  </Suspense>
+                ) : (
+                  <div className="exercise-code-fallback">
+                    <label htmlFor="lesson-code-fallback" className="sr-only">
+                      {t('lesson.codeEditorAria')}
+                    </label>
+                    {isMobileFallback && FEATURE_CODE_EXECUTION_ENABLED && (
+                      <p className="exercise-editor-flag-note">{t('lesson.mobileFallbackNotice')}</p>
+                    )}
+                    {!FEATURE_CODE_EXECUTION_ENABLED && (
+                      <p className="exercise-editor-flag-note">{t('lesson.executionDisabled')}</p>
+                    )}
+                    <textarea
+                      id="lesson-code-fallback"
+                      value={codeAnswer}
+                      onChange={(event) => setConsoleOutput([]) || setCodeAnswer(event.target.value)}
+                      onKeyDown={handleFallbackCodeKeyDown}
+                      placeholder={t('lesson.answerPlaceholder')}
+                      rows={10}
+                      disabled={!!feedback}
+                      className="code-textarea"
+                    />
+
+                    {canExecuteCode && (
+                      <>
+                        <div className="exercise-code-fallback-actions">
+                          <button
+                            type="button"
+                            className={`monaco-run-btn ${isExecuting ? 'is-running' : ''}`}
+                            disabled={isExecuting || !!feedback}
+                            onClick={handleRunCode}
+                          >
+                            {isExecuting ? (
+                              <span className="btn-content-loading">
+                                <span className="mini-spinner" />
+                                {t('lesson.runningCode')}
+                              </span>
+                            ) : (
+                              t('lesson.runCode')
+                            )}
+                          </button>
+                          <span className="exercise-code-shortcut">{t('lesson.runShortcut')}</span>
                         </div>
-                        {consoleOutput.length === 0 ? (
-                          <p className="monaco-console-empty">{t('lesson.outputEmpty')}</p>
-                        ) : (
-                          <pre>
-                            <code>{consoleOutput.join('\n')}</code>
-                          </pre>
-                        )}
-                      </Motion.div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
-          )}
-        </div>
 
-        {feedback && (
-          <div className={`exercise-feedback ${feedback.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`}>
-            <strong>{feedback.isCorrect ? t('lesson.correct') : t('lesson.incorrect')}</strong>
-            {!feedback.isCorrect && feedback.hint && <p className="feedback-hint">💡 {t('lesson.hint')}: {feedback.hint}</p>}
-            {!feedback.isCorrect && feedback.correctAnswer && (
-              <p className="feedback-answer">{t('lesson.correctAnswer')}: {feedback.correctAnswer}</p>
+                        <Motion.div
+                          className="monaco-console"
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.2 }}
+                          role="status"
+                          aria-live="polite"
+                        >
+                          <div className="monaco-console__header">
+                            <h3>{t('lesson.outputTitle')}</h3>
+                          </div>
+                          {consoleOutput.length === 0 ? (
+                            <p className="monaco-console-empty">{t('lesson.outputEmpty')}</p>
+                          ) : (
+                            <pre>
+                              <code>{consoleOutput.join('\n')}</code>
+                            </pre>
+                          )}
+                        </Motion.div>
+                      </>
+                    )}
+                  </div>
+                )}
+              </div>
             )}
           </div>
-        )}
 
-        <div className="exercise-actions">
-          {!feedback ? (
-            <button
-              className="exercise-submit-btn"
-              onClick={handleSubmitExercise}
-              disabled={
-                submitting ||
-                (currentExercise.tipo === 'completar_codigo'
-                  ? !codeAnswer.trim()
-                  : selectedAnswer === null)
-              }
-              type="button"
-            >
-              {submitting ? (
-                <span className="btn-content-loading">
-                  <span className="mini-spinner" />
-                  {t('lesson.checking')}
-                </span>
-              ) : (
-                t('lesson.check')
+          {feedback && (
+            <div className={`exercise-feedback ${feedback.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`}>
+              <strong>{feedback.isCorrect ? t('lesson.correct') : t('lesson.incorrect')}</strong>
+              {!feedback.isCorrect && feedback.hint && <p className="feedback-hint">💡 {t('lesson.hint')}: {feedback.hint}</p>}
+              {!feedback.isCorrect && feedback.correctAnswer && (
+                <p className="feedback-answer">{t('lesson.correctAnswer')}: {feedback.correctAnswer}</p>
               )}
-            </button>
-          ) : (
-            <button className="exercise-next-btn" onClick={handleNextExercise} type="button">
-              {currentExerciseIdx < exercises.length - 1 ? t('lesson.next') : t('lesson.finish')}
-            </button>
+            </div>
           )}
+
+          <div className="exercise-actions">
+            {!feedback ? (
+              <button
+                className="exercise-submit-btn"
+                onClick={handleSubmitExercise}
+                disabled={
+                  submitting ||
+                  (currentExercise.tipo === 'completar_codigo'
+                    ? !codeAnswer.trim()
+                    : selectedAnswer === null)
+                }
+                type="button"
+              >
+                {submitting ? (
+                  <span className="btn-content-loading">
+                    <span className="mini-spinner" />
+                    {t('lesson.checking')}
+                  </span>
+                ) : (
+                  t('lesson.check')
+                )}
+              </button>
+            ) : (
+              <button className="exercise-next-btn" onClick={handleNextExercise} type="button">
+                {currentExerciseIdx < exercises.length - 1 ? t('lesson.next') : t('lesson.finish')}
+              </button>
+            )}
+          </div>
         </div>
-      </div>
-    </MotionPage>
+      </MotionPage>
+    </SidebarLayout>
   )
 }
 

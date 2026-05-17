@@ -106,6 +106,18 @@ export async function getDashboardOverview() {
   return requestJson('/api/learning/dashboard')
 }
 
+export async function joinClassWithCode(code) {
+  const normalizedCode = String(code || '').trim().toUpperCase()
+  if (!normalizedCode) {
+    throw new Error('Debes ingresar un código de invitación.')
+  }
+
+  return requestJson('/api/learning/progress/join-class', {
+    method: 'POST',
+    body: JSON.stringify({ code: normalizedCode }),
+  })
+}
+
 export async function getModulesByLanguage(languageId) {
   const normalizedLanguageId = parsePositiveInt(languageId)
   if (!normalizedLanguageId) {

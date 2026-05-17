@@ -104,13 +104,6 @@ function ProfilePage() {
           <div className="profile-header-actions">
             <button
               type="button"
-              className="profile-back-btn"
-              onClick={() => navigate('/dashboard')}
-            >
-              {t('profile.backDashboard')}
-            </button>
-            <button
-              type="button"
               className="profile-settings-btn"
               onClick={() => navigate('/profile/edit')}
               aria-label={t('profile.editButton')}

@@ -4,7 +4,6 @@ import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
-import { useRole } from '../hooks/useRole'
 import { getAdminAnalytics, listAdminUsers, updateAdminUser } from '../services/rbacApi'
 import { notifyError, notifySuccess } from '../utils/notify'
 
@@ -22,7 +21,6 @@ function buildDrafts(users) {
 
 function AdminDashboardPage() {
   const navigate = useNavigate()
-  const { role } = useRole()
   const { t } = useLanguage()
 
   const [users, setUsers] = useState([])
@@ -169,22 +167,6 @@ function AdminDashboardPage() {
       <Navbar title={t('admin.title')} hideActions />
 
       <section className="rbac-page">
-        <div className="rbac-header">
-        <div>
-          <p className="rbac-kicker">{t('route.rolePanel')}</p>
-          <h1>{t('admin.header')}</h1>
-          <p className="rbac-subtitle">
-            {t('admin.subtitle')}
-          </p>
-        </div>
-        <div className="rbac-actions-inline">
-          <span className="rbac-role-chip">{t('admin.currentRole', { role })}</span>
-          <button type="button" onClick={() => navigate('/dashboard')}>
-            {t('admin.backDashboard')}
-          </button>
-        </div>
-      </div>
-
       <section className="rbac-card ai-admin-entry">
         <div className="rbac-section-head">
           <h2>{t('admin.ai.toolsTitle')}</h2>
