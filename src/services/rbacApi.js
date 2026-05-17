@@ -170,6 +170,17 @@ export async function updateAdminUser({ userId, role, isActive }) {
   })
 }
 
+export async function deleteAdminUser(userId) {
+  const normalizedUserId = parsePositiveInt(userId)
+  if (!normalizedUserId) {
+    throw new Error('Usuario no válido para eliminar.')
+  }
+
+  return requestJson(`/api/admin/users/${normalizedUserId}`, {
+    method: 'DELETE',
+  })
+}
+
 export async function getAdminAnalytics() {
   return requestJson('/api/admin/analytics')
 }

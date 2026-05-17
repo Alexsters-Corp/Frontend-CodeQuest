@@ -310,28 +310,18 @@ function DashboardPage() {
       <div className="dashboard-content-layout">
       <div className="dashboard-main">
           <section className="dashboard-languages" id="dashboard-languages">
-            <div className="section-header">
-              <h2>{t('dashboard.myLanguages')}</h2>
-              <div className="section-actions">
-                <button
-                  className="join-class-btn"
-                  onClick={() => setShowJoinModal(true)}
-                  type="button"
-                >
-                  {t('dashboard.joinClass')}
-                </button>
-                <button
-                  className="add-language-btn"
-                  onClick={() => {
-                    notifyPending(t('dashboard.addLanguageHint'))
-                    navigate('/onboarding/language')
-                  }}
-                  type="button"
-                >
-                  {t('dashboard.addLanguage')}
-                </button>
+              <div className="section-header">
+                <h2>{t('dashboard.myLanguages')}</h2>
+                <div className="section-actions">
+                  <button
+                    className="join-class-btn"
+                    onClick={() => setShowJoinModal(true)}
+                    type="button"
+                  >
+                    {t('dashboard.joinClass')}
+                  </button>
+                </div>
               </div>
-            </div>
 
             {loading ? (
               <div className="dashboard-loading-container">
@@ -398,9 +388,6 @@ function DashboardPage() {
             ) : (
               <div className="empty-state">
                 <p>{t('dashboard.emptyLanguages')}</p>
-                <button onClick={() => navigate('/onboarding/language')} type="button">
-                  {t('dashboard.pickLanguage')}
-                </button>
               </div>
             )}
           </section>
