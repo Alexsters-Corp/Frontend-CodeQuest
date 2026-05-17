@@ -31,13 +31,13 @@ const CONTENT_MODEL_OPTIONS = Object.freeze([
 ])
 
 const JUDGE0_LANGUAGE_OPTIONS = Object.freeze([
-  { id: 63, labelKey: 'admin.ai.language.javascript', monaco: 'javascript' },
-  { id: 71, labelKey: 'admin.ai.language.python3', monaco: 'python' },
-  { id: 62, labelKey: 'admin.ai.language.java', monaco: 'java' },
-  { id: 54, labelKey: 'admin.ai.language.cpp', monaco: 'cpp' },
-  { id: 51, labelKey: 'admin.ai.language.csharp', monaco: 'csharp' },
-  { id: 60, labelKey: 'admin.ai.language.go', monaco: 'go' },
-  { id: 72, labelKey: 'admin.ai.language.ruby', monaco: 'ruby' },
+  { id: 63, labelKey: 'admin.ai.language.javascript', monaco: 'javascript', icon: '🟨' },
+  { id: 71, labelKey: 'admin.ai.language.python3', monaco: 'python', icon: '🐍' },
+  { id: 62, labelKey: 'admin.ai.language.java', monaco: 'java', icon: '☕' },
+  { id: 54, labelKey: 'admin.ai.language.cpp', monaco: 'cpp', icon: '⚙️' },
+  { id: 51, labelKey: 'admin.ai.language.csharp', monaco: 'csharp', icon: '🟦' },
+  { id: 60, labelKey: 'admin.ai.language.go', monaco: 'go', icon: '🐹' },
+  { id: 72, labelKey: 'admin.ai.language.ruby', monaco: 'ruby', icon: '💎' },
 ])
 
 const GUIDE_TYPES = Object.freeze({
@@ -422,7 +422,7 @@ function AdminAiPage() {
 
   const [lessonForm, setLessonForm] = useState({
     topic: '',
-    language: '',
+    languageId: '63',
     level: 'beginner',
     model: RECOMMENDED_MODEL,
   })
@@ -450,6 +450,21 @@ function AdminAiPage() {
 
   async function handleLessonSubmit(event) {
     event.preventDefault()
+    
+    // Validación
+    if (!lessonForm.topic.trim()) {
+      notifyError(t('admin.ai.error.topicRequired'))
+      return
+    }
+    if (!lessonForm.languageId) {
+      notifyError(t('admin.ai.error.languageRequired'))
+      return
+    }
+    if (!lessonForm.level) {
+      notifyError(t('admin.ai.error.levelRequired'))
+      return
+    }
+    
     setLessonLoading(true)
     setLessonError('')
     setLessonResult(null)
@@ -469,6 +484,21 @@ function AdminAiPage() {
 
   async function handleExerciseSubmit(event) {
     event.preventDefault()
+    
+    // Validación
+    if (!exerciseForm.concept.trim()) {
+      notifyError(t('admin.ai.error.conceptRequired'))
+      return
+    }
+    if (!exerciseForm.languageId) {
+      notifyError(t('admin.ai.error.languageRequired'))
+      return
+    }
+    if (!exerciseForm.difficulty) {
+      notifyError(t('admin.ai.error.difficultyRequired'))
+      return
+    }
+    
     setExerciseLoading(true)
     setExerciseError('')
     setExerciseResult(null)
@@ -490,6 +520,13 @@ function AdminAiPage() {
 
   async function handleValidationSubmit(event) {
     event.preventDefault()
+    
+    // Validación
+    if (!validationForm.content.trim()) {
+      notifyError(t('admin.ai.error.contentRequired'))
+      return
+    }
+    
     setValidationLoading(true)
     setValidationError('')
     setValidationResult(null)
@@ -553,9 +590,6 @@ function AdminAiPage() {
             <button type="button" onClick={() => navigate('/admin')}>
               {t('admin.ai.backAdmin')}
             </button>
-            <button type="button" onClick={() => navigate('/dashboard')}>
-              {t('admin.backDashboard')}
-            </button>
           </div>
         </div>
 
@@ -581,16 +615,20 @@ function AdminAiPage() {
               />
 
               <label htmlFor="ai-language">{t('admin.ai.field.language')}</label>
-              <input
+              <select
                 id="ai-language"
-                type="text"
-                value={lessonForm.language}
+                value={lessonForm.languageId}
                 onChange={(event) => setLessonForm((previous) => ({
                   ...previous,
-                  language: event.target.value,
+                  languageId: event.target.value,
                 }))}
-                placeholder={t('admin.ai.placeholder.language')}
-              />
+              >
+                {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+                  <option key={option.id} value={option.id}>
+                    {option.icon} {t(option.labelKey)}
+                  </option>
+                ))}
+              </select>
 
               <label htmlFor="ai-level">{t('admin.ai.field.level')}</label>
               <select
@@ -633,8 +671,8 @@ function AdminAiPage() {
                 result={lessonResult}
                 title={lessonResult?.title || t('admin.ai.lesson.untitled')}
                 difficulty={lessonForm.level}
-                languageLabel={lessonForm.language}
-                monacoLanguage={normalizeMonacoLanguage(lessonForm.language)}
+                languageLabel={getLanguageLabel(lessonForm.languageId, t)}
+                monacoLanguage={monacoFromJudge0Id(lessonForm.languageId)}
                 model={lessonForm.model}
                 onSendToValidator={sendLessonToValidator}
                 onDiscard={() => setLessonResult(null)}
@@ -688,7 +726,7 @@ function AdminAiPage() {
               >
                 {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
                   <option key={option.id} value={option.id}>
-                    {option.id} — {t(option.labelKey)}
+                    {option.icon} {t(option.labelKey)}
                   </option>
                 ))}
               </select>

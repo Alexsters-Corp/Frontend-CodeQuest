@@ -36,7 +36,8 @@ import DemoCompletionPage from './pages/DemoCompletionPage'
 
 const SIDEBAR_ROUTES = [
   '/dashboard', '/favorites', '/profile', '/ranking',
-  '/social', '/instructor', '/admin',
+  '/social', '/instructor', '/admin', '/modules',
+  '/lesson', '/diagnostic', '/onboarding',
 ]
 
 function App() {

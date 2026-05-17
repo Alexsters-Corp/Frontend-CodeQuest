@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import LoadingSpinner from '../components/LoadingSpinner'
+import SidebarLayout from '../components/SidebarLayout'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import { listAvailableLanguages, selectLanguage } from '../services/learningApi'
@@ -80,74 +81,56 @@ function OnboardingLanguagePage() {
   }
 
   return (
-    <MotionPage className="onboarding-page" delay={0.06}>
-      <div className="onboarding-container">
-        <div className="onboarding-top-actions">
-          <button
-            className="onboarding-back-btn"
-            onClick={() => navigate('/dashboard')}
-            type="button"
-            aria-label={t('onboarding.backDashboard')}
-          >
-            <span className="onboarding-back-btn__icon" aria-hidden="true">
-              <svg
-                className="onboarding-back-btn__svg"
-                viewBox="4 3 22 18"
-                focusable="false"
-              >
-                <path d="M13.2 3.7L5.1 11.8L13.2 19.9C14 20.7 15.4 20.2 15.4 19V15.2H22.1C24 15.2 25.5 13.7 25.5 11.8C25.5 9.9 24 8.4 22.1 8.4H15.4V4.6C15.4 3.4 14 2.9 13.2 3.7Z" />
-              </svg>
-            </span>
-            <span className="onboarding-back-btn__text">{t('common.back')}</span>
-          </button>
-        </div>
+    <SidebarLayout>
+      <MotionPage className="onboarding-page" delay={0.06}>
+        <div className="onboarding-container">
+          <div className="onboarding-header">
+            <span className="onboarding-step">{t('onboarding.step', { current: 1, total: 2 })}</span>
+            <h1>{t('onboarding.welcome', { name: user?.nombre || '' })}</h1>
+            <p>{t('onboarding.selectLanguage')}</p>
+          </div>
 
-        <div className="onboarding-header">
-          <span className="onboarding-step">{t('onboarding.step', { current: 1, total: 2 })}</span>
-          <h1>{t('onboarding.welcome', { name: user?.nombre || '' })}</h1>
-          <p>{t('onboarding.selectLanguage')}</p>
-        </div>
+          {loadError && <p className="onboarding-error-message">{loadError}</p>}
+          {submitError && <p className="onboarding-error-message">{submitError}</p>}
 
-        {loadError && <p className="onboarding-error-message">{loadError}</p>}
-        {submitError && <p className="onboarding-error-message">{submitError}</p>}
+          <div className="language-grid">
+            {loadingLanguages ? (
+              <div className="onboarding-loading-container">
+                <LoadingSpinner size="large" />
+                <p className="onboarding-loading-message">{t('onboarding.loadingLanguages')}</p>
+              </div>
+            ) : (
+              languages.map((lang) => (
+                <button
+                  key={lang.id}
+                  className={`language-card ${selected === lang.id ? 'language-selected' : ''}`}
+                  onClick={() => setSelected(lang.id)}
+                  type="button"
+                >
+                  <span className="language-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
+                  <span className="language-name">{lang.nombre}</span>
+                </button>
+              ))
+            )}
+          </div>
 
-        <div className="language-grid">
-          {loadingLanguages ? (
-            <div className="onboarding-loading-container">
-              <LoadingSpinner size="large" />
-              <p className="onboarding-loading-message">{t('onboarding.loadingLanguages')}</p>
-            </div>
-          ) : (
-            languages.map((lang) => (
-              <button
-                key={lang.id}
-                className={`language-card ${selected === lang.id ? 'language-selected' : ''}`}
-                onClick={() => setSelected(lang.id)}
-                type="button"
-              >
-                <span className="language-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
-                <span className="language-name">{lang.nombre}</span>
-              </button>
-            ))
+          {!loadingLanguages && languages.length === 0 && (
+            <button className="onboarding-retry-btn" onClick={loadLanguages} type="button">
+              {t('onboarding.retryLanguages')}
+            </button>
           )}
-        </div>
 
-        {!loadingLanguages && languages.length === 0 && (
-          <button className="onboarding-retry-btn" onClick={loadLanguages} type="button">
-            {t('onboarding.retryLanguages')}
+          <button
+            className="onboarding-continue-btn"
+            onClick={handleContinue}
+            disabled={!selected || loading || loadingLanguages || languages.length === 0}
+            type="button"
+          >
+            {loading ? t('onboarding.saving') : t('onboarding.continue')}
           </button>
-        )}
-
-        <button
-          className="onboarding-continue-btn"
-          onClick={handleContinue}
-          disabled={!selected || loading || loadingLanguages || languages.length === 0}
-          type="button"
-        >
-          {loading ? t('onboarding.saving') : t('onboarding.continue')}
-        </button>
-      </div>
-    </MotionPage>
+        </div>
+      </MotionPage>
+    </SidebarLayout>
   )
 }
 

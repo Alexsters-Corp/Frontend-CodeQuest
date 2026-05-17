@@ -29,12 +29,12 @@ function ensurePositiveInt(value, label) {
   return parsed
 }
 
-export async function generateLesson({ topic, language, level, model }) {
+export async function generateLesson({ topic, languageId, level, model }) {
   return requestJson('/api/admin/generate-lesson', {
     method: 'POST',
     body: JSON.stringify({
       topic: ensureText(topic, 'topic'),
-      language: ensureText(language, 'language'),
+      languageId: ensurePositiveInt(languageId, 'languageId'),
       level: ensureText(level, 'level'),
       model: ensureText(model, 'model'),
     }),

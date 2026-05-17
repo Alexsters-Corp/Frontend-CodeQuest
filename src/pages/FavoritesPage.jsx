@@ -79,9 +79,6 @@ function FavoritesPage() {
       <section className="profile-edit-card favorites-card">
         <div className="favorites-header-row">
           <h2>{t('favorites.title')}</h2>
-          <button type="button" className="profile-back-btn" onClick={() => navigate('/dashboard')}>
-            {t('favorites.backDashboard')}
-          </button>
         </div>
 
         {loading ? (

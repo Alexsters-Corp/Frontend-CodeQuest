@@ -70,6 +70,21 @@ export async function createInstructorClass({ name, description }) {
   })
 }
 
+export async function updateInstructorClass({ id, name, description }) {
+  const normalizedId = parsePositiveInt(id)
+  if (!normalizedId) {
+    throw new Error('Clase no válida para actualizar.')
+  }
+
+  return requestJson(`/api/instructor/classes/${normalizedId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      name: name ? String(name).trim() : undefined,
+      description: description !== undefined ? String(description || '').trim() : undefined,
+    }),
+  })
+}
+
 export async function generateClassInvite({ classId, email, expiresAt, maxUses }) {
   const normalizedClassId = parsePositiveInt(classId)
   if (!normalizedClassId) {
@@ -97,6 +112,21 @@ export async function rotateClassCode(classId) {
   const normalizedClassId = parsePositiveInt(classId)
   return requestJson(`/api/instructor/classes/${normalizedClassId}/rotate-code`, {
     method: 'POST',
+  })
+}
+
+export async function deleteInstructorClass(classId) {
+  const normalizedClassId = parsePositiveInt(classId)
+  return requestJson(`/api/instructor/classes/${normalizedClassId}`, {
+    method: 'DELETE',
+  })
+}
+
+export async function kickStudentFromClass({ classId, studentId }) {
+  const normalizedClassId = parsePositiveInt(classId)
+  const normalizedStudentId = parsePositiveInt(studentId)
+  return requestJson(`/api/instructor/classes/${normalizedClassId}/students/${normalizedStudentId}`, {
+    method: 'DELETE',
   })
 }
 

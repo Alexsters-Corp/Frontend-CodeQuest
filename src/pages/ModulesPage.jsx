@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import MotionPage from '../components/MotionPage'
 import { useLanguage } from '../context/useLanguage'
+import SidebarLayout from '../components/SidebarLayout'
 import {
   getModulesByLanguage,
   getSelectedLanguageId,
@@ -214,41 +215,35 @@ function ModulesPage() {
 
   if (loading) {
     return (
-      <MotionPage className="modules-page" delay={0.06}>
-        <div className="modules-loading">
-          <div className="spinner" />
-          <p>{t('modules.loading')}</p>
-        </div>
-      </MotionPage>
+      <SidebarLayout>
+        <MotionPage className="modules-page" delay={0.06}>
+          <div className="modules-loading">
+            <div className="spinner" />
+            <p>{t('modules.loading')}</p>
+          </div>
+        </MotionPage>
+      </SidebarLayout>
     )
   }
 
   return (
-    <MotionPage className="modules-page" delay={0.06}>
-      <div className="modules-container">
-        <div className="modules-header">
-          <button className="modules-back" onClick={() => navigate('/dashboard')} type="button">
-            <IoMdArrowRoundBack /> {t('modules.back')}
-          </button>
-          <h1>{t('modules.title')}</h1>
-          <button className="modules-back" onClick={() => navigate('/favorites')} type="button">
-            {t('favorites.title')}
-          </button>
-        </div>
+    <SidebarLayout>
+      <MotionPage className="modules-page" delay={0.06}>
+        <div className="modules-container">
+          <div className="modules-header">
+            <h1>{t('modules.title')}</h1>
+          </div>
 
-        <div className="modules-list">
-          {loadError && <p className="modules-error-message">{loadError}</p>}
+          <div className="modules-list">
+            {loadError && <p className="modules-error-message">{loadError}</p>}
 
-          {!loadError && modules.length === 0 && (
-            <div className="modules-empty-state">
-              <p>{t('modules.empty')}</p>
-              <button onClick={() => navigate('/dashboard')} type="button">
-                {t('modules.backDashboard')}
-              </button>
-            </div>
-          )}
+            {!loadError && modules.length === 0 && (
+              <div className="modules-empty-state">
+                <p>{t('modules.empty')}</p>
+              </div>
+            )}
 
-          {modules.map((mod) => (
+            {modules.map((mod) => (
             <div key={mod.id} className={`module-card module-${mod.estado}`}>
               <button
                 className="module-header-btn"
@@ -340,6 +335,7 @@ function ModulesPage() {
         </div>
       </div>
     </MotionPage>
+    </SidebarLayout>
   )
 }
 

@@ -4,7 +4,6 @@ import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
-import { useRole } from '../hooks/useRole'
 import { getAdminAnalytics, listAdminUsers, updateAdminUser } from '../services/rbacApi'
 import { notifyError, notifySuccess } from '../utils/notify'
 
@@ -22,7 +21,6 @@ function buildDrafts(users) {
 
 function AdminDashboardPage() {
   const navigate = useNavigate()
-  const { role } = useRole()
   const { t } = useLanguage()
 
   const [users, setUsers] = useState([])

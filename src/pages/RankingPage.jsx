@@ -19,7 +19,6 @@ function RankingPage() {
   const [searchParams, setSearchParams] = useSearchParams()
   const [scope, setScope] = useState(() => parseScopeParam(searchParams.get('scope')))
   const [entries, setEntries] = useState([])
-  const [counts, setCounts] = useState({ followers: 0, following: 0 })
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
   const [pendingUsername, setPendingUsername] = useState('')
@@ -45,7 +44,6 @@ function RankingPage() {
     try {
       const data = await getLeaderboard(currentScope)
       setEntries(Array.isArray(data.entries) ? data.entries : [])
-      setCounts(data.counts || { followers: 0, following: 0 })
     } catch (error) {
       const message = error.message || t('ranking.loadError')
       setErrorMessage(message)
@@ -93,11 +91,6 @@ function RankingPage() {
           <div className="profile-edit-header">
             <h2>{t('ranking.subtitle')}</h2>
             <p>{t('ranking.description')}</p>
-          </div>
-
-          <div className="ranking-chip-group">
-            <span className="ranking-chip">{t('social.followingCount', { count: counts.following || 0 })}</span>
-            <span className="ranking-chip">{t('social.followersCount', { count: counts.followers || 0 })}</span>
           </div>
         </div>
 
