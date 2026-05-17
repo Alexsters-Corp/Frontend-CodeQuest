@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 import { IoMdHelpCircleOutline } from 'react-icons/io'
+import { createPortal } from 'react-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
@@ -100,6 +101,54 @@ function GuideButton({ type, onOpen, t }) {
       <IoMdHelpCircleOutline aria-hidden="true" />
       {t('admin.ai.guide.button')}
     </button>
+  )
+}
+
+function IconTooltipButton({ tooltip, buttonClassName = '', children, onClick, disabled, type = 'button', ariaLabel, stopPropagation = false }) {
+  const [tooltipState, setTooltipState] = useState(null)
+
+  const showTooltip = (event) => {
+    const rect = event.currentTarget.getBoundingClientRect()
+    const placeAbove = rect.top > 76
+    setTooltipState({
+      left: rect.left + rect.width / 2,
+      top: placeAbove ? rect.top - 8 : rect.bottom + 8,
+      placement: placeAbove ? 'above' : 'below',
+    })
+  }
+
+  const hideTooltip = () => setTooltipState(null)
+
+  const handleClick = (event) => {
+    if (stopPropagation) event.stopPropagation()
+    if (onClick) onClick(event)
+  }
+
+  return (
+    <span className="icon-tooltip-wrap">
+      <button
+        type={type}
+        className={buttonClassName}
+        onClick={handleClick}
+        onMouseEnter={showTooltip}
+        onMouseLeave={hideTooltip}
+        onFocus={showTooltip}
+        onBlur={hideTooltip}
+        disabled={disabled}
+        aria-label={ariaLabel || tooltip}
+      >
+        {children}
+      </button>
+      {tooltipState && createPortal(
+        <div
+          className={`icon-tooltip-floating ${tooltipState.placement}`}
+          style={{ left: `${tooltipState.left}px`, top: `${tooltipState.top}px` }}
+        >
+          {tooltip}
+        </div>,
+        document.body,
+      )}
+    </span>
   )
 }
 
@@ -275,6 +324,7 @@ function InstructorDashboardPage() {
   const [analytics, setAnalytics] = useState(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [analyticsError, setAnalyticsError] = useState('')
+  const [classDeleteTarget, setClassDeleteTarget] = useState(null)
 
   const [generatingInvite, setGeneratingInvite] = useState(false)
   const [revokingInvite, setRevokingInvite] = useState(false)
@@ -442,15 +492,21 @@ function InstructorDashboardPage() {
   }
 
   async function handleDeleteClass(classId) {
-    if (!window.confirm(t('instructor.confirmDeleteClass') || '¿Estás seguro de que deseas eliminar esta clase?')) return
+    setClassDeleteTarget(classId)
+  }
+
+  async function confirmDeleteClass() {
+    if (!classDeleteTarget) return
     try {
+      const classId = classDeleteTarget
       await deleteInstructorClass(classId)
-      notifySuccess(t('instructor.deleteSuccess') || 'Clase eliminada con éxito')
+      notifySuccess(t('instructor.deleteSuccess') || 'Clase eliminada correctamente.')
       if (Number(selectedClassId) === Number(classId)) {
         setSelectedClassId(null)
         setAnalytics(null)
       }
       await loadData()
+      setClassDeleteTarget(null)
     } catch (error) {
       notifyError(error.message || 'Error al eliminar la clase')
     }
@@ -595,20 +651,19 @@ function InstructorDashboardPage() {
       <Navbar title={t('instructor.title')} hideActions />
 
       <section className="rbac-page instructor-v3">
-        <div className="rbac-header" style={{ marginBottom: '2rem' }}>
-          <div>
-            <p className="rbac-kicker">Panel de Control</p>
-            <h1>Gestión Académica e IA</h1>
-            <p className="rbac-subtitle">Administra tus grupos, supervisa el progreso de tus alumnos y genera contenido con inteligencia artificial.</p>
-          </div>
-        </div>
-
         <div className="instructor-3-blocks-grid">
           {/* Bloque 1: Mis Clases */}
           <section ref={classesRef} className="rbac-card block-classes">
             <div className="rbac-section-head">
               <h2>📚 {t('instructor.myClasses')}</h2>
-              <button className="rbac-btn-refresh" type="button" onClick={loadData} disabled={loading}>↻</button>
+              <IconTooltipButton
+                tooltip={t('instructor.refreshClasses') || 'Actualizar clases'}
+                buttonClassName="rbac-btn-refresh"
+                onClick={loadData}
+                disabled={loading}
+              >
+                ↻
+              </IconTooltipButton>
             </div>
             <p className="rbac-muted" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>Crea grupos para organizar a tus estudiantes y generar códigos de acceso únicos.</p>
 
@@ -619,9 +674,14 @@ function InstructorDashboardPage() {
                 placeholder={t('instructor.classNamePlaceholder')}
                 disabled={creatingClass}
               />
-              <button type="submit" disabled={creatingClass || !newClassName.trim()} title={t('instructor.createClass')}>
+              <IconTooltipButton
+                tooltip={t('instructor.createClass')}
+                buttonClassName="rbac-class-add-btn"
+                type="submit"
+                disabled={creatingClass || !newClassName.trim()}
+              >
                 {creatingClass ? '...' : '+'}
-              </button>
+              </IconTooltipButton>
             </form>
 
             <div className="class-list-container">
@@ -644,31 +704,31 @@ function InstructorDashboardPage() {
                       <span>{Number(item.students_total || 0)} {t('instructor.students')}</span>
                     </div>
                     <div className="class-row-actions">
-                      <button 
-                        type="button" 
-                        className="rbac-icon-btn" 
-                        onClick={(e) => { e.stopPropagation(); handleGenerateInvite(item.id) }} 
-                        disabled={generatingInvite} 
-                        title={t('instructor.generateCode')}
+                      <IconTooltipButton
+                        tooltip={t('instructor.generateCode')}
+                        buttonClassName="rbac-icon-btn"
+                        onClick={() => handleGenerateInvite(item.id)}
+                        disabled={generatingInvite}
+                        stopPropagation
                       >
                         🔑
-                      </button>
-                      <button 
-                        type="button" 
-                        className={`rbac-icon-btn ${Number(selectedClassId) === Number(item.id) ? 'active' : ''}`} 
-                        onClick={(e) => { e.stopPropagation(); handleLoadAnalytics(item.id) }} 
-                        title={t('instructor.classSettings') || 'Configuración de clase'}
+                      </IconTooltipButton>
+                      <IconTooltipButton
+                        tooltip={t('instructor.classSettings') || 'Configuración de clase'}
+                        buttonClassName={`rbac-icon-btn ${Number(selectedClassId) === Number(item.id) ? 'active' : ''}`}
+                        onClick={() => handleLoadAnalytics(item.id)}
+                        stopPropagation
                       >
                         ⚙️
-                      </button>
-                      <button 
-                        type="button" 
-                        className="rbac-icon-btn rbac-btn-danger" 
-                        onClick={(e) => { e.stopPropagation(); handleDeleteClass(item.id) }} 
-                        title={t('instructor.deleteClass') || 'Eliminar clase'}
+                      </IconTooltipButton>
+                      <IconTooltipButton
+                        tooltip={t('instructor.deleteClass') || 'Eliminar clase'}
+                        buttonClassName="rbac-icon-btn rbac-btn-danger"
+                        onClick={() => handleDeleteClass(item.id)}
+                        stopPropagation
                       >
                         🗑️
-                      </button>
+                      </IconTooltipButton>
                     </div>
                   </div>
                 ))
@@ -682,31 +742,28 @@ function InstructorDashboardPage() {
               <h2>👤 {selectedClass ? t('instructor.analyticsOf', { name: selectedClass.name }) : t('instructor.students')}</h2>
               {selectedClass && (
                 <div className="rbac-actions-inline" style={{ margin: 0 }}>
-                  <button 
-                    type="button" 
-                    className="rbac-icon-btn" 
-                    onClick={() => startEditing(selectedClass)} 
-                    title={t('instructor.editClass')}
+                  <IconTooltipButton
+                    tooltip={t('instructor.editClass')}
+                    buttonClassName="rbac-icon-btn"
+                    onClick={() => startEditing(selectedClass)}
                   >
                     ✏️
-                  </button>
-                  <button 
-                    type="button" 
-                    className="rbac-icon-btn" 
-                    onClick={() => handleRotateCode(selectedClassId)} 
-                    disabled={rotatingCode} 
-                    title={t('instructor.rotateCode')}
+                  </IconTooltipButton>
+                  <IconTooltipButton
+                    tooltip={t('instructor.rotateCode')}
+                    buttonClassName="rbac-icon-btn"
+                    onClick={() => handleRotateCode(selectedClassId)}
+                    disabled={rotatingCode}
                   >
                     🔄
-                  </button>
-                  <button 
-                    type="button" 
-                    className="rbac-icon-btn rbac-btn-danger" 
-                    onClick={() => handleDeleteClass(selectedClassId)} 
-                    title={t('instructor.deleteClass')}
+                  </IconTooltipButton>
+                  <IconTooltipButton
+                    tooltip={t('instructor.deleteClass')}
+                    buttonClassName="rbac-icon-btn rbac-btn-danger"
+                    onClick={() => handleDeleteClass(selectedClassId)}
                   >
                     🗑️
-                  </button>
+                  </IconTooltipButton>
                 </div>
               )}
             </div>
@@ -737,7 +794,6 @@ function InstructorDashboardPage() {
               <div className="rbac-empty-state-centered">
                 <div className="empty-icon">👥</div>
                 <p>{t('instructor.noClassSelected')}</p>
-                <small style={{ marginTop: '8px', opacity: 0.7 }}>Selecciona una clase a la izquierda para ver el progreso</small>
               </div>
             ) : analyticsLoading ? (
               <div className="rbac-loading-text" style={{ padding: '4rem' }}>
@@ -752,21 +808,20 @@ function InstructorDashboardPage() {
                 </div>
                 <div className="rbac-table-wrap">
                   <table className="rbac-table compact">
-                    <thead><tr><th>{t('instructor.table.student')}</th><th className="rbac-center">{t('instructor.table.xp')}</th><th className="rbac-center">{t('common.actions') || 'Acciones'}</th></tr></thead>
+                    <thead><tr><th>{t('instructor.table.student')}</th><th className="rbac-center">{t('instructor.table.xp')}</th><th className="rbac-center">{t('instructor.table.actions') || 'Acciones'}</th></tr></thead>
                     <tbody>
                       {analytics.students?.length > 0 ? analytics.students.map((s) => (
                         <tr key={s.id}>
                           <td><div className="student-compact-cell"><div className="student-initial">{(s.name || 'U')[0]}</div><div className="student-name-email"><strong>{s.name}</strong><small>{s.email}</small></div></div></td>
                           <td className="rbac-center"><span className="xp-badge">✨ {Number(s.earned_xp || 0)}</span></td>
                           <td className="rbac-center">
-                            <button 
-                              type="button" 
-                              className="rbac-revoke-btn" 
-                              onClick={() => handleKickStudent(s.id)} 
-                              title={t('instructor.kickStudent') || 'Expulsar alumno'}
+                            <IconTooltipButton
+                              tooltip={t('instructor.kickStudent') || 'Expulsar alumno'}
+                              buttonClassName="rbac-revoke-btn"
+                              onClick={() => handleKickStudent(s.id)}
                             >
                               ✕
-                            </button>
+                            </IconTooltipButton>
                           </td>
                         </tr>
                       )) : <tr><td colSpan={3} className="rbac-center rbac-muted" style={{ padding: '3rem' }}>{t('instructor.noActiveStudents')}</td></tr>}
@@ -797,15 +852,14 @@ function InstructorDashboardPage() {
                     <div className="invite-meta-actions">
                       <span className="invite-uses-count">👤 {inv.used_count}{inv.max_uses ? `/${inv.max_uses}` : ''}</span>
                       {inv.is_active && (
-                        <button 
-                          type="button" 
-                          className="rbac-revoke-btn" 
-                          onClick={() => handleRevokeInvite(inv.id)} 
-                          disabled={revokingInvite} 
-                          title={t('instructor.revokeCode')}
+                        <IconTooltipButton
+                          tooltip={t('instructor.revokeCode')}
+                          buttonClassName="rbac-revoke-btn"
+                          onClick={() => handleRevokeInvite(inv.id)}
+                          disabled={revokingInvite}
                         >
                           ✕
-                        </button>
+                        </IconTooltipButton>
                       )}
                     </div>
                   </div>
@@ -813,6 +867,41 @@ function InstructorDashboardPage() {
               )}
             </div>
           </section>
+
+          {classDeleteTarget && (
+            <MotionDiv
+              className="instructor-confirm-overlay"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="instructor-delete-title"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onMouseDown={() => setClassDeleteTarget(null)}
+            >
+              <MotionDiv
+                className="instructor-confirm-modal"
+                initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.2 }}
+                onMouseDown={(event) => event.stopPropagation()}
+              >
+                <div className="instructor-confirm-icon" aria-hidden="true">🗑️</div>
+                <h3 id="instructor-delete-title">{t('instructor.confirmDeleteClassTitle') || 'Eliminar clase'}</h3>
+                <p>{t('instructor.confirmDeleteClass') || '¿Eliminar esta clase? Esta acción no se puede deshacer.'}</p>
+                <small>{t('instructor.confirmDeleteClassHint') || 'Se borrará la clase y sus datos asociados.'}</small>
+
+                <div className="instructor-confirm-actions">
+                  <button type="button" className="rbac-btn-secondary instructor-confirm-cancel" onClick={() => setClassDeleteTarget(null)}>
+                    {t('common.cancel') || 'Cancelar'}
+                  </button>
+                  <button type="button" className="instructor-confirm-danger" onClick={confirmDeleteClass}>
+                    {t('instructor.confirmDeleteClassAction') || 'Eliminar'}
+                  </button>
+                </div>
+              </MotionDiv>
+            </MotionDiv>
+          )}
 
           {/* Bloque 4: IA */}
           <section ref={aiRef} className="rbac-card block-ai-tools">
@@ -1051,3 +1140,4 @@ function InstructorDashboardPage() {
 }
 
 export default InstructorDashboardPage
+
