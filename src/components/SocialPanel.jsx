@@ -68,7 +68,7 @@ function SocialPanel() {
     setSocialActionUsername(normalizedUsername)
     try {
       await followUserByUsername(normalizedUsername)
-      notifySuccess(t('social.followSuccess', { username: normalizedUsername }))
+      notifySuccess(t('social.followSuccess', { username: normalizedUsername }), { groupKey: 'social-follow' })
       await loadSocialDirectory()
 
       // Refresh search results if we are on the search tab
@@ -90,7 +90,7 @@ function SocialPanel() {
     setSocialActionUsername(normalizedUsername)
     try {
       await unfollowUserByUsername(normalizedUsername)
-      notifySuccess(t('social.unfollowSuccess', { username: normalizedUsername }))
+      notifySuccess(t('social.unfollowSuccess', { username: normalizedUsername }), { groupKey: 'social-follow' })
       await loadSocialDirectory()
       
       // Update search results state locally

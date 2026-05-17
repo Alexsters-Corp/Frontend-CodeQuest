@@ -5506,6 +5506,33 @@ button:disabled {
   }
 }
 
+/* ─── Sonner Toaster: centrado forzado ─────────────────────────────── */
+[data-sonner-toaster] {
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  width: max-content !important;
+  max-width: 100vw !important;
+}
+
+[data-sonner-toaster][data-y-position='top'] {
+  top: var(--sonner-top-offset, 72px) !important;
+  bottom: auto !important;
+}
+
+[data-sonner-toaster][data-y-position='bottom'] {
+  bottom: var(--sonner-bottom-offset, 24px) !important;
+  top: auto !important;
+}
+
+@media (max-width: 767px) {
+  [data-sonner-toaster] {
+    left: 50% !important;
+    transform: translateX(-50%) !important;
+    width: min(92vw, 420px) !important;
+  }
+}
+
 @media (max-width: 900px) {
   .landing__hero,
   .landing__showcase,

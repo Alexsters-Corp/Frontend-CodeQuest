@@ -69,10 +69,10 @@ function RankingPage() {
     try {
       if (entry.isFollowing) {
         await unfollowUserByUsername(username)
-        notifySuccess(t('social.unfollowSuccess', { username }))
+        notifySuccess(t('social.unfollowSuccess', { username }), { groupKey: 'social-follow' })
       } else {
         await followUserByUsername(username)
-        notifySuccess(t('social.followSuccess', { username }))
+        notifySuccess(t('social.followSuccess', { username }), { groupKey: 'social-follow' })
       }
 
       await loadLeaderboard(scope)
