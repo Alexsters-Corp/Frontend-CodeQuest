@@ -108,7 +108,7 @@ html {
 }
 
 button {
-  margin-top: 8px;
+  margin-top: 0px;
   padding: 10px;
   font-size: 1rem;
   cursor: pointer;
@@ -5752,20 +5752,22 @@ button:disabled {
 .rbac-form-compact {
   display: flex;
   gap: 0.5rem;
-  align-items: center;
+  align-items: stretch;
   margin-bottom: 1rem;
 }
 
 .rbac-form-compact input {
   flex: 1;
-  padding: 0.5rem;
+  height: 42px;
+  min-height: 42px;
+  padding: 0 0.75rem;
   background: rgba(9, 18, 33, 0.72);
   border: 1px solid var(--cq-border);
   border-radius: 6px;
   color: white;
 }
 
-.rbac-form-compact button {
+.rbac-form-compact > button {
   padding: 0.5rem 1rem;
   background: var(--cq-primary);
   border: none;
@@ -5850,14 +5852,25 @@ button:disabled {
 
 .rbac-class-add-btn {
   min-width: 42px;
+  height: 100%;
+  min-height: 0;
   padding: 0.5rem 0.75rem;
   border: 1px solid rgba(16, 185, 129, 0.45);
   border-radius: 10px;
   background: linear-gradient(135deg, rgba(16, 185, 129, 0.96), rgba(5, 150, 105, 0.96));
   color: #031a12;
   font-weight: 800;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
   transition: all 0.2s ease;
+}
+
+.rbac-form-compact .icon-tooltip-wrap {
+  display: flex;
+  align-items: center;
+  height: 42px;
 }
 
 .rbac-class-add-btn:hover:not(:disabled) {
