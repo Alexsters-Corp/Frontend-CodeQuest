@@ -50,12 +50,12 @@ export default function Sidebar() {
       console.error('Logout server error:', error)
     } finally {
       logout()
-      navigate('/login', { replace: true })
+      window.location.href = '/'
     }
   }
 
   const handleOnboarding = () => {
-    notifyPending(t('dashboard.addLanguageHint'))
+    notifyPending(t('dashboard.addLanguageHint'), { rateLimitKey: 'add-language', rateLimitMs: 3000 })
     navigate('/onboarding/language')
   }
 
