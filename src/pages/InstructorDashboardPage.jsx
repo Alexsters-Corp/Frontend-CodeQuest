@@ -721,14 +721,6 @@ function InstructorDashboardPage() {
                       >
                         ⚙️
                       </IconTooltipButton>
-                      <IconTooltipButton
-                        tooltip={t('instructor.deleteClass') || 'Eliminar clase'}
-                        buttonClassName="rbac-icon-btn rbac-btn-danger"
-                        onClick={() => handleDeleteClass(item.id)}
-                        stopPropagation
-                      >
-                        🗑️
-                      </IconTooltipButton>
                     </div>
                   </div>
                 ))
