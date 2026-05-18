@@ -15,7 +15,7 @@ import {
   setSelectedLanguageId,
 } from '../services/learningApi'
 import { getLeaderboard } from '../services/socialApi'
-import { notifyError, notifyInfo, notifyPending, notifySuccess } from '../utils/notify'
+import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
