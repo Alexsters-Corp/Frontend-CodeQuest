@@ -53,7 +53,12 @@ export async function getFollowDirectory(limit = 12) {
   return requestJson(`/api/social/directory?${params.toString()}`)
 }
 
-export async function getLeaderboard(scope = 'global', limit = 25) {
-  const params = new URLSearchParams({ scope, limit: String(limit) })
+export async function getLeaderboard(scope = 'global', timeframe = 'all_time', limit = 25, offset = 0) {
+  const params = new URLSearchParams({ 
+    scope, 
+    timeframe, 
+    limit: String(limit),
+    offset: String(offset)
+  })
   return requestJson(`/api/ranking/leaderboard?${params.toString()}`)
 }

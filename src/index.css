@@ -5315,6 +5315,42 @@ button:disabled {
   padding-bottom: 2px;
 }
 
+.ranking-filters-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.ranking-filters-container .ranking-scope-tabs {
+  margin-bottom: 0;
+}
+
+.ranking-load-more {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+.ranking-my-anchor {
+  position: sticky;
+  bottom: 0;
+  margin: 24px -20px -20px -20px;
+  padding: 20px;
+  background: linear-gradient(to top, #0b1425 80%, transparent);
+  border-top: 1px solid var(--cq-border-strong);
+  z-index: 10;
+  border-radius: 0 0 24px 24px;
+}
+
+.ranking-my-anchor .ranking-item {
+  background: rgba(30, 41, 59, 0.95);
+  border-color: var(--cq-primary);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.4);
+}
+
 .ranking-tab {
   background: transparent;
   border: none;
