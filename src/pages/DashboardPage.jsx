@@ -14,6 +14,7 @@ import {
   joinClassWithCode,
   setSelectedLanguageId,
 } from '../services/learningApi'
+import { getLeaderboard } from '../services/socialApi'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {

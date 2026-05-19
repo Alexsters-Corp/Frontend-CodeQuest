@@ -44,6 +44,7 @@ function AdminDashboardPage() {
   useEffect(() => {
     loadUsers()
     loadAnalytics()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const dirtyUsers = useMemo(
@@ -183,14 +184,6 @@ function AdminDashboardPage() {
     } finally {
       setDeletingUserId(null)
       setDeleteConfirm(null)
-    }
-  }
-
-  const roleBadgeClass = (role) => {
-    switch (role) {
-      case 'admin': return 'role-badge role-badge--admin'
-      case 'instructor': return 'role-badge role-badge--instructor'
-      default: return 'role-badge role-badge--user'
     }
   }
 

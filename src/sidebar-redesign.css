@@ -71,7 +71,7 @@
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: 20px 12px;
+  padding: 24px 16px;
   background: rgba(11, 20, 37, 0.66);
   border: 1px solid var(--cq-border);
   border-radius: 16px;
@@ -83,7 +83,7 @@
   align-items: center;
   justify-content: center;
   margin-bottom: 0;
-  padding: 0 0 10px 0;
+  padding: 0 0 16px 0;
   border-bottom: 1px solid rgba(148, 163, 184, 0.12);
   flex-shrink: 0;
 }
@@ -96,9 +96,14 @@
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: #64748b;
-  margin-bottom: 6px;
+  margin-top: 20px;
+  margin-bottom: 10px;
   padding-left: 10px;
   white-space: nowrap;
+}
+
+.dashboard-sidebar h2:first-of-type {
+  margin-top: 14px;
 }
 
 /* ── Página (columna derecha) ── */
@@ -150,12 +155,12 @@
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 11px;
+  gap: 12px;
   text-align: left;
   background: rgba(12, 22, 41, 0.72);
   border: 1px solid var(--cq-border);
-  padding: 8px 12px;
-  border-radius: 10px;
+  padding: 10px 14px;
+  border-radius: 12px;
   font-family: 'Inter', system-ui, sans-serif;
   font-size: 0.92rem;
   font-weight: 500;

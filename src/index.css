@@ -4244,11 +4244,19 @@ button:disabled {
 }
 
 .auth-panel__form {
+  display: grid;
+  grid-template-columns: 1fr;
   gap: 9px;
 }
 
+.auth-panel__form label {
+  display: block;
+  line-height: 1.25;
+}
+
 .auth-panel__form input {
-  margin-bottom: 6px;
+  width: 100%;
+  margin-bottom: 0;
 }
 
 .auth-panel__link {

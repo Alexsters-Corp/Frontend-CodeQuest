@@ -63,21 +63,6 @@ function formatJson(payload) {
   return JSON.stringify(payload, null, 2)
 }
 
-function normalizeMonacoLanguage(language) {
-  const normalized = String(language || '').trim().toLowerCase()
-  const byName = {
-    javascript: 'javascript',
-    js: 'javascript',
-    python: 'python',
-    java: 'java',
-    cpp: 'cpp',
-    'c++': 'cpp',
-    csharp: 'csharp',
-    'c#': 'csharp',
-  }
-  return byName[normalized] || 'plaintext'
-}
-
 function monacoFromJudge0Id(languageId) {
   return JUDGE0_LANGUAGE_OPTIONS.find((option) => option.id === Number(languageId))?.monaco || 'plaintext'
 }

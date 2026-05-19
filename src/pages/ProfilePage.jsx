@@ -8,7 +8,7 @@ import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
 import { apiFetch } from '../services/api'
 import { getDashboardOverview } from '../services/learningApi'
-import { countryNameFromCode, resolveCountryCode } from '../utils/countries'
+import { resolveCountryCode } from '../utils/countries'
 import { notifyError } from '../utils/notify'
 
 const PRESET_ICONS = ['🙂', '😎', '🤖', '🚀', '💻', '🎯']
