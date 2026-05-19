@@ -1,17 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { IoMdArrowRoundBack, IoMdArrowRoundForward } from 'react-icons/io'
-import { IoCreateOutline, IoTrophyOutline } from 'react-icons/io5'
+import { useNavigate, useParams } from 'react-router-dom'
+import { IoMdArrowRoundBack } from 'react-icons/io'
+import { IoMdArrowRoundForward } from 'react-icons/io'
+import { IoPersonAddOutline, IoPersonRemoveOutline, IoTrophyOutline } from 'react-icons/io5'
 import LoadingSpinner from '../components/LoadingSpinner'
 import MotionPage from '../components/MotionPage'
 import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
-import { apiFetch } from '../services/api'
-import { getDashboardOverview } from '../services/learningApi'
+import { followUserByUsername, getPublicUserProfile, unfollowUserByUsername } from '../services/socialApi'
 import { countryNameFromCode, resolveCountryCode } from '../utils/countries'
-import { notifyError } from '../utils/notify'
-
-const PRESET_ICONS = ['🙂', '😎', '🤖', '🚀', '💻', '🎯']
+import { notifyError, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -25,97 +23,45 @@ function renderLanguageIcon(icon, label) {
   return <span className="profile-page-language-chip__emoji">{icon || '💻'}</span>
 }
 
-function fallbackUsername(email) {
-  const value = String(email || '')
-  const at = value.indexOf('@')
-  if (at > 0) {
-    return value.slice(0, at)
-  }
-
-  return value || ''
-}
-
-function ProfilePage() {
+function UserProfilePage() {
   const navigate = useNavigate()
+  const { username } = useParams()
   const { t, language } = useLanguage()
   const locale = language === 'en' ? 'en' : 'es'
-  const [profile, setProfile] = useState({
-    username: '',
-    nombre: '',
-    email: '',
-    avatar: PRESET_ICONS[0],
-    countryCode: '',
-    countryRaw: '',
-    birthDate: '',
-  })
+  const [profile, setProfile] = useState(null)
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
-  const [overview, setOverview] = useState(null)
+  const [pendingFollowAction, setPendingFollowAction] = useState(false)
   const [activeTab, setActiveTab] = useState('summary')
 
-  const loadProfileData = useCallback(async () => {
+  const loadProfile = useCallback(async () => {
     setLoading(true)
     setErrorMessage('')
 
     try {
-      const [profileRes, overviewData] = await Promise.all([
-        apiFetch('/api/users/profile'),
-        getDashboardOverview()
-      ])
-      
-      const profileData = await profileRes.json().catch(() => ({}))
-
-      if (!profileRes.ok) {
-        throw new Error(profileData.message || t('profile.loadError'))
-      }
-
-      const user = profileData.user || {}
-      const countryCode = resolveCountryCode(user.countryCode, locale)
-
-      // El XP de overviewData es mas fiable porque calcula sumas reales si el denormalizado falla
-      const totalXp = overviewData?.xpTotal !== undefined 
-        ? Number(overviewData.xpTotal) 
-        : Number(user.totalXp || 0)
-
-      setProfile({
-        username: String(user.username || fallbackUsername(user.email)),
-        nombre: user.nombre || '',
-        email: user.email || '',
-        avatar: String(user.avatar || PRESET_ICONS[0]),
-        totalXp,
-        currentLevel: Number(user.currentLevel || 1),
-        countryCode,
-        countryRaw: '',
-        birthDate: String(user.birthDate || ''),
-      })
-      setOverview(overviewData || null)
+      const data = await getPublicUserProfile(username)
+      setProfile(data.user || null)
     } catch (error) {
-      const message = error.message || t('profile.loadError')
+      const message = error.message || 'No fue posible cargar este perfil.'
       setErrorMessage(message)
       notifyError(message)
     } finally {
       setLoading(false)
     }
-  }, [locale, t])
+  }, [username])
 
   useEffect(() => {
-    loadProfileData()
-  }, [loadProfileData])
+    loadProfile()
+  }, [loadProfile])
 
   const countryLabel = useMemo(() => {
-    if (!profile.countryCode) {
+    if (!profile?.countryCode) {
       return t('profile.notSet')
     }
 
-    return countryNameFromCode(profile.countryCode, locale) || profile.countryCode
-  }, [locale, profile.countryCode, t])
-
-  const statsCards = [
-    { label: 'Desafíos completados', value: String(overview?.completedChallenges || 0) },
-    { label: 'Ejercicios resueltos', value: '—' },
-    { label: 'Días activo', value: '—' },
-    { label: 'Ranking máximo', value: '—' },
-  ]
+    const normalized = resolveCountryCode(profile.countryCode, locale)
+    return countryNameFromCode(normalized, locale) || normalized
+  }, [locale, profile?.countryCode, t])
 
   const tabs = [
     { id: 'summary', label: 'Resumen' },
@@ -126,11 +72,41 @@ function ProfilePage() {
     { id: 'following', label: 'Siguiendo' },
   ]
 
-  const nextLevelXp = (profile.currentLevel || 1) * 500
-  const currentLevelBaseXp = Math.max(0, ((profile.currentLevel || 1) - 1) * 500)
-  const currentLevelProgressXp = Math.max(0, (profile.totalXp || 0) - currentLevelBaseXp)
-  const xpNeededForNextLevel = Math.max(0, nextLevelXp - (profile.totalXp || 0))
+  const statsCards = [
+    { label: 'Desafíos completados', value: String(profile?.lessonsCompleted || 0) },
+    { label: 'Ejercicios resueltos', value: '—' },
+    { label: 'Días activo', value: '—' },
+    { label: 'Ranking máximo', value: '—' },
+  ]
+
+  const nextLevelXp = (profile?.currentLevel || 1) * 500
+  const currentLevelBaseXp = Math.max(0, ((profile?.currentLevel || 1) - 1) * 500)
+  const currentLevelProgressXp = Math.max(0, (profile?.totalXp || 0) - currentLevelBaseXp)
+  const xpNeededForNextLevel = Math.max(0, nextLevelXp - (profile?.totalXp || 0))
   const levelProgressPercent = Math.min(100, Math.max(0, (currentLevelProgressXp / 500) * 100))
+
+  const handleToggleFollow = async () => {
+    if (!profile?.username) {
+      return
+    }
+
+    setPendingFollowAction(true)
+    try {
+      if (profile.isFollowing) {
+        await unfollowUserByUsername(profile.username)
+        notifySuccess(t('social.unfollowSuccess', { username: profile.username }), { groupKey: 'social-follow' })
+      } else {
+        await followUserByUsername(profile.username)
+        notifySuccess(t('social.followSuccess', { username: profile.username }), { groupKey: 'social-follow' })
+      }
+
+      await loadProfile()
+    } catch (error) {
+      notifyError(error.message || t('ranking.actionError'))
+    } finally {
+      setPendingFollowAction(false)
+    }
+  }
 
   return (
     <SidebarLayout>
@@ -149,17 +125,17 @@ function ProfilePage() {
           ) : errorMessage ? (
             <div className="profile-edit-actions profile-page-card">
               <p className="profile-edit-message error">{errorMessage}</p>
-              <button type="button" className="profile-cancel-btn" onClick={loadProfileData}>
+              <button type="button" className="profile-cancel-btn" onClick={loadProfile}>
                 {t('common.retry')}
               </button>
             </div>
-          ) : (
+          ) : profile ? (
             <>
               <section className="profile-page-hero profile-page-card user-profile-page-hero">
                 <div className="profile-page-hero__identity">
                   <div className="profile-page-hero__avatar-wrap">
                     <div className="profile-page-hero__avatar" aria-label={t('profile.photo')}>
-                      <span>{profile.avatar}</span>
+                      <span>{String(profile.avatar || '🙂')}</span>
                     </div>
                     <span className="profile-page-hero__status-dot" aria-hidden="true" />
                   </div>
@@ -168,29 +144,38 @@ function ProfilePage() {
                     <div className="profile-page-hero__headline">
                       <h1>{profile.username || t('profile.notSet')}</h1>
                       <div className="profile-page-hero__mini-metrics">
-                        <span>
-                          <span className="profile-page-hero__mini-metrics-emoji">🔥</span>
-                          {t('dashboard.days', { count: overview?.racha || 0 })}
-                        </span>
+                        <span><span className="profile-page-hero__mini-metrics-emoji">🔥</span>{t('dashboard.days', { count: profile?.racha || 0 })}</span>
                         <span>Nivel {profile.currentLevel || 1}</span>
                       </div>
                     </div>
                     <p className="profile-page-hero__bio">
-                      {profile.nombre || t('profile.notSet')} explora desafios y mejora su progreso en CodeQuest.
+                      {profile.nombre || t('profile.notSet')} participa en CodeQuest y comparte su progreso con la comunidad.
                     </p>
                     <div className="profile-page-hero__meta">
                       <span>📍 {countryLabel}</span>
-                      <span>✉ {profile.email || t('profile.notSet')}</span>
+                      <span>🗓 Se unió en 2024</span>
+                    </div>
+                    <div className="profile-page-hero__meta">
+                      <span>👥 {profile.followers || 0} seguidores</span>
+                      <span>➡ {profile.following || 0} seguidos</span>
                     </div>
                     <div className="profile-page-hero__actions">
-                      <button type="button" className="profile-follow-btn profile-follow-btn--edit" onClick={() => navigate('/profile/edit')}>
+                      <button
+                        type="button"
+                        className={`profile-follow-btn ${profile.isFollowing ? 'profile-follow-btn--following' : 'profile-follow-btn--idle'}`}
+                        onClick={handleToggleFollow}
+                        disabled={pendingFollowAction}
+                      >
                         <span className="profile-follow-btn__icon" aria-hidden="true">
-                          <IoCreateOutline />
+                          {profile.isFollowing ? <IoPersonRemoveOutline /> : <IoPersonAddOutline />}
                         </span>
-                        <span>Editar perfil</span>
-                      </button>
-                      <button type="button" className="profile-cancel-btn">
-                        Compartir perfil
+                        <span>
+                        {pendingFollowAction
+                          ? t('common.loading')
+                          : profile.isFollowing
+                            ? t('social.unfollowAction')
+                            : t('social.followAction')}
+                        </span>
                       </button>
                     </div>
                   </div>
@@ -224,7 +209,7 @@ function ProfilePage() {
                 </aside>
               </section>
 
-              <nav className="profile-page-tabs user-profile-page-tabs" aria-label="Perfil">
+              <nav className="profile-page-tabs user-profile-page-tabs" aria-label="Perfil público">
                 {tabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -267,10 +252,10 @@ function ProfilePage() {
                     <div className="profile-page-panel__header">
                       <h3>Lenguajes principales</h3>
                     </div>
-                    {overview?.languages?.length > 0 ? (
+                    {profile.languages?.length > 0 ? (
                       <div className="profile-page-languages profile-page-languages--row">
-                        {overview.languages.map((language) => (
-                          <article key={language.lenguaje_id} className="profile-page-language-chip">
+                        {profile.languages.map((language) => (
+                          <article key={language.id} className="profile-page-language-chip">
                             <span className="profile-page-language-chip__icon">
                               {renderLanguageIcon(language.icono, language.nombre)}
                             </span>
@@ -289,11 +274,11 @@ function ProfilePage() {
                 </section>
               )}
             </>
-          )}
+          ) : null}
         </section>
       </MotionPage>
     </SidebarLayout>
   )
 }
 
-export default ProfilePage
+export default UserProfilePage
