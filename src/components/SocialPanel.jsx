@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/useLanguage'
+import { useAuth } from '../context/useAuth'
 import {
   followUserByUsername,
   getFollowDirectory,
@@ -13,6 +15,7 @@ function UserCard({
   actionLoading,
   onFollow,
   onUnfollow,
+  onOpenProfile,
   t,
   showXp = false,
   showFollowsYou = false,
@@ -21,7 +24,7 @@ function UserCard({
 
   return (
     <article className="social-user-card" role="listitem">
-      <div className="social-user-info">
+      <button type="button" className="social-user-info social-user-info--button" onClick={() => onOpenProfile(user)}>
         <div className="social-user-avatar">
           {user.avatar ? user.avatar : initial}
         </div>
@@ -41,7 +44,7 @@ function UserCard({
             )}
           </div>
         </div>
-      </div>
+      </button>
 
       <div className="social-card-actions">
         {user.isFollowing ? (
@@ -69,7 +72,9 @@ function UserCard({
 }
 
 function SocialPanel() {
+  const navigate = useNavigate()
   const { t } = useLanguage()
+  const { user } = useAuth()
   const [socialQuery, setSocialQuery] = useState('')
   const [socialLoading, setSocialLoading] = useState(false)
   const [activeTab, setActiveTab] = useState('search') // 'search', 'following', 'followers'
@@ -164,6 +169,19 @@ function SocialPanel() {
     }
   }
 
+  const handleOpenProfile = (targetUser) => {
+    if (!targetUser?.username) {
+      return
+    }
+
+    if (Number(targetUser.id) === Number(user?.id)) {
+      navigate('/profile')
+      return
+    }
+
+    navigate(`/users/${encodeURIComponent(targetUser.username)}`)
+  }
+
   return (
     <section className="profile-social-panel">
       <div className="profile-edit-header" style={{ marginBottom: '24px' }}>
@@ -230,6 +248,7 @@ function SocialPanel() {
                     actionLoading={socialActionUsername === item.username}
                     onFollow={handleFollow}
                     onUnfollow={handleUnfollow}
+                    onOpenProfile={handleOpenProfile}
                     t={t}
                   />
                 ))}
@@ -251,6 +270,7 @@ function SocialPanel() {
                     actionLoading={socialActionUsername === item.username}
                     onFollow={handleFollow}
                     onUnfollow={handleUnfollow}
+                    onOpenProfile={handleOpenProfile}
                     t={t}
                     showXp
                   />
@@ -273,6 +293,7 @@ function SocialPanel() {
                     actionLoading={socialActionUsername === item.username}
                     onFollow={handleFollow}
                     onUnfollow={handleUnfollow}
+                    onOpenProfile={handleOpenProfile}
                     t={t}
                     showFollowsYou
                   />

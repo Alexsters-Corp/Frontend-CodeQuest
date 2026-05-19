@@ -2,7 +2,7 @@
 
 .sidebar-layout {
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.92rem;
   --cq-border: rgba(148, 163, 184, 0.12);
 }
 
@@ -91,7 +91,7 @@
 .dashboard-sidebar h2,
 .dashboard-sidebar h3 {
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.70rem;
+  font-size: 0.74rem;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -120,10 +120,14 @@
 
 .dashboard-content-layout {
   display: grid;
-  grid-template-columns: 1fr 260px;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 360px);
   gap: 16px;
   align-items: start;
   flex: 1;
+}
+
+.dashboard-content-layout--single {
+  grid-template-columns: minmax(0, 1fr);
 }
 
 /* ── Nav buttons ── */
@@ -158,7 +162,7 @@
   padding: 10px 14px;
   border-radius: 12px;
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.92rem;
   font-weight: 500;
   transition: all 0.2s;
   cursor: pointer;
@@ -195,7 +199,7 @@
 
 .dashboard-nav-btn .nav-icon,
 .dashboard-logout-btn .nav-icon {
-  font-size: 1.15rem;
+  font-size: 1.22rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -408,13 +412,13 @@
   justify-content: space-between;
   gap: 8px;
   margin-top: 0;
-  padding: 6px 10px;
+  padding: 8px 12px;
   background: rgba(12, 22, 41, 0.72);
   border: 1px solid var(--cq-border);
   border-radius: 10px;
   color: #94a3b8;
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.875rem;
+  font-size: 0.92rem;
   font-weight: 500;
   cursor: pointer;
   transition: background 0.2s, color 0.2s;
@@ -454,14 +458,14 @@
   width: 100%;
   display: flex;
   align-items: center;
-  min-height: 28px;
+  min-height: 32px;
   padding: 0 12px;
   border: none;
   background: transparent;
   border-radius: 0;
   cursor: pointer;
   font-family: 'Inter', system-ui, sans-serif;
-  font-size: 0.85rem;
+  font-size: 0.9rem;
   font-weight: 500;
   line-height: 1.2;
   color: #94a3b8;

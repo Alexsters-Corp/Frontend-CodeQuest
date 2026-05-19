@@ -28,6 +28,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage'
 import AdminAiPage from './pages/AdminAiPage'
 import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
+import UserProfilePage from './pages/UserProfilePage'
 import RankingPage from './pages/RankingPage'
 import SocialPage from './pages/SocialPage'
 import DemoLandingPage from './pages/DemoLandingPage'
@@ -36,7 +37,7 @@ import DemoCompletionPage from './pages/DemoCompletionPage'
 
 const SIDEBAR_ROUTES = [
   '/dashboard', '/favorites', '/profile', '/ranking',
-  '/social', '/instructor', '/admin', '/modules',
+  '/social', '/users', '/instructor', '/admin', '/modules',
   '/lesson', '/diagnostic', '/onboarding',
 ]
 
@@ -204,6 +205,14 @@ function AppContent() {
             element={
               <PrivateRoute>
                 <ProfileEditPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/users/:username"
+            element={
+              <PrivateRoute>
+                <UserProfilePage />
               </PrivateRoute>
             }
           />

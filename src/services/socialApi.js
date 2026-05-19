@@ -57,3 +57,12 @@ export async function getLeaderboard(scope = 'global', limit = 25) {
   const params = new URLSearchParams({ scope, limit: String(limit) })
   return requestJson(`/api/ranking/leaderboard?${params.toString()}`)
 }
+
+export async function getPublicUserProfile(username) {
+  const normalizedUsername = String(username || '').trim()
+  if (!normalizedUsername) {
+    throw new Error('Debes indicar un nombre de usuario válido.')
+  }
+
+  return requestJson(`/api/social/profile/${encodeURIComponent(normalizedUsername)}`)
+}
