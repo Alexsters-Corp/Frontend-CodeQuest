@@ -18,6 +18,7 @@ export default function Sidebar() {
   const { isInstructor, isAdmin } = useRole()
   const [isLoggingOut, setIsLoggingOut] = useState(false)
   const [langOpen, setLangOpen] = useState(false)
+  const [mobileMoreOpen, setMobileMoreOpen] = useState(false)
   const showDeferredDashboardSections = false
 
   useEffect(() => {
@@ -26,6 +27,10 @@ export default function Sidebar() {
     document.addEventListener('click', close)
     return () => document.removeEventListener('click', close)
   }, [langOpen])
+
+  useEffect(() => {
+    setMobileMoreOpen(false)
+  }, [location.pathname])
 
   const navBtn = (path) =>
     `dashboard-nav-btn${location.pathname.startsWith(path) ? ' dashboard-nav-btn--active' : ''}`
@@ -55,8 +60,14 @@ export default function Sidebar() {
   }
 
   const handleOnboarding = () => {
+    setMobileMoreOpen(false)
     notifyPending(t('dashboard.addLanguageHint'), { rateLimitKey: 'add-language', rateLimitMs: 3000 })
     navigate('/onboarding/language')
+  }
+
+  const handleMobileNavigate = (path) => {
+    setMobileMoreOpen(false)
+    navigate(path)
   }
 
   const langDropdown = (
@@ -99,27 +110,75 @@ export default function Sidebar() {
         {langDropdown}
       </header>
 
+      {mobileMoreOpen && (
+        <button
+          type="button"
+          className="mobile-more-backdrop"
+          aria-label={t('nav.closeMenu')}
+          onClick={() => setMobileMoreOpen(false)}
+        />
+      )}
+
+      <div className={`mobile-more-panel${mobileMoreOpen ? ' mobile-more-panel--open' : ''}`} role="menu">
+        <button type="button" className="mobile-more-panel__item" role="menuitem" onClick={() => handleMobileNavigate('/profile')}>
+          <span className="mobile-bottom-nav__icon">👤</span>
+          <span>{t('nav.profile')}</span>
+        </button>
+        <button type="button" className="mobile-more-panel__item" role="menuitem" onClick={handleOnboarding}>
+          <span className="mobile-bottom-nav__icon">➕</span>
+          <span>{t('dashboard.sidebar.onboarding')}</span>
+        </button>
+        {(isInstructor || isAdmin) && (
+          <button type="button" className="mobile-more-panel__item" role="menuitem" onClick={() => handleMobileNavigate('/instructor')}>
+            <span className="mobile-bottom-nav__icon">👨‍🏫</span>
+            <span>{t('nav.instructor')}</span>
+          </button>
+        )}
+        {isAdmin && (
+          <button type="button" className="mobile-more-panel__item" role="menuitem" onClick={() => handleMobileNavigate('/admin')}>
+            <span className="mobile-bottom-nav__icon">🛡️</span>
+            <span>{t('nav.admin')}</span>
+          </button>
+        )}
+        <button
+          type="button"
+          className="mobile-more-panel__item mobile-more-panel__item--danger"
+          role="menuitem"
+          onClick={handleLogout}
+          disabled={isLoggingOut}
+        >
+          <span className="mobile-bottom-nav__icon">🚪</span>
+          <span>{isLoggingOut ? t('nav.loggingOut') : t('nav.logout')}</span>
+        </button>
+      </div>
+
       {/* Bottom nav móvil */}
       <nav className="mobile-bottom-nav" aria-label="Navegación principal">
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => navigate('/dashboard')}>
+        <button type="button" className="mobile-bottom-nav__item" onClick={() => handleMobileNavigate('/dashboard')}>
           <span className="mobile-bottom-nav__icon">🏠</span>
           <span className="mobile-bottom-nav__label">{t('dashboard.sidebar.languages')}</span>
         </button>
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => navigate('/favorites')}>
+        <button type="button" className="mobile-bottom-nav__item" onClick={() => handleMobileNavigate('/favorites')}>
           <span className="mobile-bottom-nav__icon">⭐</span>
           <span className="mobile-bottom-nav__label">{t('dashboard.sidebar.favorites')}</span>
         </button>
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => navigate('/ranking?scope=global')}>
+        <button type="button" className="mobile-bottom-nav__item" onClick={() => handleMobileNavigate('/ranking?scope=global')}>
           <span className="mobile-bottom-nav__icon">🥇</span>
           <span className="mobile-bottom-nav__label">{t('dashboard.sidebar.ranking')}</span>
         </button>
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => navigate('/social')}>
+        <button type="button" className="mobile-bottom-nav__item" onClick={() => handleMobileNavigate('/social')}>
           <span className="mobile-bottom-nav__icon">👥</span>
           <span className="mobile-bottom-nav__label">{t('dashboard.sidebar.followers')}</span>
         </button>
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => navigate('/profile')}>
-          <span className="mobile-bottom-nav__icon">👤</span>
-          <span className="mobile-bottom-nav__label">{t('nav.profile')}</span>
+        <button
+          type="button"
+          className={`mobile-bottom-nav__item${mobileMoreOpen ? ' mobile-bottom-nav__item--active' : ''}`}
+          aria-expanded={mobileMoreOpen}
+          aria-label={t('nav.moreMenu')}
+          onClick={() => setMobileMoreOpen((isOpen) => !isOpen)}
+        >
+          <span className="mobile-bottom-nav__icon">...</span>
+          <span className="mobile-bottom-nav__label">{t('nav.more')}</span>
         </button>
       </nav>
     </>,

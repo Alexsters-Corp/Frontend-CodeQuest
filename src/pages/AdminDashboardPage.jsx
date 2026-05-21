@@ -137,17 +137,20 @@ function AdminDashboardPage() {
         userId: user.id,
         role: changes.role,
         isActive: changes.isActive,
+        nombre: changes.nombre,
       })
 
       if (payload.user) {
         setUsers((previous) => previous.map((item) => (item.id === user.id ? {
           ...item,
+          nombre: payload.user.nombre,
           role: payload.user.role,
           is_active: payload.user.is_active,
         } : item)))
         setDrafts((previous) => ({
           ...previous,
           [user.id]: {
+            nombre: payload.user.nombre,
             role: payload.user.role,
             is_active: Boolean(payload.user.is_active),
           },
@@ -303,9 +306,11 @@ function AdminDashboardPage() {
               </thead>
               <tbody>
                 {users.map((user) => {
-                  const draft = drafts[user.id] || { role: user.role, is_active: user.is_active }
+                  const draft = drafts[user.id] || { role: user.role, is_active: user.is_active, nombre: user.nombre }
                   const hasChanges =
-                    draft.role !== user.role || Boolean(draft.is_active) !== Boolean(user.is_active)
+                    draft.role !== user.role ||
+                    Boolean(draft.is_active) !== Boolean(user.is_active) ||
+                    draft.nombre !== user.nombre
 
                   return (
                     <tr key={user.id}>

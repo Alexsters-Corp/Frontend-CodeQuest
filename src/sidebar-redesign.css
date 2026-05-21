@@ -245,7 +245,9 @@
 /* ── Mobile: header + bottom nav ── */
 
 .mobile-header,
-.mobile-bottom-nav {
+.mobile-bottom-nav,
+.mobile-more-backdrop,
+.mobile-more-panel {
   display: none;
 }
 
@@ -385,6 +387,10 @@
     box-shadow: none;
   }
 
+  .mobile-bottom-nav__item--active {
+    color: #9ff4c7;
+  }
+
   .mobile-bottom-nav__icon {
     font-size: 1.3rem;
     line-height: 1;
@@ -395,6 +401,82 @@
     font-size: 0.62rem;
     font-weight: 500;
     white-space: nowrap;
+  }
+
+  .mobile-more-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 510;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: rgba(2, 8, 23, 0.28);
+    box-shadow: none;
+  }
+
+  .mobile-more-backdrop:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+  }
+
+  .mobile-more-panel {
+    display: grid;
+    gap: 6px;
+    position: fixed;
+    right: 12px;
+    bottom: calc(72px + env(safe-area-inset-bottom));
+    z-index: 520;
+    width: min(260px, calc(100vw - 24px));
+    padding: 10px;
+    border: 1px solid var(--cq-border);
+    border-radius: 16px;
+    background: rgba(11, 20, 37, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: var(--cq-shadow);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+
+  .mobile-more-panel--open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .mobile-more-panel__item {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 28px 1fr;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    background: transparent;
+    color: #dbe7f5;
+    text-align: left;
+    box-shadow: none;
+  }
+
+  .mobile-more-panel__item:hover:not(:disabled) {
+    transform: none;
+    box-shadow: none;
+    border-color: rgba(16, 185, 129, 0.34);
+    background: rgba(16, 185, 129, 0.12);
+  }
+
+  .mobile-more-panel__item--danger {
+    color: #fca5a5;
+  }
+
+  .mobile-more-panel__item--danger:hover:not(:disabled) {
+    border-color: rgba(239, 68, 68, 0.34);
+    background: rgba(239, 68, 68, 0.12);
   }
 }
 

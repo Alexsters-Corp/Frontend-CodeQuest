@@ -2914,18 +2914,50 @@ button.profile-icon-chip:hover {
 }
 
 .empty-state {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
   text-align: center;
-  padding: 28px;
-  color: #6b7280;
+  padding: 42px 20px;
+  color: var(--cq-muted);
+  border: 1px dashed rgba(148, 163, 184, 0.28);
+  border-radius: var(--cq-radius-md);
+  background: rgba(12, 22, 41, 0.54);
+}
+
+.empty-state__icon {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 16px;
+  background: rgba(16, 185, 129, 0.14);
+  border: 1px solid rgba(16, 185, 129, 0.28);
+  font-size: 1.8rem;
+}
+
+.empty-state h3 {
+  margin: 0;
+  color: #f1f7ff;
+  font-size: 1.15rem;
+}
+
+.empty-state p {
+  margin: 0;
+  max-width: 520px;
+}
+
+.empty-state__description {
+  font-size: 0.95rem;
 }
 
 .empty-state button {
-  margin-top: 12px;
+  margin-top: 4px;
   padding: 10px 24px;
-  border: none;
-  border-radius: 10px;
-  background: #4f46e5;
-  color: #fff;
+  border: 1px solid rgba(16, 185, 129, 0.42);
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--cq-primary), var(--cq-primary-strong));
+  color: #032014;
   font-weight: 600;
   cursor: pointer;
 }

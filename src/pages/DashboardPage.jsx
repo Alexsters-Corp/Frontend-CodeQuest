@@ -349,7 +349,13 @@ function DashboardPage() {
               </div>
             ) : (
               <div className="empty-state">
+                <span className="empty-state__icon" aria-hidden="true">💻</span>
+                <h3>{t('dashboard.emptyLanguagesTitle')}</h3>
                 <p>{t('dashboard.emptyLanguages')}</p>
+                <p className="empty-state__description">{t('dashboard.emptyLanguagesDescription')}</p>
+                <button type="button" onClick={() => navigate('/onboarding/language')}>
+                  {t('dashboard.pickLanguage')}
+                </button>
               </div>
             )}
           </section>
