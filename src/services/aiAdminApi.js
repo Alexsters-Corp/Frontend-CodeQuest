@@ -5,7 +5,9 @@ async function requestJson(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
-    throw new Error(data.error || data.message || 'No fue posible completar la solicitud.')
+    const message = data.error || data.message || 'No fue posible completar la solicitud.'
+    const detail = data.detail || data.code
+    throw new Error(detail ? `${message} (${detail})` : message)
   }
 
   return data
@@ -58,6 +60,23 @@ export async function validateContent({ content }) {
     method: 'POST',
     body: JSON.stringify({
       content: ensureText(content, 'content'),
+    }),
+  })
+}
+
+export async function listPublishTargets() {
+  return requestJson('/api/admin/publish-targets')
+}
+
+export async function publishContent({ content, languageId, level, validation, learningPathId }) {
+  return requestJson('/api/admin/publish-content', {
+    method: 'POST',
+    body: JSON.stringify({
+      content,
+      languageId: ensurePositiveInt(languageId, 'languageId'),
+      level: ensureText(level, 'level'),
+      validation,
+      learningPathId: learningPathId ? ensurePositiveInt(learningPathId, 'learningPathId') : null,
     }),
   })
 }

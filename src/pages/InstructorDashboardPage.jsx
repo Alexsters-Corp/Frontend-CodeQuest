@@ -80,6 +80,18 @@ function normalizeDifficultyLevel(value) {
   return ['beginner', 'intermediate', 'advanced'].includes(normalized) ? normalized : 'beginner'
 }
 
+function normalizeValidationScore(value) {
+  const numeric = Number(value || 0)
+  if (!Number.isFinite(numeric)) return 0
+  return Math.round((numeric <= 1 ? numeric * 100 : numeric))
+}
+
+function getValidationProgressClass(score) {
+  if (score < 60) return 'ai-progress-fill--danger'
+  if (score < 80) return 'ai-progress-fill--warning'
+  return 'ai-progress-fill--success'
+}
+
 function GuideButton({ type, onOpen, t }) {
   return (
     <button type="button" className="ai-guide-btn" onClick={() => onOpen(type)}>
@@ -226,6 +238,10 @@ function GeneratedContentCard({
         </span>
         {languageLabel && <span className="ai-language-badge">{languageLabel}</span>}
       </header>
+
+      {result.judge0Validated === false && (
+        <p className="ai-validation-warning">{t('admin.ai.output.judge0Warning')}</p>
+      )}
 
       {isLesson && (
         <>
@@ -630,6 +646,8 @@ function InstructorDashboardPage() {
     }
   }
 
+  const validationScore = normalizeValidationScore(validationResult?.qualityScore)
+
   return (
     <SidebarLayout>
       <MotionPage className="dashboard-page" delay={0.06}>
@@ -925,7 +943,10 @@ function InstructorDashboardPage() {
                     <select
                       id="instructor-ai-language"
                       value={lessonForm.languageId}
-                      onChange={(event) => setLessonForm((previous) => ({ ...previous, languageId: event.target.value }))}
+                      onChange={(event) => setLessonForm((previous) => ({
+                        ...previous,
+                        languageId: event.target.value,
+                      }))}
                     >
                       {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
                         <option key={option.id} value={option.id}>
@@ -938,7 +959,10 @@ function InstructorDashboardPage() {
                     <select
                       id="instructor-ai-level"
                       value={lessonForm.level}
-                      onChange={(event) => setLessonForm((previous) => ({ ...previous, level: event.target.value }))}
+                      onChange={(event) => setLessonForm((previous) => ({
+                        ...previous,
+                        level: event.target.value,
+                      }))}
                     >
                       <option value="beginner">{t('admin.ai.level.beginner')}</option>
                       <option value="intermediate">{t('admin.ai.level.intermediate')}</option>
@@ -981,7 +1005,10 @@ function InstructorDashboardPage() {
                     <select
                       id="instructor-ai-difficulty"
                       value={exerciseForm.difficulty}
-                      onChange={(event) => setExerciseForm((previous) => ({ ...previous, difficulty: event.target.value }))}
+                      onChange={(event) => setExerciseForm((previous) => ({
+                        ...previous,
+                        difficulty: event.target.value,
+                      }))}
                     >
                       <option value="easy">{t('admin.ai.difficulty.easy')}</option>
                       <option value="medium">{t('admin.ai.difficulty.medium')}</option>
@@ -992,7 +1019,10 @@ function InstructorDashboardPage() {
                     <select
                       id="instructor-ai-language-id"
                       value={exerciseForm.languageId}
-                      onChange={(event) => setExerciseForm((previous) => ({ ...previous, languageId: event.target.value }))}
+                      onChange={(event) => setExerciseForm((previous) => ({
+                        ...previous,
+                        languageId: event.target.value,
+                      }))}
                     >
                       {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
                         <option key={option.id} value={option.id}>
@@ -1102,14 +1132,32 @@ function InstructorDashboardPage() {
                 <div className="ai-validation-score">
                   <div>
                     <span>{t('admin.ai.validation.score')}</span>
-                    <strong>85%</strong>
+                    <strong>{validationScore}%</strong>
                   </div>
                   <div className="ai-progress-track">
-                    <span className="ai-progress-fill ai-progress-fill--success" style={{ width: '85%' }} />
+                    <span
+                      className={`ai-progress-fill ${getValidationProgressClass(validationScore)}`}
+                      style={{ width: `${validationScore}%` }}
+                    />
                   </div>
                 </div>
-                <div className="ai-validation-state is-approved">
-                  {t('admin.ai.validation.approved')}
+                <div className={`ai-validation-state ${validationResult.approved ? 'is-approved' : 'is-rejected'}`}>
+                  {validationResult.approved ? t('admin.ai.validation.approved') : t('admin.ai.validation.rejected')}
+                </div>
+                <section className="ai-validation-section">
+                  <h3>{t('admin.ai.validation.observations')}</h3>
+                  {Array.isArray(validationResult.issues) && validationResult.issues.length > 0 ? (
+                    <ul>
+                      {validationResult.issues.map((issue) => (
+                        <li key={issue}>{issue}</li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p>{t('admin.ai.validation.noIssues')}</p>
+                  )}
+                </section>
+                <div className="ai-validation-footer">
+                  <span>{t('admin.ai.validation.validatedBy')} {validationResult.model || RECOMMENDED_MODEL}</span>
                 </div>
               </MotionArticle>
             ) : (

@@ -302,7 +302,12 @@ function ModulesPage() {
                         <div className="lesson-info">
                           <h3>{lesson.titulo}</h3>
                           <p>{lesson.descripcion}</p>
-                          <span className="lesson-xp">+{lesson.xp_recompensa} XP</span>
+                          <div className="lesson-meta-row">
+                            <span className="lesson-xp">+{lesson.xp_recompensa} XP</span>
+                            {lesson.asistido_ai && (
+                              <span className="lesson-ai-assisted-badge">{t('modules.aiAssisted')}</span>
+                            )}
+                          </div>
                         </div>
                         <button
                           className={`lesson-favorite-btn ${favoriteLessonIds.has(Number(lesson.id)) ? 'active' : ''}`}
