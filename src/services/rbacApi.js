@@ -145,7 +145,7 @@ export async function listAdminUsers(filters = {}) {
   return Array.isArray(data.users) ? data.users : []
 }
 
-export async function updateAdminUser({ userId, role, isActive }) {
+export async function updateAdminUser({ userId, role, isActive, nombre }) {
   const normalizedUserId = parsePositiveInt(userId)
   if (!normalizedUserId) {
     throw new Error('Usuario no válido para actualizar.')
@@ -158,6 +158,10 @@ export async function updateAdminUser({ userId, role, isActive }) {
 
   if (isActive !== undefined) {
     payload.isActive = Boolean(isActive)
+  }
+
+  if (nombre !== undefined) {
+    payload.nombre = String(nombre || '').trim()
   }
 
   if (!Object.keys(payload).length) {
