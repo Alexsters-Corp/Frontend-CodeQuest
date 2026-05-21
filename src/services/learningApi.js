@@ -165,6 +165,7 @@ export async function listLessonsByModule(moduleId) {
     numero: Number(lesson.order_position || 1),
     tipo: 'teoria_practica',
     xp_recompensa: Number(lesson.xp_reward || 0),
+    asistido_ai: Boolean(lesson.is_ai_assisted),
     estado: mapLessonStatus(lesson.status),
     puntuacion_mejor: Number(lesson.xp_earned || 0),
   }))

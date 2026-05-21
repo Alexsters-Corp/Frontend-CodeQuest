@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { IoMdHelpCircleOutline } from 'react-icons/io'
@@ -7,7 +7,7 @@ import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
-import { generateExercise, generateLesson, validateContent } from '../services/aiAdminApi'
+import { generateExercise, generateLesson, listPublishTargets, publishContent, validateContent } from '../services/aiAdminApi'
 import { notifyError, notifySuccess } from '../utils/notify'
 
 const MotionArticle = motion.article
@@ -44,6 +44,14 @@ const GUIDE_TYPES = Object.freeze({
   lesson: 'lesson',
   exercise: 'exercise',
   validator: 'validator',
+})
+
+const AUTO_CREATE_TARGET = 'auto'
+
+const APP_LEVEL_TO_PATH_LEVEL = Object.freeze({
+  beginner: 'principiante',
+  intermediate: 'intermedio',
+  advanced: 'avanzado',
 })
 
 function formatJson(payload) {
@@ -122,6 +130,21 @@ function scoreTone(score) {
   }
 
   return 'success'
+}
+
+function getTargetPathsForLanguage(targets, languageId) {
+  const target = targets.find((item) => Number(item.judge0LanguageId) === Number(languageId))
+  return target?.paths || []
+}
+
+function normalizePublishTargetId(value) {
+  if (value === AUTO_CREATE_TARGET) return null
+  const numeric = Number(value)
+  return Number.isInteger(numeric) && numeric > 0 ? numeric : null
+}
+
+function getPathLevelForLesson(level) {
+  return APP_LEVEL_TO_PATH_LEVEL[normalizeDifficultyLevel(level)] || 'principiante'
 }
 
 function GeneratedContentCard({
@@ -317,7 +340,15 @@ function GuideModal({ type, onClose, t }) {
   )
 }
 
-function ValidationResultCard({ result, onEdit, t }) {
+function ValidationResultCard({
+  result,
+  onEdit,
+  onPublish,
+  publishing,
+  publishBlockedReason,
+  publishStatus,
+  t,
+}) {
   if (!result) {
     return <p className="ai-admin-empty">{t('admin.ai.empty')}</p>
   }
@@ -383,16 +414,26 @@ function ValidationResultCard({ result, onEdit, t }) {
         <div className="ai-result-actions">
           <button
             type="button"
-            disabled={!result.approved}
-            title={!result.approved ? t('admin.ai.validation.publishDisabled') : ''}
+            onClick={onPublish}
+            disabled={publishing}
+            className={publishBlockedReason ? 'ai-publish-btn--blocked' : ''}
+            title={publishBlockedReason || ''}
           >
-            {t('admin.ai.action.publish')}
+            {publishing ? t('admin.ai.publish.publishing') : t('admin.ai.action.publish')}
           </button>
           <button type="button" className="ai-secondary-btn" onClick={onEdit}>
             {t('admin.ai.action.edit')}
           </button>
         </div>
       </footer>
+      {publishBlockedReason && (
+        <p className="ai-publish-blocked-reason">{publishBlockedReason}</p>
+      )}
+      {publishStatus && (
+        <p className={`ai-publish-status ai-publish-status--${publishStatus.type}`}>
+          {publishStatus.message}
+        </p>
+      )}
     </MotionArticle>
   )
 }
@@ -409,6 +450,7 @@ function AdminAiPage() {
     languageId: '63',
     level: 'beginner',
     model: RECOMMENDED_MODEL,
+    publishTargetPathId: '',
   })
   const [lessonLoading, setLessonLoading] = useState(false)
   const [lessonError, setLessonError] = useState('')
@@ -420,6 +462,7 @@ function AdminAiPage() {
     difficulty: 'medium',
     languageId: '63',
     model: RECOMMENDED_MODEL,
+    publishTargetPathId: '',
   })
   const [exerciseLoading, setExerciseLoading] = useState(false)
   const [exerciseError, setExerciseError] = useState('')
@@ -428,9 +471,40 @@ function AdminAiPage() {
 
   const [validationForm, setValidationForm] = useState({ content: '' })
   const [validationSource, setValidationSource] = useState('manual')
+  const [validationContext, setValidationContext] = useState(null)
+  const [publishTargets, setPublishTargets] = useState([])
+  const [publishTargetsLoading, setPublishTargetsLoading] = useState(false)
   const [validationLoading, setValidationLoading] = useState(false)
+  const [publishingContent, setPublishingContent] = useState(false)
   const [validationError, setValidationError] = useState('')
+  const [publishStatus, setPublishStatus] = useState(null)
   const [validationResult, setValidationResult] = useState(null)
+
+  const lessonTargetPaths = useMemo(
+    () => getTargetPathsForLanguage(publishTargets, lessonForm.languageId),
+    [lessonForm.languageId, publishTargets]
+  )
+
+  const exerciseTargetPaths = useMemo(
+    () => getTargetPathsForLanguage(publishTargets, exerciseForm.languageId),
+    [exerciseForm.languageId, publishTargets]
+  )
+
+  const loadPublishTargets = useCallback(async () => {
+    setPublishTargetsLoading(true)
+    try {
+      const payload = await listPublishTargets()
+      setPublishTargets(Array.isArray(payload.languages) ? payload.languages : [])
+    } catch (error) {
+      notifyError(error.message || t('admin.ai.publish.targetsError'))
+    } finally {
+      setPublishTargetsLoading(false)
+    }
+  }, [t])
+
+  useEffect(() => {
+    loadPublishTargets()
+  }, [loadPublishTargets])
 
   async function handleLessonSubmit(event) {
     event.preventDefault()
@@ -446,6 +520,10 @@ function AdminAiPage() {
     }
     if (!lessonForm.level) {
       notifyError(t('admin.ai.error.levelRequired'))
+      return
+    }
+    if (!lessonForm.publishTargetPathId) {
+      notifyError(t('admin.ai.publish.targetRequired'))
       return
     }
     
@@ -482,6 +560,10 @@ function AdminAiPage() {
       notifyError(t('admin.ai.error.difficultyRequired'))
       return
     }
+    if (!exerciseForm.publishTargetPathId) {
+      notifyError(t('admin.ai.publish.targetRequired'))
+      return
+    }
     
     setExerciseLoading(true)
     setExerciseError('')
@@ -514,6 +596,7 @@ function AdminAiPage() {
     setValidationLoading(true)
     setValidationError('')
     setValidationResult(null)
+    setPublishStatus(null)
     try {
       const payload = await validateContent(validationForm)
       setValidationResult(payload)
@@ -527,11 +610,73 @@ function AdminAiPage() {
     }
   }
 
+  async function handlePublishValidatedContent() {
+    if (publishBlockedReason) {
+      setPublishStatus({ type: 'error', message: publishBlockedReason })
+      notifyError(publishBlockedReason)
+      return
+    }
+
+    setPublishingContent(true)
+    setPublishStatus({ type: 'info', message: t('admin.ai.publish.inProgress') })
+    try {
+      const payload = await publishContent({
+        content: validationForm.content,
+        languageId: validationContext.languageId,
+        level: validationContext.level,
+        validation: validationResult,
+        learningPathId: validationContext.learningPathId,
+      })
+
+      setPublishStatus({
+        type: 'success',
+        message: t('admin.ai.publish.inlineSuccess', {
+          id: payload.lesson?.id || payload.lessonId || '',
+          path: payload.learningPathName || '',
+          position: payload.orderPosition || '',
+        }),
+      })
+      notifySuccess(t('admin.ai.publish.success'))
+      setValidationResult(null)
+      setValidationForm({ content: '' })
+      setValidationSource('manual')
+      setValidationContext(null)
+      setLessonResult(null)
+      setExerciseResult(null)
+      await loadPublishTargets()
+    } catch (error) {
+      const message = error.message || t('admin.ai.publish.error')
+      setPublishStatus({ type: 'error', message })
+      notifyError(message)
+    } finally {
+      setPublishingContent(false)
+    }
+  }
+
+  const validationScore = normalizeScore(validationResult?.qualityScore)
+  const publishBlockedReason = useMemo(() => {
+    if (!validationResult) return ''
+    if (!validationContext || !['lesson', 'exercise'].includes(validationContext.type)) return t('admin.ai.publish.generatedOnly')
+    if (!validationContext.learningPathId && validationContext.publishTargetMode !== AUTO_CREATE_TARGET) {
+      return t('admin.ai.publish.targetRequired')
+    }
+    if (!validationResult.approved || validationScore < 80) return t('admin.ai.validation.publishDisabled')
+    return ''
+  }, [t, validationContext, validationResult, validationScore])
+
   function sendLessonToValidator(payload) {
     setValidationForm({ content: formatJson(payload) })
     setValidationSource('generated')
+    setValidationContext({
+      type: 'lesson',
+      languageId: lessonForm.languageId,
+      level: lessonForm.level,
+      learningPathId: normalizePublishTargetId(lessonForm.publishTargetPathId),
+      publishTargetMode: lessonForm.publishTargetPathId,
+    })
     setValidationError('')
     setValidationResult(null)
+    setPublishStatus(null)
     notifySuccess(t('admin.ai.sentToValidator'), { duration: 2000 })
     window.setTimeout(() => {
       validatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -541,8 +686,16 @@ function AdminAiPage() {
   function sendExerciseToValidator(payload) {
     setValidationForm({ content: formatJson(payload) })
     setValidationSource('generated')
+    setValidationContext({
+      type: 'exercise',
+      languageId: exerciseForm.languageId,
+      level: normalizeDifficultyLevel(exerciseForm.difficulty),
+      learningPathId: normalizePublishTargetId(exerciseForm.publishTargetPathId),
+      publishTargetMode: exerciseForm.publishTargetPathId,
+    })
     setValidationError('')
     setValidationResult(null)
+    setPublishStatus(null)
     notifySuccess(t('admin.ai.sentToValidator'), { duration: 2000 })
     window.setTimeout(() => {
       validatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -552,6 +705,8 @@ function AdminAiPage() {
   function handleValidationContentChange(event) {
     setValidationForm({ content: event.target.value })
     setValidationSource('manual')
+    setValidationContext(null)
+    setPublishStatus(null)
   }
 
   function focusValidationEditor() {
@@ -605,6 +760,7 @@ function AdminAiPage() {
                 onChange={(event) => setLessonForm((previous) => ({
                   ...previous,
                   languageId: event.target.value,
+                  publishTargetPathId: '',
                 }))}
               >
                 {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
@@ -621,11 +777,33 @@ function AdminAiPage() {
                 onChange={(event) => setLessonForm((previous) => ({
                   ...previous,
                   level: event.target.value,
+                  publishTargetPathId: '',
                 }))}
               >
                 <option value="beginner">{t('admin.ai.level.beginner')}</option>
                 <option value="intermediate">{t('admin.ai.level.intermediate')}</option>
                 <option value="advanced">{t('admin.ai.level.advanced')}</option>
+              </select>
+
+              <label htmlFor="ai-lesson-target">{t('admin.ai.field.publishTarget')}</label>
+              <select
+                id="ai-lesson-target"
+                value={lessonForm.publishTargetPathId}
+                onChange={(event) => setLessonForm((previous) => ({
+                  ...previous,
+                  publishTargetPathId: event.target.value,
+                }))}
+                disabled={publishTargetsLoading}
+              >
+                <option value="">{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
+                {lessonTargetPaths.map((path) => (
+                  <option key={path.id} value={path.id}>
+                    {path.name} - {path.difficultyLevel}
+                  </option>
+                ))}
+                <option value={AUTO_CREATE_TARGET}>
+                  {t('admin.ai.publish.autoTarget', { level: getPathLevelForLesson(lessonForm.level) })}
+                </option>
               </select>
 
               <label htmlFor="ai-lesson-model">{t('admin.ai.field.model')}</label>
@@ -692,6 +870,7 @@ function AdminAiPage() {
                 onChange={(event) => setExerciseForm((previous) => ({
                   ...previous,
                   difficulty: event.target.value,
+                  publishTargetPathId: '',
                 }))}
               >
                 <option value="easy">{t('admin.ai.difficulty.easy')}</option>
@@ -706,6 +885,7 @@ function AdminAiPage() {
                 onChange={(event) => setExerciseForm((previous) => ({
                   ...previous,
                   languageId: event.target.value,
+                  publishTargetPathId: '',
                 }))}
               >
                 {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
@@ -713,6 +893,29 @@ function AdminAiPage() {
                     {option.icon} {t(option.labelKey)}
                   </option>
                 ))}
+              </select>
+
+              <label htmlFor="ai-exercise-target">{t('admin.ai.field.publishTarget')}</label>
+              <select
+                id="ai-exercise-target"
+                value={exerciseForm.publishTargetPathId}
+                onChange={(event) => setExerciseForm((previous) => ({
+                  ...previous,
+                  publishTargetPathId: event.target.value,
+                }))}
+                disabled={publishTargetsLoading}
+              >
+                <option value="">{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
+                {exerciseTargetPaths.map((path) => (
+                  <option key={path.id} value={path.id}>
+                    {path.name} - {path.difficultyLevel}
+                  </option>
+                ))}
+                <option value={AUTO_CREATE_TARGET}>
+                  {t('admin.ai.publish.autoTarget', {
+                    level: getPathLevelForLesson(normalizeDifficultyLevel(exerciseForm.difficulty)),
+                  })}
+                </option>
               </select>
 
               <label htmlFor="ai-exercise-model">{t('admin.ai.field.model')}</label>
@@ -781,7 +984,20 @@ function AdminAiPage() {
             </form>
 
             {validationError && <p className="ai-admin-error">{validationError}</p>}
-            <ValidationResultCard result={validationResult} onEdit={focusValidationEditor} t={t} />
+            <ValidationResultCard
+              result={validationResult}
+              onEdit={focusValidationEditor}
+              onPublish={handlePublishValidatedContent}
+              publishing={publishingContent}
+              publishBlockedReason={publishBlockedReason}
+              publishStatus={publishStatus}
+              t={t}
+            />
+            {!validationResult && publishStatus && (
+              <p className={`ai-publish-status ai-publish-status--${publishStatus.type}`}>
+                {publishStatus.message}
+              </p>
+            )}
           </section>
         </div>
       </section>
