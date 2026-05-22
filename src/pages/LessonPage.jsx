@@ -1,6 +1,6 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
 import { motion as Motion } from 'framer-motion'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
 import LoadingSpinner from '../components/LoadingSpinner'
@@ -134,6 +134,7 @@ const RETRY_BONUS_XP = 20
 function LessonPage() {
   const { lessonId } = useParams()
   const navigate = useNavigate()
+  const location = useLocation()
   const { t } = useLanguage()
   const [lesson, setLesson] = useState(null)
   const [exercises, setExercises] = useState([])
@@ -164,6 +165,16 @@ function LessonPage() {
   const [loadingSolution, setLoadingSolution] = useState(false)
 
   const lessonLanguageId = lesson?.lenguaje_id
+  const sourceClassId = Number(location.state?.classId)
+  const hasSourceClassId = Number.isInteger(sourceClassId) && sourceClassId > 0
+
+  const handleBackToMyClass = useCallback(() => {
+    navigate('/dashboard/classes', {
+      state: {
+        focusClassId: hasSourceClassId ? sourceClassId : null,
+      },
+    })
+  }, [hasSourceClassId, navigate, sourceClassId])
 
   const editorLanguage = useMemo(
     () => getMonacoLanguageFromLesson(lessonLanguageId),
@@ -514,6 +525,13 @@ function LessonPage() {
                 type="button"
               >
                 🔄 Repetir lección
+              </button>
+              <button
+                className="lesson-start-btn ui-jitter"
+                onClick={handleBackToMyClass}
+                type="button"
+              >
+                🏫 {t('lesson.backToMyClass')}
               </button>
             </div>
 

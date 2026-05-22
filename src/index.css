@@ -2834,6 +2834,45 @@ button.profile-icon-chip:hover {
   background: rgba(16, 185, 129, 0.26);
 }
 
+.dashboard-class-lessons {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(148, 163, 184, 0.18);
+}
+
+.section-header--compact {
+  margin-bottom: 8px;
+}
+
+.class-lessons-list {
+  display: grid;
+  gap: 10px;
+}
+
+.class-lesson-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid rgba(148, 163, 184, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 10px;
+  padding: 10px;
+}
+
+.class-lesson-item__title {
+  margin: 0;
+  color: #e7eef8;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.class-lesson-item__meta {
+  margin: 4px 0 0;
+  color: #9fb0c6;
+  font-size: 0.8rem;
+}
+
 .section-header {
   display: flex;
   align-items: center;
@@ -8361,11 +8400,45 @@ button.ranking-item-summary:focus-visible {
 }
 
 /* More compact metrics for the main panel */
-.rbac-mini-metrics-row {
+.rbac-progress-mini-wrap {
   display: flex;
-  gap: 12px;
-  margin-bottom: 1.25rem;
+  align-items: center;
+  gap: 8px;
+  min-width: 120px;
 }
+
+.rbac-progress-mini-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.rbac-progress-mini-fill {
+  height: 100%;
+  background: var(--cq-accent);
+  border-radius: 99px;
+  transition: width 0.4s ease-out;
+}
+
+.mini-metric-pill.action-pill {
+  cursor: pointer;
+  background: var(--cq-accent);
+  color: white;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.mini-metric-pill.action-pill:hover {
+  transform: translateY(-2px);
+  background: var(--cq-accent-hover, #4338ca);
+}
+
+.mini-metric-pill.action-pill strong {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
 
 .mini-metric-pill {
   flex: 1;
