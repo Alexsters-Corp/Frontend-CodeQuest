@@ -1,9 +1,10 @@
 import { useEffect } from 'react'
-import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext'
 import { LanguageProvider } from './context/LanguageContext'
 import { useLanguage } from './context/useLanguage'
+import { useAuth } from './context/useAuth'
 import PrivateRoute from './components/PrivateRoute'
 import PublicRoute from './components/PublicRoute'
 import RoleGuard from './components/guards/RoleGuard'
@@ -29,6 +30,7 @@ import AdminDashboardPage from './pages/AdminDashboardPage'
 import AdminAiPage from './pages/AdminAiPage'
 import ProfilePage from './pages/ProfilePage'
 import ProfileEditPage from './pages/ProfileEditPage'
+import ProfileConnectionsPage from './pages/ProfileConnectionsPage'
 import UserProfilePage from './pages/UserProfilePage'
 import RankingPage from './pages/RankingPage'
 import SocialPage from './pages/SocialPage'
@@ -218,10 +220,30 @@ function AppContent() {
             }
           />
           <Route
+            path="/profile/connections"
+            element={
+              <PrivateRoute>
+                <ProfileConnectionsPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/users/:username"
             element={
               <PrivateRoute>
                 <UserProfilePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/u/:username"
+            element={<SharedProfileRoute />}
+          />
+          <Route
+            path="/users/:username/connections"
+            element={
+              <PrivateRoute>
+                <ProfileConnectionsPage />
               </PrivateRoute>
             }
           />
@@ -266,6 +288,21 @@ function AppContent() {
         </Routes>
     </>
   )
+}
+
+function SharedProfileRoute() {
+  const { username } = useParams()
+  const { isAuthenticated, loading } = useAuth()
+
+  if (loading) {
+    return null
+  }
+
+  if (isAuthenticated && username) {
+    return <Navigate to={`/users/${encodeURIComponent(username)}`} replace />
+  }
+
+  return <UserProfilePage standalone />
 }
 
 export default App

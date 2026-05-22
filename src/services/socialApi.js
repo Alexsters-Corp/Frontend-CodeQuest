@@ -1,7 +1,29 @@
-import { apiFetch } from './api'
+import { apiFetch, API_URL } from './api'
 
 async function requestJson(endpoint, options = {}) {
   const response = await apiFetch(endpoint, options)
+  const data = await response.json().catch(() => ({}))
+
+  if (!response.ok) {
+    const error = new Error(data.message || 'No fue posible completar la solicitud.')
+    error.status = response.status
+    error.code = data.code
+    error.details = data.details
+    throw error
+  }
+
+  return data
+}
+
+async function requestJsonPublic(endpoint, options = {}) {
+  const response = await fetch(`${API_URL}${endpoint}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      ...(options.headers || {}),
+    },
+    ...options,
+  })
+
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
@@ -65,4 +87,23 @@ export async function getPublicUserProfile(username) {
   }
 
   return requestJson(`/api/social/profile/${encodeURIComponent(normalizedUsername)}`)
+}
+
+export async function getSharedPublicUserProfile(username) {
+  const normalizedUsername = String(username || '').trim()
+  if (!normalizedUsername) {
+    throw new Error('Debes indicar un nombre de usuario válido.')
+  }
+
+  return requestJsonPublic(`/api/social/public/profile/${encodeURIComponent(normalizedUsername)}`)
+}
+
+export async function getPublicFollowDirectory(username, limit = 24) {
+  const normalizedUsername = String(username || '').trim()
+  if (!normalizedUsername) {
+    throw new Error('Debes indicar un nombre de usuario válido.')
+  }
+
+  const params = new URLSearchParams({ limit: String(limit) })
+  return requestJson(`/api/social/profile/${encodeURIComponent(normalizedUsername)}/connections?${params.toString()}`)
 }
