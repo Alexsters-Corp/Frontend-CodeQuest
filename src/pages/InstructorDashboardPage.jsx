@@ -344,6 +344,9 @@ function InstructorDashboardPage() {
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [analyticsError, setAnalyticsError] = useState('')
   const [classDeleteTarget, setClassDeleteTarget] = useState(null)
+  const [revokeInviteTarget, setRevokeInviteTarget] = useState(null)
+  const [rotateCodeTarget, setRotateCodeTarget] = useState(null)
+  const [kickStudentTarget, setKickStudentTarget] = useState(null)
 
   const [generatingInvite, setGeneratingInvite] = useState(false)
   const [revokingInvite, setRevokingInvite] = useState(false)
@@ -519,12 +522,17 @@ function InstructorDashboardPage() {
   }
 
   async function handleRevokeInvite(inviteId) {
-    if (!window.confirm(t('instructor.confirmRevoke'))) return
+    setRevokeInviteTarget(inviteId)
+  }
+
+  async function confirmRevokeInvite() {
+    if (!revokeInviteTarget) return
     setRevokingInvite(true)
     try {
-      await revokeClassInvite(inviteId)
+      await revokeClassInvite(revokeInviteTarget)
       notifySuccess(t('instructor.revokeSuccess'))
       await loadData()
+      setRevokeInviteTarget(null)
     } catch (requestError) {
       notifyError(requestError.message || t('instructor.revokeError'))
     } finally {
@@ -533,12 +541,17 @@ function InstructorDashboardPage() {
   }
 
   async function handleRotateCode(classId) {
-    if (!window.confirm(t('instructor.confirmRotate'))) return
+    setRotateCodeTarget(classId)
+  }
+
+  async function confirmRotateCode() {
+    if (!rotateCodeTarget) return
     setRotatingCode(true)
     try {
-      const result = await rotateClassCode(classId)
+      const result = await rotateClassCode(rotateCodeTarget)
       notifySuccess(t('instructor.rotateSuccess', { code: result.invite.code }))
       await loadData()
+      setRotateCodeTarget(null)
     } catch (requestError) {
       notifyError(requestError.message || t('instructor.rotateError'))
     } finally {
@@ -588,14 +601,19 @@ function InstructorDashboardPage() {
     }
   }
 
-  async function handleKickStudent(studentId) {
-    if (!window.confirm(t('instructor.confirmKickStudent') || '¿Estás seguro de que deseas expulsar a este alumno?')) return
+  async function handleKickStudent(student) {
+    setKickStudentTarget(student)
+  }
+
+  async function confirmKickStudent() {
+    if (!kickStudentTarget) return
     try {
-      await kickStudentFromClass({ classId: selectedClassId, studentId })
+      await kickStudentFromClass({ classId: selectedClassId, studentId: kickStudentTarget.id })
       notifySuccess(t('instructor.kickSuccess') || 'Alumno expulsado con éxito')
       // Recargar analytics para actualizar la lista de alumnos
       const payload = await getClassAnalytics(selectedClassId)
       setAnalytics(payload)
+      setKickStudentTarget(null)
     } catch (error) {
       notifyError(error.message || 'Error al expulsar al alumno')
     }
@@ -727,10 +745,6 @@ function InstructorDashboardPage() {
       notifyInfo(t('instructor.noClassSelected'))
       return
     }
-    if (!publishTargetPathId) {
-      notifyInfo(t('admin.ai.publish.noTarget') || 'Selecciona un destino para publicar.')
-      return
-    }
 
     setPublishingContent(true)
     setPublishStatus(null)
@@ -744,7 +758,7 @@ function InstructorDashboardPage() {
         languageId: sourceForm.languageId,
         level: isLesson ? sourceForm.level : sourceForm.difficulty,
         validation: validationResult,
-        learningPathId: publishTargetPathId,
+        learningPathId: publishTargetPathId || null,
         classId: selectedClassId,
       })
 
@@ -1006,7 +1020,7 @@ function InstructorDashboardPage() {
                             <IconTooltipButton
                               tooltip={t('instructor.kickStudent') || 'Expulsar alumno'}
                               buttonClassName="rbac-revoke-btn"
-                              onClick={() => handleKickStudent(s.id)}
+                              onClick={() => handleKickStudent(s)}
                             >
                               ✕
                             </IconTooltipButton>
@@ -1085,6 +1099,97 @@ function InstructorDashboardPage() {
                   </button>
                   <button type="button" className="instructor-confirm-danger" onClick={confirmDeleteClass}>
                     {t('instructor.confirmDeleteClassAction') || 'Eliminar'}
+                  </button>
+                </div>
+              </MotionDiv>
+            </MotionDiv>
+          )}
+
+          {revokeInviteTarget && (
+            <MotionDiv
+              className="instructor-confirm-overlay"
+              role="dialog"
+              aria-modal="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onMouseDown={() => setRevokeInviteTarget(null)}
+            >
+              <MotionDiv
+                className="instructor-confirm-modal"
+                initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <div className="instructor-confirm-icon">🎫</div>
+                <h3>{t('instructor.revokeCode') || 'Revocar invitación'}</h3>
+                <p>{t('instructor.confirmRevoke') || '¿Estás seguro de revocar este código? Ya no podrá ser usado para inscribirse.'}</p>
+                <div className="instructor-confirm-actions">
+                  <button type="button" className="rbac-btn-secondary" onClick={() => setRevokeInviteTarget(null)}>
+                    {t('common.cancel')}
+                  </button>
+                  <button type="button" className="instructor-confirm-danger" onClick={confirmRevokeInvite} disabled={revokingInvite}>
+                    {revokingInvite ? '...' : t('common.confirm') || 'Confirmar'}
+                  </button>
+                </div>
+              </MotionDiv>
+            </MotionDiv>
+          )}
+
+          {rotateCodeTarget && (
+            <MotionDiv
+              className="instructor-confirm-overlay"
+              role="dialog"
+              aria-modal="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onMouseDown={() => setRotateCodeTarget(null)}
+            >
+              <MotionDiv
+                className="instructor-confirm-modal"
+                initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <div className="instructor-confirm-icon">🔄</div>
+                <h3>{t('instructor.rotateCode') || 'Rotar código'}</h3>
+                <p>{t('instructor.confirmRotate') || '¿Estás seguro de rotar el código? El código actual será revocado y se generará uno nuevo.'}</p>
+                <div className="instructor-confirm-actions">
+                  <button type="button" className="rbac-btn-secondary" onClick={() => setRotateCodeTarget(null)}>
+                    {t('common.cancel')}
+                  </button>
+                  <button type="button" className="rbac-btn-primary" onClick={confirmRotateCode} disabled={rotatingCode}>
+                    {rotatingCode ? '...' : t('common.confirm') || 'Confirmar'}
+                  </button>
+                </div>
+              </MotionDiv>
+            </MotionDiv>
+          )}
+
+          {kickStudentTarget && (
+            <MotionDiv
+              className="instructor-confirm-overlay"
+              role="dialog"
+              aria-modal="true"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              onMouseDown={() => setKickStudentTarget(null)}
+            >
+              <MotionDiv
+                className="instructor-confirm-modal"
+                initial={{ opacity: 0, y: 18, scale: 0.98 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                onMouseDown={(e) => e.stopPropagation()}
+              >
+                <div className="instructor-confirm-icon">👤</div>
+                <h3>{t('instructor.kickStudent') || 'Expulsar alumno'}</h3>
+                <p>{t('instructor.confirmKickStudent') || '¿Estás seguro de que deseas expulsar a este alumno?'}</p>
+                <p><strong>{kickStudentTarget.name}</strong> ({kickStudentTarget.email})</p>
+                <div className="instructor-confirm-actions">
+                  <button type="button" className="rbac-btn-secondary" onClick={() => setKickStudentTarget(null)}>
+                    {t('common.cancel')}
+                  </button>
+                  <button type="button" className="instructor-confirm-danger" onClick={confirmKickStudent}>
+                    {t('common.confirm') || 'Confirmar'}
                   </button>
                 </div>
               </MotionDiv>
@@ -1344,13 +1449,39 @@ function InstructorDashboardPage() {
 
                 <div className="ai-validation-footer" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1rem' }}>
                   <div className="ai-admin-form" style={{ background: 'transparent', padding: 0 }}>
-                    <label style={{ fontSize: '0.8rem', opacity: 0.8 }}>{t('admin.ai.publish.selectTarget') || 'Publicar en ruta:'}</label>
+                    <label style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                      {t('instructor.myClasses') || 'Mis clases'}
+                    </label>
+                    <select
+                      value={selectedClassId ? String(selectedClassId) : ''}
+                      onChange={(e) => {
+                        const value = Number(e.target.value)
+                        if (Number.isInteger(value) && value > 0) {
+                          handleLoadAnalytics(value)
+                          return
+                        }
+                        setSelectedClassId(null)
+                        setAnalytics(null)
+                      }}
+                      style={{ marginBottom: '0.75rem' }}
+                    >
+                      <option value="">{t('common.select') || 'Seleccionar clase...'}</option>
+                      {classes.map((item) => (
+                        <option key={item.id} value={item.id}>
+                          {item.name}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label style={{ fontSize: '0.8rem', opacity: 0.8 }}>
+                      {t('admin.ai.publish.selectTarget') || 'Publicar en ruta:'} ({t('common.optional') || 'opcional'})
+                    </label>
                     <select
                       value={publishTargetPathId}
                       onChange={(e) => setPublishTargetPathId(e.target.value)}
                       style={{ marginBottom: 0 }}
                     >
-                      <option value="">{t('common.select') || 'Seleccionar ruta...'}</option>
+                      <option value="">{t('common.select') || 'Sin ruta (auto)'}</option>
                       {analytics?.assigned_paths?.map(path => (
                         <option key={path.id} value={path.learning_path_id}>{path.name}</option>
                       ))}
@@ -1363,7 +1494,7 @@ function InstructorDashboardPage() {
                       type="button" 
                       className="rbac-btn-success" 
                       onClick={handlePublishValidatedContent}
-                      disabled={publishingContent || !validationResult.approved || !publishTargetPathId}
+                      disabled={publishingContent || !validationResult.approved || !selectedClassId}
                     >
                       {publishingContent ? '...' : t('admin.ai.action.publish') || 'Publicar a mi clase'}
                     </button>

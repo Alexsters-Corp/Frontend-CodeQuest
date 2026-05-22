@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
@@ -9,6 +10,7 @@ import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 export default function StudentClassesPage() {
   const { t } = useLanguage()
+  const location = useLocation()
   const [studentClasses, setStudentClasses] = useState([])
   const [loadingClasses, setLoadingClasses] = useState(false)
   const [showJoinModal, setShowJoinModal] = useState(false)
@@ -33,6 +35,13 @@ export default function StudentClassesPage() {
   useEffect(() => {
     loadClasses()
   }, [loadClasses])
+
+  useEffect(() => {
+    const focused = Number(location.state?.focusClassId)
+    if (Number.isInteger(focused) && focused > 0) {
+      setFocusedClassId(focused)
+    }
+  }, [location.state])
 
   const handleJoinClass = async (event) => {
     event.preventDefault()
