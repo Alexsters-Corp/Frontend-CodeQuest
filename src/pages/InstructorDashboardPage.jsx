@@ -315,7 +315,7 @@ function formatDate(dateString, t) {
       hour: '2-digit',
       minute: '2-digit',
     }).format(date)
-  } catch (e) {
+  } catch {
     return t('instructor.noDate')
   }
 }
@@ -386,7 +386,6 @@ function InstructorDashboardPage() {
   const [validationResult, setValidationResult] = useState(null)
 
   const [publishingContent, setPublishingContent] = useState(false)
-  const [publishStatus, setPublishStatus] = useState(null)
   const [publishTargetPathId, setPublishTargetPathId] = useState('')
 
   const [availablePaths, setAvailablePaths] = useState([])
@@ -640,8 +639,8 @@ function InstructorDashboardPage() {
     setLessonError('')
     setLessonResult(null)
     try {
-      const payload = await generateLesson(lessonForm)
-      setLessonResult(payload)
+      const generatedLesson = await generateLesson(lessonForm)
+      setLessonResult(generatedLesson)
       setValidationResult(null)
       notifySuccess(t('admin.ai.success.lesson'))
     } catch (error) {
@@ -747,13 +746,12 @@ function InstructorDashboardPage() {
     }
 
     setPublishingContent(true)
-    setPublishStatus(null)
 
     try {
       const isLesson = aiActiveTab === 'lesson'
       const sourceForm = isLesson ? lessonForm : exerciseForm
       
-      const payload = await publishContent({
+      await publishContent({
         content: validationForm.content,
         languageId: sourceForm.languageId,
         level: isLesson ? sourceForm.level : sourceForm.difficulty,
@@ -762,7 +760,6 @@ function InstructorDashboardPage() {
         classId: selectedClassId,
       })
 
-      setPublishStatus({ type: 'success', message: t('admin.ai.publish.success') })
       notifySuccess(t('admin.ai.publish.success'))
       
       // Limpiar estados
@@ -777,7 +774,6 @@ function InstructorDashboardPage() {
         setAnalytics(analyticsPayload)
       }
     } catch (error) {
-      setPublishStatus({ type: 'error', message: error.message })
       notifyError(error.message)
     } finally {
       setPublishingContent(false)
