@@ -231,6 +231,12 @@ export default function Sidebar() {
               </button>
             </li>
             <li>
+              <button type="button" className={navBtn('/dashboard#my-classes')} onClick={() => goToDashboardSection('dashboard-my-classes')} title={t('dashboard.sidebar.myClasses')}>
+                <span className="nav-icon">🏫</span>
+                {t('dashboard.sidebar.myClasses')}
+              </button>
+            </li>
+            <li>
               <button type="button" className={navBtn('/ranking')} onClick={() => navigate('/ranking?scope=global')} title={t('dashboard.sidebar.ranking')}>
                 <span className="nav-icon">🥇</span>
                 {t('dashboard.sidebar.ranking')}

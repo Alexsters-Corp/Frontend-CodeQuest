@@ -4,6 +4,7 @@ import MotionPage from '../components/MotionPage'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
+import StudentClassesGrid from '../components/StudentClassesGrid'
 import { useLanguage } from '../context/useLanguage'
 import { useAuth } from '../context/useAuth'
 import {
@@ -12,6 +13,7 @@ import {
   getDashboardOverview,
   getSelectedLanguageId,
   joinClassWithCode,
+  listStudentClasses,
   setSelectedLanguageId,
 } from '../services/learningApi'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
@@ -57,7 +59,9 @@ function DashboardPage() {
   const { t } = useLanguage()
   const { user } = useAuth()
   const [overview, setOverview] = useState(null)
+  const [studentClasses, setStudentClasses] = useState([])
   const [loading, setLoading] = useState(true)
+  const [loadingClasses, setLoadingClasses] = useState(false)
   const [streakJitter, setStreakJitter] = useState(false)
   const [pendingJitter, setPendingJitter] = useState(false)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
@@ -84,9 +88,22 @@ function DashboardPage() {
     }
   }, [t])
 
+  const loadClasses = useCallback(async () => {
+    setLoadingClasses(true)
+    try {
+      const data = await listStudentClasses()
+      setStudentClasses(Array.isArray(data) ? data : (data?.classes || []))
+    } catch (e) {
+      console.error('Error loading student classes:', e)
+    } finally {
+      setLoadingClasses(false)
+    }
+  }, [])
+
   useEffect(() => {
     loadOverview()
-  }, [loadOverview])
+    loadClasses()
+  }, [loadOverview, loadClasses])
 
   useEffect(() => {
     if (!location.state?.fromLesson) return
@@ -359,6 +376,8 @@ function DashboardPage() {
               </div>
             )}
           </section>
+
+          <StudentClassesGrid classes={studentClasses} loading={loadingClasses} />
 
           {showDeferredDashboardSections && overview?.achievements?.length > 0 && (
             <section className="dashboard-achievements" id="dashboard-achievements">
