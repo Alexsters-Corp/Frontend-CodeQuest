@@ -130,6 +130,23 @@ export async function kickStudentFromClass({ classId, studentId }) {
   })
 }
 
+export async function assignPathToClass({ classId, learningPathId, isRequired = true }) {
+  const normalizedClassId = parsePositiveInt(classId)
+  const normalizedPathId = parsePositiveInt(learningPathId)
+
+  if (!normalizedClassId || !normalizedPathId) {
+    throw new Error('Datos no válidos para asignar ruta.')
+  }
+
+  return requestJson(`/api/instructor/classes/${normalizedClassId}/assign-path`, {
+    method: 'POST',
+    body: JSON.stringify({
+      learningPathId: normalizedPathId,
+      isRequired,
+    }),
+  })
+}
+
 export async function getClassAnalytics(classId) {
   const normalizedClassId = parsePositiveInt(classId)
   if (!normalizedClassId) {

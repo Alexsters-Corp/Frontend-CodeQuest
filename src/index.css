@@ -2685,11 +2685,11 @@ button.profile-icon-chip:hover {
 }
 
 .dashboard-classes {
-  margin-top: 20px;
-  padding: 16px;
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(8, 18, 34, 0.78), rgba(10, 22, 41, 0.86));
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  border-radius: 0;
+  background: transparent;
 }
 
 .dashboard-classes .section-header h2 {
@@ -2697,9 +2697,48 @@ button.profile-icon-chip:hover {
 }
 
 .dashboard-classes-empty {
-  border-style: solid;
-  border-color: rgba(148, 163, 184, 0.2);
-  background: rgba(6, 14, 28, 0.58);
+  margin-top: 4px;
+}
+
+.classes-joined-banner {
+  margin: 12px 0 14px;
+  padding: 12px 14px;
+  border: 1px solid rgba(16, 185, 129, 0.34);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(6, 12, 22, 0.55));
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.classes-joined-banner__text {
+  margin: 0;
+  color: #dbfcea;
+  font-weight: 600;
+}
+
+.classes-joined-banner__action {
+  border: 1px solid rgba(16, 185, 129, 0.48);
+  background: rgba(16, 185, 129, 0.2);
+  color: #d9ffe8;
+  border-radius: 10px;
+  padding: 8px 14px;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.classes-joined-banner__action:hover {
+  background: rgba(16, 185, 129, 0.28);
+}
+
+@media (max-width: 720px) {
+  .classes-joined-banner {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 }
 
 .classes-cards-row {
@@ -2711,9 +2750,7 @@ button.profile-icon-chip:hover {
 }
 
 .class-card {
-  width: 240px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(148, 163, 184, 0.24);
+  width: 178px;
 }
 
 .class-card .lang-name {
@@ -2741,7 +2778,7 @@ button.profile-icon-chip:hover {
   padding: 14px;
   border-radius: 12px;
   border: 1px solid rgba(148, 163, 184, 0.2);
-  background: rgba(7, 16, 30, 0.72);
+  background: rgba(7, 16, 30, 0.5);
 }
 
 .dashboard-classes-detail .section-header h3 {

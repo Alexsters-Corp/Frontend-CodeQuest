@@ -62,6 +62,7 @@ export default function StudentClassesPage() {
   }
 
   const handleViewJoinedClass = () => {
+    setRecentJoinedClass(null)
     const target = document.getElementById('dashboard-my-classes')
     if (target) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' })
@@ -75,7 +76,7 @@ export default function StudentClassesPage() {
 
         <div className="dashboard-content-layout dashboard-content-layout--single">
           <div className="dashboard-main">
-            <section className="dashboard-languages" id="dashboard-languages">
+            <div id="dashboard-languages">
               <div className="section-header">
                 <h2>{t('dashboard.sidebar.myClasses')}</h2>
                 <div className="section-actions">
@@ -90,16 +91,22 @@ export default function StudentClassesPage() {
               </div>
 
               {recentJoinedClass ? (
-                <div className="empty-state" style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-                  <h3>{t('dashboard.classes.joinedBannerTitle', { name: recentJoinedClass.name })}</h3>
-                  <button type="button" onClick={handleViewJoinedClass}>
+                <div className="classes-joined-banner" role="status" aria-live="polite">
+                  <p className="classes-joined-banner__text">
+                    {t('dashboard.classes.joinedBannerTitle', { name: recentJoinedClass.name })}
+                  </p>
+                  <button
+                    type="button"
+                    className="classes-joined-banner__action"
+                    onClick={handleViewJoinedClass}
+                  >
                     {t('dashboard.classes.viewMyClass')}
                   </button>
                 </div>
               ) : null}
 
               <StudentClassesGrid classes={studentClasses} loading={loadingClasses} focusClassId={focusedClassId} />
-            </section>
+            </div>
           </div>
         </div>
 

@@ -38,9 +38,6 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
 
   return (
     <section className="dashboard-classes" id="dashboard-my-classes">
-      <div className="section-header">
-        <h2>{t('dashboard.sidebar.myClasses')}</h2>
-      </div>
       {normalizedClasses.length === 0 ? (
         <div className="empty-state dashboard-classes-empty">
           <span className="empty-state__icon" aria-hidden="true">🏫</span>
@@ -49,7 +46,7 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
         </div>
       ) : (
         <>
-          <div className="classes-cards-row">
+          <div className="language-cards-row">
             {normalizedClasses.map((cls) => {
               const joinedAtLabel = formatJoinedAt(cls.joined_at)
               const isSelected = Number(cls.id) === Number(selectedClassId)
