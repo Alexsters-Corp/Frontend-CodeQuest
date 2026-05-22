@@ -22,6 +22,7 @@ import DiagnosticTestPage from './pages/DiagnosticTestPage'
 import ModulesPage from './pages/ModulesPage'
 import LessonPage from './pages/LessonPage'
 import FavoritesPage from './pages/FavoritesPage'
+import StudentClassesPage from './pages/StudentClassesPage'
 import UnauthorizedPage from './pages/UnauthorizedPage'
 import InstructorDashboardPage from './pages/InstructorDashboardPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
@@ -38,7 +39,7 @@ import DemoCompletionPage from './pages/DemoCompletionPage'
 const SIDEBAR_ROUTES = [
   '/dashboard', '/favorites', '/profile', '/ranking',
   '/social', '/users', '/instructor', '/admin', '/modules',
-  '/lesson', '/diagnostic', '/onboarding',
+  '/lesson', '/diagnostic', '/onboarding', '/dashboard/classes',
 ]
 
 function App() {
@@ -141,6 +142,14 @@ function AppContent() {
             element={
               <PrivateRoute>
                 <DashboardPage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/dashboard/classes"
+            element={
+              <PrivateRoute>
+                <StudentClassesPage />
               </PrivateRoute>
             }
           />

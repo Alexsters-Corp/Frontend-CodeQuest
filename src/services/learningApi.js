@@ -106,6 +106,10 @@ export async function getDashboardOverview() {
   return requestJson('/api/learning/dashboard')
 }
 
+export async function listStudentClasses() {
+  return requestJson('/api/learning/progress/classes')
+}
+
 export async function joinClassWithCode(code) {
   const normalizedCode = String(code || '').trim().toUpperCase()
   if (!normalizedCode) {

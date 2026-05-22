@@ -18,7 +18,9 @@ import {
   rotateClassCode,
   deleteInstructorClass,
   kickStudentFromClass,
+  assignPathToClass,
 } from '../services/rbacApi'
+import { listAvailableLanguages } from '../services/learningApi'
 import { generateExercise, generateLesson, validateContent } from '../services/aiAdminApi'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
