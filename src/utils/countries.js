@@ -66,6 +66,15 @@ export function countryNameFromCode(code, locale = 'es', fallback = '') {
   return typeof value === 'string' && value.trim() ? value : fallback
 }
 
+export function countryFlagUrl(code) {
+  const normalizedCode = normalizeCode(code)
+  if (!normalizedCode) {
+    return ''
+  }
+
+  return `https://flagcdn.com/${normalizedCode.toLowerCase()}.svg`
+}
+
 function findCodeByName(name, locale) {
   const target = String(name || '').trim()
   if (!target) {

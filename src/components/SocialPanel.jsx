@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { AiOutlineUserAdd, AiOutlineUserSwitch } from 'react-icons/ai'
+import { LuUserRoundCheck } from 'react-icons/lu'
 import { useLanguage } from '../context/useLanguage'
 import { useAuth } from '../context/useAuth'
 import {
@@ -21,6 +23,10 @@ function UserCard({
   showFollowsYou = false,
 }) {
   const initial = (user.username?.[0] || 'U').toUpperCase()
+  const isMutualFollow = Boolean(user.isFollowing && user.isFollowingBack)
+  const actionLabel = user.isFollowing
+    ? (isMutualFollow ? t('social.mutualFollowLabel') : t('social.followingLabel'))
+    : t('social.followAction')
 
   return (
     <article className="social-user-card" role="listitem">
@@ -50,20 +56,26 @@ function UserCard({
         {user.isFollowing ? (
           <button
             type="button"
-            className="profile-cancel-btn"
+            className="profile-cancel-btn social-action-btn"
             onClick={() => onUnfollow(user.username)}
             disabled={actionLoading}
           >
-            {actionLoading ? '...' : t('social.unfollowAction')}
+            <span className="social-action-btn__icon" aria-hidden="true">
+              {isMutualFollow ? <AiOutlineUserSwitch /> : <LuUserRoundCheck />}
+            </span>
+            <span>{actionLoading ? '...' : actionLabel}</span>
           </button>
         ) : (
           <button
             type="button"
-            className="profile-save-btn"
+            className="profile-save-btn social-action-btn"
             onClick={() => onFollow(user.username)}
             disabled={actionLoading}
           >
-            {actionLoading ? '...' : t('social.followAction')}
+            <span className="social-action-btn__icon" aria-hidden="true">
+              <AiOutlineUserAdd />
+            </span>
+            <span>{actionLoading ? '...' : actionLabel}</span>
           </button>
         )}
       </div>

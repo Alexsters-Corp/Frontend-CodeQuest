@@ -20,9 +20,16 @@ function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
 }
 
-function renderLanguageIcon(icon, label) {
+function renderLanguageIcon(icon, label, t) {
   if (isHttpUrl(icon)) {
-    return <img className="lang-icon-image" src={icon} alt={`Logo de ${label}`} loading="lazy" />
+    return (
+      <img
+        className="lang-icon-image"
+        src={icon}
+        alt={t('dashboard.languageLogoAlt', { name: label })}
+        loading="lazy"
+      />
+    )
   }
 
   return <span className="lang-icon-text">{icon || '💻'}</span>
@@ -301,7 +308,7 @@ function DashboardPage() {
                       type="button"
                       className="lang-menu-trigger"
                       onClick={(e) => { e.stopPropagation(); setOpenCardMenuId(openCardMenuId === lang.lenguaje_id ? null : lang.lenguaje_id) }}
-                      aria-label="Opciones"
+                      aria-label={t('dashboard.languageOptions')}
                     >
                       ⋯
                     </button>
@@ -318,7 +325,7 @@ function DashboardPage() {
                       onClick={() => handleLanguageClick(lang)}
                       type="button"
                     >
-                      <span className="lang-icon">{renderLanguageIcon(lang.icono, lang.nombre)}</span>
+                      <span className="lang-icon">{renderLanguageIcon(lang.icono, lang.nombre, t)}</span>
                       <span className="lang-name">{lang.nombre}</span>
                       {lang.diagnostico_completado ? (
                         <>
