@@ -20,8 +20,8 @@ import {
   kickStudentFromClass,
   assignPathToClass,
 } from '../services/rbacApi'
-import { listAvailableLanguages } from '../services/learningApi'
-import { generateExercise, generateLesson, validateContent } from '../services/aiAdminApi'
+import { listAvailableLearningPaths } from '../services/learningApi'
+import { generateExercise, generateLesson, validateContent, publishContent } from '../services/aiAdminApi'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 const RECOMMENDED_MODEL = 'llama-3.3-70b-versatile'
@@ -305,6 +305,21 @@ function GeneratedContentCard({
   )
 }
 
+function formatDate(dateString, t) {
+  if (!dateString) return t('instructor.noDate')
+  try {
+    const date = new Date(dateString)
+    return new Intl.DateTimeFormat('es-CO', {
+      day: '2-digit',
+      month: 'short',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(date)
+  } catch (e) {
+    return t('instructor.noDate')
+  }
+}
+
 function InstructorDashboardPage() {
   const { t } = useLanguage()
   const classesRef = useRef(null)
@@ -322,6 +337,7 @@ function InstructorDashboardPage() {
   const [newClassName, setNewClassName] = useState('')
   const [newClassDescription, setNewClassDescription] = useState('')
   const [creatingClass, setCreatingClass] = useState(false)
+  const [isCreatingClass, setIsCreatingClass] = useState(false)
 
   const [selectedClassId, setSelectedClassId] = useState(null)
   const [analytics, setAnalytics] = useState(null)
@@ -366,6 +382,18 @@ function InstructorDashboardPage() {
   const [exerciseResult, setExerciseResult] = useState(null)
   const [validationResult, setValidationResult] = useState(null)
 
+  const [publishingContent, setPublishingContent] = useState(false)
+  const [publishStatus, setPublishStatus] = useState(null)
+  const [publishTargetPathId, setPublishTargetPathId] = useState('')
+
+  const [availablePaths, setAvailablePaths] = useState([])
+  const [showPathModal, setShowPathModal] = useState(false)
+  const [assigningPath, setAssigningPath] = useState(false)
+  const [pathForm, setPathForm] = useState({
+    pathId: '',
+    isRequired: true,
+  })
+
   const selectedClass = useMemo(
     () => classes.find((item) => Number(item.id) === Number(selectedClassId)) || null,
     [classes, selectedClassId]
@@ -387,9 +415,45 @@ function InstructorDashboardPage() {
     }
   }, [t])
 
+  const loadAssignablePaths = useCallback(async () => {
+    try {
+      const data = await listAvailableLearningPaths()
+      setAvailablePaths(data || [])
+    } catch (e) {
+      console.error('Error loading learning paths:', e)
+    }
+  }, [])
+
   useEffect(() => {
     loadData()
-  }, [loadData])
+    loadAssignablePaths()
+  }, [loadData, loadAssignablePaths])
+
+  async function handleAssignPath(event) {
+    event.preventDefault()
+    if (!pathForm.pathId) {
+      notifyInfo(t('instructor.selectPath') || 'Selecciona una ruta.')
+      return
+    }
+
+    setAssigningPath(true)
+    try {
+      await assignPathToClass({
+        classId: selectedClassId,
+        learningPathId: pathForm.pathId,
+        isRequired: pathForm.isRequired,
+      })
+      notifySuccess(t('instructor.assignSuccess') || 'Ruta asignada con éxito.')
+      setShowPathModal(false)
+      // Recargar analytics para ver la nueva ruta
+      const payload = await getClassAnalytics(selectedClassId)
+      setAnalytics(payload)
+    } catch (e) {
+      notifyError(e.message || t('instructor.assignError'))
+    } finally {
+      setAssigningPath(false)
+    }
+  }
 
   async function handleCreateClass(event) {
     event.preventDefault()
@@ -425,6 +489,15 @@ function InstructorDashboardPage() {
     try {
       const payload = await getClassAnalytics(classId)
       setAnalytics(payload)
+
+      // Context Intelligence: Pre-select language and target path from the class
+      if (payload.assigned_paths && payload.assigned_paths.length > 0) {
+        const firstPath = payload.assigned_paths[0]
+        const langId = String(firstPath.language_id)
+        setLessonForm(prev => ({ ...prev, languageId: langId }))
+        setExerciseForm(prev => ({ ...prev, languageId: langId }))
+        setPublishTargetPathId(String(firstPath.learning_path_id))
+      }
     } catch (requestError) {
       setAnalyticsError(requestError.message || t('instructor.analyticsError'))
     } finally {
@@ -648,6 +721,55 @@ function InstructorDashboardPage() {
     }
   }
 
+  async function handlePublishValidatedContent() {
+    if (!validationResult) return
+    if (!selectedClassId) {
+      notifyInfo(t('instructor.noClassSelected'))
+      return
+    }
+    if (!publishTargetPathId) {
+      notifyInfo(t('admin.ai.publish.noTarget') || 'Selecciona un destino para publicar.')
+      return
+    }
+
+    setPublishingContent(true)
+    setPublishStatus(null)
+
+    try {
+      const isLesson = aiActiveTab === 'lesson'
+      const sourceForm = isLesson ? lessonForm : exerciseForm
+      
+      const payload = await publishContent({
+        content: validationForm.content,
+        languageId: sourceForm.languageId,
+        level: isLesson ? sourceForm.level : sourceForm.difficulty,
+        validation: validationResult,
+        learningPathId: publishTargetPathId,
+        classId: selectedClassId,
+      })
+
+      setPublishStatus({ type: 'success', message: t('admin.ai.publish.success') })
+      notifySuccess(t('admin.ai.publish.success'))
+      
+      // Limpiar estados
+      setValidationResult(null)
+      setValidationForm({ content: '' })
+      if (isLesson) setLessonResult(null)
+      else setExerciseResult(null)
+      
+      // Recargar analytics si la clase seleccionada usa ese path
+      if (selectedClassId) {
+        const analyticsPayload = await getClassAnalytics(selectedClassId)
+        setAnalytics(analyticsPayload)
+      }
+    } catch (error) {
+      setPublishStatus({ type: 'error', message: error.message })
+      notifyError(error.message)
+    } finally {
+      setPublishingContent(false)
+    }
+  }
+
   const validationScore = normalizeValidationScore(validationResult?.qualityScore)
 
   return (
@@ -661,33 +783,49 @@ function InstructorDashboardPage() {
           <section ref={classesRef} className="rbac-card block-classes">
             <div className="rbac-section-head">
               <h2>📚 {t('instructor.myClasses')}</h2>
-              <IconTooltipButton
-                tooltip={t('instructor.refreshClasses') || 'Actualizar clases'}
-                buttonClassName="rbac-btn-refresh"
-                onClick={loadData}
-                disabled={loading}
-              >
-                ↻
-              </IconTooltipButton>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                <IconTooltipButton
+                  tooltip={t('instructor.createClass')}
+                  buttonClassName="rbac-btn-refresh"
+                  onClick={() => setIsCreatingClass(!isCreatingClass)}
+                >
+                  {isCreatingClass ? '✕' : '+'}
+                </IconTooltipButton>
+                <IconTooltipButton
+                  tooltip={t('instructor.refreshClasses') || 'Actualizar clases'}
+                  buttonClassName="rbac-btn-refresh"
+                  onClick={loadData}
+                  disabled={loading}
+                >
+                  ↻
+                </IconTooltipButton>
+              </div>
             </div>
             <p className="rbac-muted" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>Crea grupos para organizar a tus estudiantes y generar códigos de acceso únicos.</p>
 
-            <form className="rbac-form-compact" onSubmit={handleCreateClass}>
-              <input
-                value={newClassName}
-                onChange={(e) => setNewClassName(e.target.value)}
-                placeholder={t('instructor.classNamePlaceholder')}
-                disabled={creatingClass}
-              />
-              <IconTooltipButton
-                tooltip={t('instructor.createClass')}
-                buttonClassName="rbac-class-add-btn"
-                type="submit"
-                disabled={creatingClass || !newClassName.trim()}
-              >
-                {creatingClass ? '...' : '+'}
-              </IconTooltipButton>
-            </form>
+            {isCreatingClass && (
+              <form className="ai-admin-form" onSubmit={handleCreateClass} style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--cq-border)' }}>
+                <label>{t('instructor.className')}</label>
+                <input
+                  value={newClassName}
+                  onChange={(e) => setNewClassName(e.target.value)}
+                  placeholder={t('instructor.classNamePlaceholder')}
+                  disabled={creatingClass}
+                  required
+                />
+                <label>{t('instructor.classDescription')}</label>
+                <textarea
+                  value={newClassDescription}
+                  onChange={(e) => setNewClassDescription(e.target.value)}
+                  placeholder={t('instructor.classDescriptionPlaceholder')}
+                  disabled={creatingClass}
+                  rows={2}
+                />
+                <button type="submit" disabled={creatingClass || !newClassName.trim()} style={{ width: '100%', marginTop: '1rem' }}>
+                  {creatingClass ? t('instructor.creating') : t('instructor.createClass')}
+                </button>
+              </form>
+            )}
 
             <div className="class-list-container">
               {loading && !classes.length ? (
@@ -706,6 +844,7 @@ function InstructorDashboardPage() {
                   >
                     <div className="class-row-info">
                       <strong>{item.name}</strong>
+                      <p className="rbac-muted" style={{ fontSize: '0.75rem', margin: '2px 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{item.description || t('instructor.noDescription')}</p>
                       <span>{Number(item.students_total || 0)} {t('instructor.students')}</span>
                     </div>
                     <div className="class-row-actions">
@@ -810,15 +949,59 @@ function InstructorDashboardPage() {
                 <div className="rbac-mini-metrics-row">
                   <article className="mini-metric-pill"><small>{t('instructor.metric.activeStudents')}</small><strong>{Number(analytics.summary?.students_total || 0)}</strong></article>
                   <article className="mini-metric-pill"><small>{t('instructor.metric.avgSignal')}</small><strong>{Number(analytics.summary?.progress_signal_avg || 0)}%</strong></article>
+                  <article className="mini-metric-pill action-pill" onClick={() => setShowPathModal(true)}>
+                    <small>{t('instructor.action.assignPath') || 'Asignar Ruta'}</small>
+                    <strong>+</strong>
+                  </article>
                 </div>
+
+                <div className="rbac-assigned-paths-section" style={{ marginBottom: '1.5rem' }}>
+                  <h3 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>🚩 {t('instructor.assignedPaths') || 'Rutas Asignadas'}</h3>
+                  <div className="assigned-paths-tags" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                    {analytics.assigned_paths?.length > 0 ? analytics.assigned_paths.map(path => (
+                      <span key={path.id} className="rbac-code-badge" style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '4px 10px' }}>
+                        {path.name} {path.is_required && <small title={t('instructor.pathRequired')} style={{ opacity: 0.7 }}>⭐</small>}
+                      </span>
+                    )) : <p className="rbac-muted" style={{ fontSize: '0.8rem' }}>{t('instructor.noPathsAssigned') || 'No hay rutas asignadas a esta clase.'}</p>}
+                  </div>
+                </div>
+
                 <div className="rbac-table-wrap">
                   <table className="rbac-table compact">
-                    <thead><tr><th>{t('instructor.table.student')}</th><th className="rbac-center">{t('instructor.table.xp')}</th><th className="rbac-center">{t('instructor.table.actions') || 'Acciones'}</th></tr></thead>
+                    <thead>
+                      <tr>
+                        <th>{t('instructor.table.student')}</th>
+                        <th className="rbac-center">{t('instructor.table.progress')}</th>
+                        <th className="rbac-center">{t('instructor.table.xp')}</th>
+                        <th className="rbac-center">{t('instructor.table.lastActivity')}</th>
+                        <th className="rbac-center">{t('instructor.table.actions') || 'Acciones'}</th>
+                      </tr>
+                    </thead>
                     <tbody>
                       {analytics.students?.length > 0 ? analytics.students.map((s) => (
                         <tr key={s.id}>
-                          <td><div className="student-compact-cell"><div className="student-initial">{(s.name || 'U')[0]}</div><div className="student-name-email"><strong>{s.name}</strong><small>{s.email}</small></div></div></td>
+                          <td>
+                            <div className="student-compact-cell">
+                              <div className="student-initial">{(s.name || 'U')[0]}</div>
+                              <div className="student-name-email">
+                                <strong>{s.name}</strong>
+                                <small>{s.email}</small>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="rbac-center">
+                            <div className="rbac-progress-mini-wrap">
+                              <div className="rbac-progress-mini-bar">
+                                <div 
+                                  className="rbac-progress-mini-fill" 
+                                  style={{ width: `${Math.min(100, Math.round(((s.completed_lessons || 0) / (analytics.summary?.lessons_total || 1)) * 100))}%` }} 
+                                />
+                              </div>
+                              <small>{Math.min(100, Math.round(((s.completed_lessons || 0) / (analytics.summary?.lessons_total || 1)) * 100))}%</small>
+                            </div>
+                          </td>
                           <td className="rbac-center"><span className="xp-badge">✨ {Number(s.earned_xp || 0)}</span></td>
+                          <td className="rbac-center"><small>{formatDate(s.last_activity_at, t)}</small></td>
                           <td className="rbac-center">
                             <IconTooltipButton
                               tooltip={t('instructor.kickStudent') || 'Expulsar alumno'}
@@ -829,7 +1012,7 @@ function InstructorDashboardPage() {
                             </IconTooltipButton>
                           </td>
                         </tr>
-                      )) : <tr><td colSpan={3} className="rbac-center rbac-muted" style={{ padding: '3rem' }}>{t('instructor.noActiveStudents')}</td></tr>}
+                      )) : <tr><td colSpan={5} className="rbac-center rbac-muted" style={{ padding: '3rem' }}>{t('instructor.noActiveStudents')}</td></tr>}
                     </tbody>
                   </table>
                 </div>
@@ -1158,8 +1341,33 @@ function InstructorDashboardPage() {
                     <p>{t('admin.ai.validation.noIssues')}</p>
                   )}
                 </section>
-                <div className="ai-validation-footer">
-                  <span>{t('admin.ai.validation.validatedBy')} {validationResult.model || RECOMMENDED_MODEL}</span>
+
+                <div className="ai-validation-footer" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '1rem' }}>
+                  <div className="ai-admin-form" style={{ background: 'transparent', padding: 0 }}>
+                    <label style={{ fontSize: '0.8rem', opacity: 0.8 }}>{t('admin.ai.publish.selectTarget') || 'Publicar en ruta:'}</label>
+                    <select
+                      value={publishTargetPathId}
+                      onChange={(e) => setPublishTargetPathId(e.target.value)}
+                      style={{ marginBottom: 0 }}
+                    >
+                      <option value="">{t('common.select') || 'Seleccionar ruta...'}</option>
+                      {analytics?.assigned_paths?.map(path => (
+                        <option key={path.id} value={path.learning_path_id}>{path.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>{t('admin.ai.validation.validatedBy')} {validationResult.model || RECOMMENDED_MODEL}</span>
+                    <button 
+                      type="button" 
+                      className="rbac-btn-success" 
+                      onClick={handlePublishValidatedContent}
+                      disabled={publishingContent || !validationResult.approved || !publishTargetPathId}
+                    >
+                      {publishingContent ? '...' : t('admin.ai.action.publish') || 'Publicar a mi clase'}
+                    </button>
+                  </div>
                 </div>
               </MotionArticle>
             ) : (
@@ -1169,6 +1377,68 @@ function InstructorDashboardPage() {
         </div>
       </section>
       <GuideModal type={activeGuide} onClose={() => setActiveGuide(null)} t={t} />
+
+      {showPathModal && (
+        <MotionDiv
+          className="instructor-confirm-overlay"
+          role="dialog"
+          aria-modal="true"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          onMouseDown={() => setShowPathModal(false)}
+        >
+          <MotionDiv
+            className="instructor-confirm-modal"
+            initial={{ opacity: 0, y: 18, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            onMouseDown={(e) => e.stopPropagation()}
+          >
+            <div className="instructor-confirm-icon">🚩</div>
+            <h3>{t('instructor.action.assignPath') || 'Asignar Ruta'}</h3>
+            <p>{t('instructor.assignPathHint') || 'Selecciona una ruta para asignar a esta clase.'}</p>
+
+            <form onSubmit={handleAssignPath} style={{ width: '100%', marginTop: '1rem' }}>
+              <div className="ai-admin-form" style={{ background: 'transparent', padding: 0 }}>
+                <label>{t('admin.ai.publish.selectTarget') || 'Selecciona la ruta destino'}</label>
+                <select
+                  value={pathForm.pathId}
+                  onChange={(e) => setPathForm(prev => ({ ...prev, pathId: e.target.value }))}
+                  required
+                >
+                  <option value="">{t('common.select') || 'Seleccionar...'}</option>
+                  {availablePaths.map((path) => (
+                    <option key={path.id} value={path.id}>
+                      {path.name} ({path.language_name} - {path.difficulty_level})
+                    </option>
+                  ))}
+                </select>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginTop: '1rem' }}>
+                  <input
+                    type="checkbox"
+                    id="path-required-chk"
+                    checked={pathForm.isRequired}
+                    onChange={(e) => setPathForm(prev => ({ ...prev, isRequired: e.target.checked }))}
+                    style={{ width: 'auto', marginBottom: 0 }}
+                  />
+                  <label htmlFor="path-required-chk" style={{ marginBottom: 0, cursor: 'pointer' }}>
+                    {t('instructor.field.isRequired') || 'Es obligatorio'}
+                  </label>
+                </div>
+              </div>
+
+              <div className="instructor-confirm-actions" style={{ marginTop: '2rem' }}>
+                <button type="button" className="rbac-btn-secondary" onClick={() => setShowPathModal(false)}>
+                  {t('common.cancel')}
+                </button>
+                <button type="submit" className="rbac-btn-success" disabled={assigningPath}>
+                  {assigningPath ? '...' : t('common.save')}
+                </button>
+              </div>
+            </form>
+          </MotionDiv>
+        </MotionDiv>
+      )}
       </MotionPage>
     </SidebarLayout>
   )

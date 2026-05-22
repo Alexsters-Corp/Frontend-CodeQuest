@@ -68,7 +68,7 @@ export async function listPublishTargets() {
   return requestJson('/api/admin/publish-targets')
 }
 
-export async function publishContent({ content, languageId, level, validation, learningPathId }) {
+export async function publishContent({ content, languageId, level, validation, learningPathId, classId }) {
   return requestJson('/api/admin/publish-content', {
     method: 'POST',
     body: JSON.stringify({
@@ -77,6 +77,7 @@ export async function publishContent({ content, languageId, level, validation, l
       level: ensureText(level, 'level'),
       validation,
       learningPathId: learningPathId ? ensurePositiveInt(learningPathId, 'learningPathId') : null,
+      classId: classId ? ensurePositiveInt(classId, 'classId') : null,
     }),
   })
 }

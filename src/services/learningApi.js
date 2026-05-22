@@ -65,6 +65,11 @@ export async function listAvailableLanguages() {
   return Array.isArray(data) ? data : []
 }
 
+export async function listAvailableLearningPaths() {
+  const data = await requestJson('/api/learning/paths')
+  return Array.isArray(data) ? data : []
+}
+
 export async function selectLanguage(languageId) {
   const normalizedLanguageId = setSelectedLanguageId(languageId)
 
@@ -108,6 +113,15 @@ export async function getDashboardOverview() {
 
 export async function listStudentClasses() {
   return requestJson('/api/learning/progress/classes')
+}
+
+export async function listStudentClassLessons(classId) {
+  const normalizedClassId = parsePositiveInt(classId)
+  if (!normalizedClassId) {
+    throw new Error('Clase no válida para consultar contenido.')
+  }
+
+  return requestJson(`/api/learning/progress/classes/${normalizedClassId}/lessons`)
 }
 
 export async function joinClassWithCode(code) {

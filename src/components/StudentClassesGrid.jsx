@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useLanguage } from '../context/useLanguage'
-import { setSelectedLanguageId } from '../services/learningApi'
+import { listStudentClassLessons, setSelectedLanguageId } from '../services/learningApi'
 
 function formatJoinedAt(value) {
   if (!value) return null
@@ -14,6 +14,9 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
   const { t } = useLanguage()
   const navigate = useNavigate()
   const [selectedClassId, setSelectedClassId] = useState(null)
+  const [classLessons, setClassLessons] = useState([])
+  const [classLessonsLoading, setClassLessonsLoading] = useState(false)
+  const [classLessonsError, setClassLessonsError] = useState('')
 
   const normalizedClasses = useMemo(() => (Array.isArray(classes) ? classes : []), [classes])
 
@@ -25,16 +28,62 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
     }
   }, [focusClassId, normalizedClasses])
 
-  if (loading) {
-    return <div className="loading-classes-placeholder">{t('common.loading')}</div>
-  }
-
   const handlePathClick = (path) => {
     setSelectedLanguageId(path.language_id)
     navigate('/modules')
   }
 
+  useEffect(() => {
+    if (!selectedClassId) {
+      setClassLessons([])
+      setClassLessonsError('')
+      return
+    }
+
+    let isCancelled = false
+
+    async function loadClassLessons() {
+      setClassLessonsLoading(true)
+      setClassLessonsError('')
+
+      try {
+        const payload = await listStudentClassLessons(selectedClassId)
+        if (!isCancelled) {
+          setClassLessons(Array.isArray(payload?.lessons) ? payload.lessons : [])
+        }
+      } catch (error) {
+        if (!isCancelled) {
+          setClassLessons([])
+          setClassLessonsError(error.message || t('dashboard.classes.lessonsLoadError'))
+        }
+      } finally {
+        if (!isCancelled) {
+          setClassLessonsLoading(false)
+        }
+      }
+    }
+
+    loadClassLessons()
+
+    return () => {
+      isCancelled = true
+    }
+  }, [selectedClassId, t])
+
+  const handleOpenLesson = (lessonId) => {
+    const normalizedLessonId = Number(lessonId)
+    if (!Number.isInteger(normalizedLessonId) || normalizedLessonId <= 0) {
+      return
+    }
+
+    navigate(`/lesson/${normalizedLessonId}`)
+  }
+
   const selectedClass = normalizedClasses.find((item) => Number(item.id) === Number(selectedClassId)) || null
+
+  if (loading) {
+    return <div className="loading-classes-placeholder">{t('common.loading')}</div>
+  }
 
   return (
     <section className="dashboard-classes" id="dashboard-my-classes">
@@ -113,6 +162,41 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
               ) : (
                 <p className="rbac-muted">{t('dashboard.classes.noAssignedPaths')}</p>
               )}
+
+              <div className="dashboard-class-lessons">
+                <div className="section-header section-header--compact">
+                  <h3>{t('dashboard.classes.publishedContentTitle')}</h3>
+                </div>
+
+                {classLessonsLoading ? (
+                  <p className="rbac-muted">{t('common.loading')}</p>
+                ) : classLessonsError ? (
+                  <p className="rbac-error">{classLessonsError}</p>
+                ) : classLessons.length === 0 ? (
+                  <p className="rbac-muted">{t('dashboard.classes.noPublishedContent')}</p>
+                ) : (
+                  <div className="class-lessons-list">
+                    {classLessons.map((lesson) => (
+                      <div key={lesson.id} className="class-lesson-item">
+                        <div className="class-lesson-item__info">
+                          <p className="class-lesson-item__title">{lesson.title}</p>
+                          <p className="class-lesson-item__meta">
+                            {lesson.learning_path?.name || t('modules.title')}
+                            {lesson.is_ai_assisted ? ` · ${t('modules.aiAssisted')}` : ''}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          className="class-path-action-btn"
+                          onClick={() => handleOpenLesson(lesson.id)}
+                        >
+                          {t('favorites.openLesson')}
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </article>
           ) : null}
         </>
