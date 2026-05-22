@@ -4,7 +4,6 @@ import MotionPage from '../components/MotionPage'
 import LoadingSpinner from '../components/LoadingSpinner'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
-import StudentClassesGrid from '../components/StudentClassesGrid'
 import { useLanguage } from '../context/useLanguage'
 import { useAuth } from '../context/useAuth'
 import {
@@ -12,11 +11,9 @@ import {
   deleteLanguageSelection,
   getDashboardOverview,
   getSelectedLanguageId,
-  joinClassWithCode,
-  listStudentClasses,
   setSelectedLanguageId,
 } from '../services/learningApi'
-import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
+import { notifyError, notifySuccess } from '../utils/notify'
 
 function isHttpUrl(value) {
   return typeof value === 'string' && /^https?:\/\//i.test(value)
@@ -59,9 +56,7 @@ function DashboardPage() {
   const { t } = useLanguage()
   const { user } = useAuth()
   const [overview, setOverview] = useState(null)
-  const [studentClasses, setStudentClasses] = useState([])
   const [loading, setLoading] = useState(true)
-  const [loadingClasses, setLoadingClasses] = useState(false)
   const [streakJitter, setStreakJitter] = useState(false)
   const [pendingJitter, setPendingJitter] = useState(false)
   const [deleteDialogLanguage, setDeleteDialogLanguage] = useState(null)
@@ -71,10 +66,6 @@ function DashboardPage() {
   const [deleteSubmitting, setDeleteSubmitting] = useState(false)
   const [deleteError, setDeleteError] = useState('')
   const [openCardMenuId, setOpenCardMenuId] = useState(null)
-
-  const [showJoinModal, setShowJoinModal] = useState(false)
-  const [inviteCode, setInviteCode] = useState('')
-  const [joining, setJoining] = useState(false)
 
   const loadOverview = useCallback(async () => {
     try {
@@ -88,22 +79,9 @@ function DashboardPage() {
     }
   }, [t])
 
-  const loadClasses = useCallback(async () => {
-    setLoadingClasses(true)
-    try {
-      const data = await listStudentClasses()
-      setStudentClasses(Array.isArray(data) ? data : (data?.classes || []))
-    } catch (e) {
-      console.error('Error loading student classes:', e)
-    } finally {
-      setLoadingClasses(false)
-    }
-  }, [])
-
   useEffect(() => {
     loadOverview()
-    loadClasses()
-  }, [loadOverview, loadClasses])
+  }, [loadOverview])
 
   useEffect(() => {
     if (!location.state?.fromLesson) return
@@ -197,28 +175,6 @@ function DashboardPage() {
     }
   }
 
-  const handleJoinClass = async (e) => {
-    e.preventDefault()
-    const code = String(inviteCode || '').trim().toUpperCase()
-    if (!code) {
-      notifyInfo(t('dashboard.joinClassPlaceholder'))
-      return
-    }
-
-    setJoining(true)
-    try {
-      const result = await joinClassWithCode(code)
-      notifySuccess(t('dashboard.joinSuccess', { name: result.className }))
-      setInviteCode('')
-      setShowJoinModal(false)
-      await loadOverview()
-    } catch (requestError) {
-      notifyError(requestError.message || t('dashboard.joinError'))
-    } finally {
-      setJoining(false)
-    }
-  }
-
   const streakLabel = loading
     ? '...'
     : t('dashboard.days', { count: overview?.racha || 0 })
@@ -291,15 +247,6 @@ function DashboardPage() {
           <section className="dashboard-languages" id="dashboard-languages">
               <div className="section-header">
                 <h2>{t('dashboard.myLanguages')}</h2>
-                <div className="section-actions">
-                  <button
-                    className="join-class-btn"
-                    onClick={() => setShowJoinModal(true)}
-                    type="button"
-                  >
-                    {t('dashboard.joinClass')}
-                  </button>
-                </div>
               </div>
 
             {loading ? (
@@ -376,8 +323,6 @@ function DashboardPage() {
               </div>
             )}
           </section>
-
-          <StudentClassesGrid classes={studentClasses} loading={loadingClasses} />
 
           {showDeferredDashboardSections && overview?.achievements?.length > 0 && (
             <section className="dashboard-achievements" id="dashboard-achievements">
@@ -456,46 +401,6 @@ function DashboardPage() {
                 {deleteSubmitting ? t('dashboard.deleting') : t('dashboard.deleteConfirm')}
               </button>
             </div>
-          </div>
-        </div>
-      )}
-      {showJoinModal && (
-        <div className="language-delete-overlay" role="dialog" aria-modal="true">
-          <div className="language-delete-modal join-class-modal">
-            <h3>{t('dashboard.joinClassTitle')}</h3>
-            <p>{t('dashboard.joinClassDescription')}</p>
-
-            <form onSubmit={handleJoinClass}>
-              <input
-                type="text"
-                value={inviteCode}
-                onChange={(e) => {
-                  const val = e.target.value.toUpperCase().replace(/[^A-Z0-9-]/g, '').slice(0, 12);
-                  setInviteCode(val);
-                }}
-                placeholder={t('dashboard.joinClassPlaceholder')}
-                disabled={joining}
-                autoFocus
-              />
-
-              <div className="language-delete-actions">
-                <button
-                  className="language-delete-cancel"
-                  onClick={() => setShowJoinModal(false)}
-                  type="button"
-                  disabled={joining}
-                >
-                  {t('common.cancel')}
-                </button>
-                <button
-                  className="language-delete-confirm join-confirm-btn"
-                  type="submit"
-                  disabled={joining || !inviteCode.trim()}
-                >
-                  {joining ? t('common.loading') : t('dashboard.joinAction')}
-                </button>
-              </div>
-            </form>
           </div>
         </div>
       )}

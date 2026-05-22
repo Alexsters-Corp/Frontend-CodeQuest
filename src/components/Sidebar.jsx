@@ -32,8 +32,12 @@ export default function Sidebar() {
     setMobileMoreOpen(false)
   }, [location.pathname])
 
-  const navBtn = (path) =>
-    `dashboard-nav-btn${location.pathname.startsWith(path) ? ' dashboard-nav-btn--active' : ''}`
+  const navBtn = (path) => {
+    const isActive = path === '/dashboard'
+      ? location.pathname === '/dashboard'
+      : location.pathname.startsWith(path)
+    return `dashboard-nav-btn${isActive ? ' dashboard-nav-btn--active' : ''}`
+  }
 
   const goToDashboardSection = (sectionId) => {
     if (location.pathname === '/dashboard') {
@@ -231,7 +235,7 @@ export default function Sidebar() {
               </button>
             </li>
             <li>
-              <button type="button" className={navBtn('/dashboard#my-classes')} onClick={() => goToDashboardSection('dashboard-my-classes')} title={t('dashboard.sidebar.myClasses')}>
+              <button type="button" className={navBtn('/dashboard/classes')} onClick={() => navigate('/dashboard/classes')} title={t('dashboard.sidebar.myClasses')}>
                 <span className="nav-icon">🏫</span>
                 {t('dashboard.sidebar.myClasses')}
               </button>
