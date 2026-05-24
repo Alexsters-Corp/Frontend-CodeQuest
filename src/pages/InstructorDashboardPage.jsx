@@ -373,6 +373,28 @@ function InstructorDashboardPage() {
   const [validationForm, setValidationForm] = useState({ content: '' })
   const [validationSource, setValidationSource] = useState('manual')
 
+  const [creationMode, setCreationMode] = useState('ai')
+  const [manualLessonForm, setManualLessonForm] = useState({
+    title: '',
+    theory: '',
+    codeExample: '',
+    languageId: '63',
+    level: 'beginner',
+    exercisePrompt: '',
+    exerciseStarterCode: '',
+    exerciseSolutionCode: '',
+    testCases: [{ input: '', expectedOutput: '' }],
+  })
+  const [manualExerciseForm, setManualExerciseForm] = useState({
+    concept: '',
+    difficulty: 'medium',
+    languageId: '63',
+    prompt: '',
+    starterCode: '',
+    solutionCode: '',
+    testCases: [{ input: '', expectedOutput: '' }],
+  })
+
   const [lessonLoading, setLessonLoading] = useState(false)
   const [exerciseLoading, setExerciseLoading] = useState(false)
   const [validationLoading, setValidationLoading] = useState(false)
@@ -615,6 +637,156 @@ function InstructorDashboardPage() {
       setKickStudentTarget(null)
     } catch (error) {
       notifyError(error.message || 'Error al expulsar al alumno')
+    }
+  }
+
+  const addManualLessonTestCase = () => {
+    setManualLessonForm((prev) => ({
+      ...prev,
+      testCases: [...prev.testCases, { input: '', expectedOutput: '' }],
+    }))
+  }
+
+  const removeManualLessonTestCase = (index) => {
+    setManualLessonForm((prev) => {
+      const copy = [...prev.testCases]
+      copy.splice(index, 1)
+      return { ...prev, testCases: copy }
+    })
+  }
+
+  const handleManualLessonTestCaseChange = (index, field, value) => {
+    setManualLessonForm((prev) => {
+      const copy = [...prev.testCases]
+      copy[index] = { ...copy[index], [field]: value }
+      return { ...prev, testCases: copy }
+    })
+  }
+
+  const addManualExerciseTestCase = () => {
+    setManualExerciseForm((prev) => ({
+      ...prev,
+      testCases: [...prev.testCases, { input: '', expectedOutput: '' }],
+    }))
+  }
+
+  const removeManualExerciseTestCase = (index) => {
+    setManualExerciseForm((prev) => {
+      const copy = [...prev.testCases]
+      copy.splice(index, 1)
+      return { ...prev, testCases: copy }
+    })
+  }
+
+  const handleManualExerciseTestCaseChange = (index, field, value) => {
+    setManualExerciseForm((prev) => {
+      const copy = [...prev.testCases]
+      copy[index] = { ...copy[index], [field]: value }
+      return { ...prev, testCases: copy }
+    })
+  }
+
+  async function handleManualSubmit(event) {
+    event.preventDefault()
+    const isLesson = aiActiveTab === 'lesson'
+
+    if (isLesson) {
+      if (!manualLessonForm.title.trim()) {
+        notifyError('El título es requerido.')
+        return
+      }
+      if (!manualLessonForm.theory.trim()) {
+        notifyError('La teoría es requerida.')
+        return
+      }
+      if (!manualLessonForm.exercisePrompt.trim()) {
+        notifyError('La descripción del ejercicio es requerida.')
+        return
+      }
+
+      const lessonJson = {
+        title: manualLessonForm.title.trim(),
+        theory: manualLessonForm.theory.trim(),
+        codeExample: manualLessonForm.codeExample.trim(),
+        exercise: {
+          prompt: manualLessonForm.exercisePrompt.trim(),
+          starterCode: manualLessonForm.exerciseStarterCode.trim(),
+          solutionCode: manualLessonForm.exerciseSolutionCode.trim(),
+          testCases: manualLessonForm.testCases
+            .map((tc) => ({
+              input: tc.input.trim(),
+              expectedOutput: tc.expectedOutput.trim(),
+            }))
+            .filter((tc) => tc.expectedOutput !== ''),
+        },
+      }
+
+      setLessonResult(lessonJson)
+      setValidationResult(null)
+
+      setValidationLoading(true)
+      setValidationError('')
+      const stringified = JSON.stringify(lessonJson, null, 2)
+      setValidationForm({ content: stringified })
+      setValidationSource('manual')
+
+      try {
+        const payload = await validateContent({ content: stringified })
+        setValidationResult(payload)
+        notifySuccess(t('admin.ai.success.validate') || 'Contenido validado con éxito.')
+        window.setTimeout(() => {
+          validatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 300)
+      } catch (error) {
+        setValidationError(error.message || 'Error al validar el contenido.')
+        notifyError(error.message || 'Error al validar el contenido.')
+      } finally {
+        setValidationLoading(false)
+      }
+    } else {
+      if (!manualExerciseForm.concept.trim()) {
+        notifyError('El concepto es requerido.')
+        return
+      }
+      if (!manualExerciseForm.prompt.trim()) {
+        notifyError('La descripción del ejercicio es requerida.')
+        return
+      }
+
+      const exerciseJson = {
+        prompt: manualExerciseForm.prompt.trim(),
+        starterCode: manualExerciseForm.starterCode.trim(),
+        solutionCode: manualExerciseForm.solutionCode.trim(),
+        testCases: manualExerciseForm.testCases
+          .map((tc) => ({
+            input: tc.input.trim(),
+            expectedOutput: tc.expectedOutput.trim(),
+          }))
+          .filter((tc) => tc.expectedOutput !== ''),
+      }
+
+      setExerciseResult(exerciseJson)
+      setValidationResult(null)
+
+      setValidationLoading(true)
+      setValidationError('')
+      const stringified = JSON.stringify(exerciseJson, null, 2)
+      setValidationForm({ content: stringified })
+      setValidationSource('manual')
+
+      try {
+        const payload = await validateContent({ content: stringified })
+        setValidationResult(payload)
+        notifySuccess(t('admin.ai.success.validate') || 'Contenido validado con éxito.')
+        window.setTimeout(() => {
+          validatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }, 300)
+      } catch (error) {
+        setValidationError(error.message || 'Error al validar el contenido.')
+        notifyError(error.message || 'Error al validar el contenido.')
+      } finally {
+        setValidationLoading(false)
+      }
     }
   }
 
@@ -1214,131 +1386,405 @@ function InstructorDashboardPage() {
 
             <div className="instructor-ai-main-layout">
               <div className="instructor-ai-controls">
-                {aiActiveTab === 'lesson' && (
-                  <form className="ai-admin-form" onSubmit={handleLessonSubmit}>
-                    <label htmlFor="instructor-ai-topic">{t('admin.ai.field.topic')}</label>
-                    <input
-                      id="instructor-ai-topic"
-                      type="text"
-                      value={lessonForm.topic}
-                      onChange={(event) => setLessonForm((previous) => ({ ...previous, topic: event.target.value }))}
-                      placeholder={t('admin.ai.placeholder.topic')}
-                    />
+                {/* Conmutador de modo de creación */}
+                <div className="instructor-ai-tabs" style={{ marginBottom: '1.25rem', justifyContent: 'center' }}>
+                  <button type="button" className={creationMode === 'ai' ? 'active' : ''} onClick={() => setCreationMode('ai')}>
+                    ✨ Asistente IA
+                  </button>
+                  <button type="button" className={creationMode === 'manual' ? 'active' : ''} onClick={() => setCreationMode('manual')}>
+                    ✍️ Crear Manual
+                  </button>
+                </div>
 
-                    <label htmlFor="instructor-ai-language">{t('admin.ai.field.language')}</label>
-                    <select
-                      id="instructor-ai-language"
-                      value={lessonForm.languageId}
-                      onChange={(event) => setLessonForm((previous) => ({
-                        ...previous,
-                        languageId: event.target.value,
-                      }))}
-                    >
-                      {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.icon} {t(option.labelKey)}
-                        </option>
-                      ))}
-                    </select>
+                {creationMode === 'ai' ? (
+                  <>
+                    {aiActiveTab === 'lesson' && (
+                      <form className="ai-admin-form" onSubmit={handleLessonSubmit}>
+                        <label htmlFor="instructor-ai-topic">{t('admin.ai.field.topic')}</label>
+                        <input
+                          id="instructor-ai-topic"
+                          type="text"
+                          value={lessonForm.topic}
+                          onChange={(event) => setLessonForm((previous) => ({ ...previous, topic: event.target.value }))}
+                          placeholder={t('admin.ai.placeholder.topic')}
+                        />
 
-                    <label htmlFor="instructor-ai-level">{t('admin.ai.field.level')}</label>
-                    <select
-                      id="instructor-ai-level"
-                      value={lessonForm.level}
-                      onChange={(event) => setLessonForm((previous) => ({
-                        ...previous,
-                        level: event.target.value,
-                      }))}
-                    >
-                      <option value="beginner">{t('admin.ai.level.beginner')}</option>
-                      <option value="intermediate">{t('admin.ai.level.intermediate')}</option>
-                      <option value="advanced">{t('admin.ai.level.advanced')}</option>
-                    </select>
+                        <label htmlFor="instructor-ai-language">{t('admin.ai.field.language')}</label>
+                        <select
+                          id="instructor-ai-language"
+                          value={lessonForm.languageId}
+                          onChange={(event) => setLessonForm((previous) => ({
+                            ...previous,
+                            languageId: event.target.value,
+                          }))}
+                        >
+                          {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.icon} {t(option.labelKey)}
+                            </option>
+                          ))}
+                        </select>
 
-                    <label htmlFor="instructor-ai-lesson-model">{t('admin.ai.field.model')}</label>
-                    <select
-                      id="instructor-ai-lesson-model"
-                      value={lessonForm.model}
-                      onChange={(event) => setLessonForm((previous) => ({ ...previous, model: event.target.value }))}
-                    >
-                      {CONTENT_MODEL_OPTIONS.map((option) => (
-                        <option key={option.id} value={option.id}>{t(option.labelKey)}</option>
-                      ))}
-                    </select>
+                        <label htmlFor="instructor-ai-level">{t('admin.ai.field.level')}</label>
+                        <select
+                          id="instructor-ai-level"
+                          value={lessonForm.level}
+                          onChange={(event) => setLessonForm((previous) => ({
+                            ...previous,
+                            level: event.target.value,
+                          }))}
+                        >
+                          <option value="beginner">{t('admin.ai.level.beginner')}</option>
+                          <option value="intermediate">{t('admin.ai.level.intermediate')}</option>
+                          <option value="advanced">{t('admin.ai.level.advanced')}</option>
+                        </select>
 
-                    <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
-                      <button type="submit" disabled={lessonLoading} style={{ width: '100%' }}>
-                        {lessonLoading ? t('admin.ai.loading') : t('admin.ai.action.generateLesson')}
-                      </button>
-                    </div>
+                        <label htmlFor="instructor-ai-lesson-model">{t('admin.ai.field.model')}</label>
+                        <select
+                          id="instructor-ai-lesson-model"
+                          value={lessonForm.model}
+                          onChange={(event) => setLessonForm((previous) => ({ ...previous, model: event.target.value }))}
+                        >
+                          {CONTENT_MODEL_OPTIONS.map((option) => (
+                            <option key={option.id} value={option.id}>{t(option.labelKey)}</option>
+                          ))}
+                        </select>
 
-                    {lessonError && <p className="ai-admin-error">{lessonError}</p>}
-                  </form>
+                        <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
+                          <button type="submit" disabled={lessonLoading} style={{ width: '100%' }}>
+                            {lessonLoading ? t('admin.ai.loading') : t('admin.ai.action.generateLesson')}
+                          </button>
+                        </div>
+
+                        {lessonError && <p className="ai-admin-error">{lessonError}</p>}
+                      </form>
+                    )}
+
+                    {aiActiveTab === 'exercise' && (
+                      <form className="ai-admin-form" onSubmit={handleExerciseSubmit}>
+                        <label htmlFor="instructor-ai-concept">{t('admin.ai.field.concept')}</label>
+                        <input
+                          id="instructor-ai-concept"
+                          type="text"
+                          value={exerciseForm.concept}
+                          onChange={(event) => setExerciseForm((previous) => ({ ...previous, concept: event.target.value }))}
+                          placeholder={t('admin.ai.placeholder.concept')}
+                        />
+
+                        <label htmlFor="instructor-ai-difficulty">{t('admin.ai.field.difficulty')}</label>
+                        <select
+                          id="instructor-ai-difficulty"
+                          value={exerciseForm.difficulty}
+                          onChange={(event) => setExerciseForm((previous) => ({
+                            ...previous,
+                            difficulty: event.target.value,
+                          }))}
+                        >
+                          <option value="easy">{t('admin.ai.difficulty.easy')}</option>
+                          <option value="medium">{t('admin.ai.difficulty.medium')}</option>
+                          <option value="hard">{t('admin.ai.difficulty.hard')}</option>
+                        </select>
+
+                        <label htmlFor="instructor-ai-language-id">{t('admin.ai.field.languageId')}</label>
+                        <select
+                          id="instructor-ai-language-id"
+                          value={exerciseForm.languageId}
+                          onChange={(event) => setExerciseForm((previous) => ({
+                            ...previous,
+                            languageId: event.target.value,
+                          }))}
+                        >
+                          {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.icon} {t(option.labelKey)}
+                            </option>
+                          ))}
+                        </select>
+
+                        <label htmlFor="instructor-ai-exercise-model">{t('admin.ai.field.model')}</label>
+                        <select
+                          id="instructor-ai-exercise-model"
+                          value={exerciseForm.model}
+                          onChange={(event) => setExerciseForm((previous) => ({ ...previous, model: event.target.value }))}
+                        >
+                          {CONTENT_MODEL_OPTIONS.map((option) => (
+                            <option key={option.id} value={option.id}>{t(option.labelKey)}</option>
+                          ))}
+                        </select>
+
+                        <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
+                          <button type="submit" disabled={exerciseLoading} style={{ width: '100%' }}>
+                            {exerciseLoading ? t('admin.ai.loading') : t('admin.ai.action.generateExercise')}
+                          </button>
+                        </div>
+
+                        {exerciseError && <p className="ai-admin-error">{exerciseError}</p>}
+                      </form>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {aiActiveTab === 'lesson' && (
+                      <form className="ai-admin-form" onSubmit={handleManualSubmit}>
+                        <label>Título de la lección</label>
+                        <input
+                          type="text"
+                          value={manualLessonForm.title}
+                          onChange={(e) => setManualLessonForm(prev => ({ ...prev, title: e.target.value }))}
+                          placeholder="Ej. Introducción a Arrays"
+                          required
+                        />
+
+                        <label>Teoría / Explicación</label>
+                        <textarea
+                          value={manualLessonForm.theory}
+                          onChange={(e) => setManualLessonForm(prev => ({ ...prev, theory: e.target.value }))}
+                          placeholder="Describe los conceptos clave de la lección..."
+                          rows={6}
+                          required
+                        />
+
+                        <label>Ejemplo de código (opcional)</label>
+                        <textarea
+                          value={manualLessonForm.codeExample}
+                          onChange={(e) => setManualLessonForm(prev => ({ ...prev, codeExample: e.target.value }))}
+                          placeholder="Ej. const arr = [1, 2, 3];"
+                          rows={3}
+                          style={{ fontFamily: 'monospace' }}
+                        />
+
+                        <label>Lenguaje de programación</label>
+                        <select
+                          value={manualLessonForm.languageId}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setManualLessonForm(prev => ({ ...prev, languageId: val }));
+                            setManualExerciseForm(prev => ({ ...prev, languageId: val }));
+                            setExerciseForm(prev => ({ ...prev, languageId: val }));
+                            setLessonForm(prev => ({ ...prev, languageId: val }));
+                          }}
+                        >
+                          {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.icon} {t(option.labelKey)}
+                            </option>
+                          ))}
+                        </select>
+
+                        <label>Nivel de dificultad</label>
+                        <select
+                          value={manualLessonForm.level}
+                          onChange={(e) => setManualLessonForm(prev => ({ ...prev, level: e.target.value }))}
+                        >
+                          <option value="beginner">{t('admin.ai.level.beginner')}</option>
+                          <option value="intermediate">{t('admin.ai.level.intermediate')}</option>
+                          <option value="advanced">{t('admin.ai.level.advanced')}</option>
+                        </select>
+
+                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>📝 Ejercicio de la Lección</h4>
+
+                        <label>Consigna del ejercicio</label>
+                        <textarea
+                          value={manualLessonForm.exercisePrompt}
+                          onChange={(e) => setManualLessonForm(prev => ({ ...prev, exercisePrompt: e.target.value }))}
+                          placeholder="Instrucciones del ejercicio para el alumno..."
+                          rows={4}
+                          required
+                        />
+
+                        <label>Código inicial (base)</label>
+                        <textarea
+                          value={manualLessonForm.exerciseStarterCode}
+                          onChange={(e) => setManualLessonForm(prev => ({ ...prev, exerciseStarterCode: e.target.value }))}
+                          placeholder="Ej. function solucionar() {\n  \n}"
+                          rows={3}
+                          style={{ fontFamily: 'monospace' }}
+                        />
+
+                        <label>Código solución</label>
+                        <textarea
+                          value={manualLessonForm.exerciseSolutionCode}
+                          onChange={(e) => setManualLessonForm(prev => ({ ...prev, exerciseSolutionCode: e.target.value }))}
+                          placeholder="Ej. return total;"
+                          rows={3}
+                          style={{ fontFamily: 'monospace' }}
+                        />
+
+                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>🧪 Casos de Prueba</h4>
+                        
+                        {manualLessonForm.testCases.map((tc, idx) => (
+                          <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem', position: 'relative' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                              <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Caso #{idx + 1}</span>
+                              {manualLessonForm.testCases.length > 1 && (
+                                <button
+                                  type="button"
+                                  className="rbac-revoke-btn"
+                                  style={{ padding: '2px 6px', fontSize: '0.75rem' }}
+                                  onClick={() => removeManualLessonTestCase(idx)}
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Entrada (input)</label>
+                            <input
+                              type="text"
+                              value={tc.input}
+                              onChange={(e) => handleManualLessonTestCaseChange(idx, 'input', e.target.value)}
+                              placeholder='Ej. "hola" o vacío'
+                              style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', marginBottom: '0.5rem' }}
+                            />
+                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Salida esperada</label>
+                            <input
+                              type="text"
+                              value={tc.expectedOutput}
+                              onChange={(e) => handleManualLessonTestCaseChange(idx, 'expectedOutput', e.target.value)}
+                              placeholder="Ej. 123 o true"
+                              style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', marginBottom: 0 }}
+                              required
+                            />
+                          </div>
+                        ))}
+
+                        <button
+                          type="button"
+                          className="rbac-btn-secondary"
+                          style={{ width: '100%', padding: '0.45rem', fontSize: '0.8rem', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }}
+                          onClick={addManualLessonTestCase}
+                        >
+                          + Agregar caso de prueba
+                        </button>
+
+                        <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
+                          <button type="submit" disabled={validationLoading} style={{ width: '100%' }}>
+                            {validationLoading ? 'Validando...' : 'Previsualizar y Validar'}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+
+                    {aiActiveTab === 'exercise' && (
+                      <form className="ai-admin-form" onSubmit={handleManualSubmit}>
+                        <label>Nombre del ejercicio</label>
+                        <input
+                          type="text"
+                          value={manualExerciseForm.concept}
+                          onChange={(e) => setManualExerciseForm(prev => ({ ...prev, concept: e.target.value }))}
+                          placeholder="Ej. Suma de Elementos"
+                          required
+                        />
+
+                        <label>Descripción del ejercicio</label>
+                        <textarea
+                          value={manualExerciseForm.prompt}
+                          onChange={(e) => setManualExerciseForm(prev => ({ ...prev, prompt: e.target.value }))}
+                          placeholder="Describe el reto a solucionar..."
+                          rows={6}
+                          required
+                        />
+
+                        <label>Código inicial (base)</label>
+                        <textarea
+                          value={manualExerciseForm.starterCode}
+                          onChange={(e) => setManualExerciseForm(prev => ({ ...prev, starterCode: e.target.value }))}
+                          placeholder="Ej. function solucionar() {\n  \n}"
+                          rows={3}
+                          style={{ fontFamily: 'monospace' }}
+                        />
+
+                        <label>Código solución</label>
+                        <textarea
+                          value={manualExerciseForm.solutionCode}
+                          onChange={(e) => setManualExerciseForm(prev => ({ ...prev, solutionCode: e.target.value }))}
+                          placeholder="Ej. return total;"
+                          rows={3}
+                          style={{ fontFamily: 'monospace' }}
+                        />
+
+                        <label>Lenguaje de programación</label>
+                        <select
+                          value={manualExerciseForm.languageId}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setManualExerciseForm(prev => ({ ...prev, languageId: val }));
+                            setManualLessonForm(prev => ({ ...prev, languageId: val }));
+                            setExerciseForm(prev => ({ ...prev, languageId: val }));
+                            setLessonForm(prev => ({ ...prev, languageId: val }));
+                          }}
+                        >
+                          {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+                            <option key={option.id} value={option.id}>
+                              {option.icon} {t(option.labelKey)}
+                            </option>
+                          ))}
+                        </select>
+
+                        <label>Nivel de dificultad</label>
+                        <select
+                          value={manualExerciseForm.difficulty}
+                          onChange={(e) => setManualExerciseForm(prev => ({ ...prev, difficulty: e.target.value }))}
+                        >
+                          <option value="easy">{t('admin.ai.difficulty.easy')}</option>
+                          <option value="medium">{t('admin.ai.difficulty.medium')}</option>
+                          <option value="hard">{t('admin.ai.difficulty.hard')}</option>
+                        </select>
+
+                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>🧪 Casos de Prueba</h4>
+
+                        {manualExerciseForm.testCases.map((tc, idx) => (
+                          <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem', position: 'relative' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
+                              <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Caso #{idx + 1}</span>
+                              {manualExerciseForm.testCases.length > 1 && (
+                                <button
+                                  type="button"
+                                  className="rbac-revoke-btn"
+                                  style={{ padding: '2px 6px', fontSize: '0.75rem' }}
+                                  onClick={() => removeManualExerciseTestCase(idx)}
+                                >
+                                  ✕
+                                </button>
+                              )}
+                            </div>
+                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Entrada (input)</label>
+                            <input
+                              type="text"
+                              value={tc.input}
+                              onChange={(e) => handleManualExerciseTestCaseChange(idx, 'input', e.target.value)}
+                              placeholder='Ej. "hola" o vacío'
+                              style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', marginBottom: '0.5rem' }}
+                            />
+                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Salida esperada</label>
+                            <input
+                              type="text"
+                              value={tc.expectedOutput}
+                              onChange={(e) => handleManualExerciseTestCaseChange(idx, 'expectedOutput', e.target.value)}
+                              placeholder="Ej. 123 o true"
+                              style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', marginBottom: 0 }}
+                              required
+                            />
+                          </div>
+                        ))}
+
+                        <button
+                          type="button"
+                          className="rbac-btn-secondary"
+                          style={{ width: '100%', padding: '0.45rem', fontSize: '0.8rem', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }}
+                          onClick={addManualExerciseTestCase}
+                        >
+                          + Agregar caso de prueba
+                        </button>
+
+                        <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
+                          <button type="submit" disabled={validationLoading} style={{ width: '100%' }}>
+                            {validationLoading ? 'Validando...' : 'Previsualizar y Validar'}
+                          </button>
+                        </div>
+                      </form>
+                    )}
+                  </>
                 )}
-
-                {aiActiveTab === 'exercise' && (
-                  <form className="ai-admin-form" onSubmit={handleExerciseSubmit}>
-                    <label htmlFor="instructor-ai-concept">{t('admin.ai.field.concept')}</label>
-                    <input
-                      id="instructor-ai-concept"
-                      type="text"
-                      value={exerciseForm.concept}
-                      onChange={(event) => setExerciseForm((previous) => ({ ...previous, concept: event.target.value }))}
-                      placeholder={t('admin.ai.placeholder.concept')}
-                    />
-
-                    <label htmlFor="instructor-ai-difficulty">{t('admin.ai.field.difficulty')}</label>
-                    <select
-                      id="instructor-ai-difficulty"
-                      value={exerciseForm.difficulty}
-                      onChange={(event) => setExerciseForm((previous) => ({
-                        ...previous,
-                        difficulty: event.target.value,
-                      }))}
-                    >
-                      <option value="easy">{t('admin.ai.difficulty.easy')}</option>
-                      <option value="medium">{t('admin.ai.difficulty.medium')}</option>
-                      <option value="hard">{t('admin.ai.difficulty.hard')}</option>
-                    </select>
-
-                    <label htmlFor="instructor-ai-language-id">{t('admin.ai.field.languageId')}</label>
-                    <select
-                      id="instructor-ai-language-id"
-                      value={exerciseForm.languageId}
-                      onChange={(event) => setExerciseForm((previous) => ({
-                        ...previous,
-                        languageId: event.target.value,
-                      }))}
-                    >
-                      {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.icon} {t(option.labelKey)}
-                        </option>
-                      ))}
-                    </select>
-
-                    <label htmlFor="instructor-ai-exercise-model">{t('admin.ai.field.model')}</label>
-                    <select
-                      id="instructor-ai-exercise-model"
-                      value={exerciseForm.model}
-                      onChange={(event) => setExerciseForm((previous) => ({ ...previous, model: event.target.value }))}
-                    >
-                      {CONTENT_MODEL_OPTIONS.map((option) => (
-                        <option key={option.id} value={option.id}>{t(option.labelKey)}</option>
-                      ))}
-                    </select>
-
-                    <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
-                      <button type="submit" disabled={exerciseLoading} style={{ width: '100%' }}>
-                        {exerciseLoading ? t('admin.ai.loading') : t('admin.ai.action.generateExercise')}
-                      </button>
-                    </div>
-
-                    {exerciseError && <p className="ai-admin-error">{exerciseError}</p>}
-                  </form>
-                )}
-
-
               </div>
 
               <div className="instructor-ai-preview-panel">
@@ -1349,10 +1795,10 @@ function InstructorDashboardPage() {
                       type="lesson"
                       result={lessonResult}
                       title={lessonResult?.title || t('admin.ai.lesson.untitled')}
-                      difficulty={lessonForm.level}
-                      languageLabel={getLanguageLabel(lessonForm.languageId, t)}
-                      monacoLanguage={monacoFromJudge0Id(lessonForm.languageId)}
-                      model={lessonForm.model}
+                      difficulty={creationMode === 'ai' ? lessonForm.level : manualLessonForm.level}
+                      languageLabel={getLanguageLabel(creationMode === 'ai' ? lessonForm.languageId : manualLessonForm.languageId, t)}
+                      monacoLanguage={monacoFromJudge0Id(creationMode === 'ai' ? lessonForm.languageId : manualLessonForm.languageId)}
+                      model={creationMode === 'ai' ? lessonForm.model : 'manual'}
                       onSendToValidator={sendLessonToValidator}
                       onDiscard={() => setLessonResult(null)}
                       t={t}
@@ -1362,11 +1808,11 @@ function InstructorDashboardPage() {
                     <GeneratedContentCard
                       type="exercise"
                       result={exerciseResult}
-                      title={t('admin.ai.exercise.generatedTitle', { concept: exerciseForm.concept || t('admin.ai.exercise.title') })}
-                      difficulty={exerciseForm.difficulty}
-                      languageLabel={getLanguageLabel(exerciseForm.languageId, t)}
-                      monacoLanguage={monacoFromJudge0Id(exerciseForm.languageId)}
-                      model={exerciseForm.model}
+                      title={t('admin.ai.exercise.generatedTitle', { concept: (creationMode === 'ai' ? exerciseForm.concept : manualExerciseForm.concept) || t('admin.ai.exercise.title') })}
+                      difficulty={creationMode === 'ai' ? exerciseForm.difficulty : manualExerciseForm.difficulty}
+                      languageLabel={getLanguageLabel(creationMode === 'ai' ? exerciseForm.languageId : manualExerciseForm.languageId, t)}
+                      monacoLanguage={monacoFromJudge0Id(creationMode === 'ai' ? exerciseForm.languageId : manualExerciseForm.languageId)}
+                      model={creationMode === 'ai' ? exerciseForm.model : 'manual'}
                       onSendToValidator={sendExerciseToValidator}
                       onDiscard={() => setExerciseResult(null)}
                       t={t}
