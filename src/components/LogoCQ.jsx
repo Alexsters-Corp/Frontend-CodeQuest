@@ -13,9 +13,19 @@ function LogoCQ({ height = 38 }) {
     >
       <defs>
         <filter id="cqGlw" x="-15" y="-15" width="242" height="74" filterUnits="userSpaceOnUse">
-          <feGaussianBlur stdDeviation="1.2" result="b" />
+          <feGaussianBlur stdDeviation="1.8" result="b" />
+          <feColorMatrix
+            in="b"
+            type="matrix"
+            values="
+              1 0 0 0 0
+              0 1 0 0 0
+              0 0 1 0 0
+              0 0 0 1.25 0"
+            result="glow"
+          />
           <feMerge>
-            <feMergeNode in="b" />
+            <feMergeNode in="glow" />
             <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
@@ -23,7 +33,7 @@ function LogoCQ({ height = 38 }) {
 
       {/* ── Bracket izquierdo < — chevron redondeado ── */}
       <path
-        d="M 15,16 L 8,22 L 15,28"
+        d="M 20,16 L 13,22 L 20,28"
         fill="none"
         stroke="#8b5cf6"
         strokeWidth="4"
@@ -34,7 +44,7 @@ function LogoCQ({ height = 38 }) {
 
       {/* ── Nombre CodeQuest ── */}
       <text
-        x="26" y="21"
+        x="27" y="21"
         dominantBaseline="central"
         fontFamily="'Inter','Segoe UI',system-ui,-apple-system,sans-serif"
         fontSize="26" fontWeight="700"

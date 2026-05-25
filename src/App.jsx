@@ -8,7 +8,6 @@ import { useAuth } from './context/useAuth'
 import PrivateRoute from './components/PrivateRoute'
 import PublicRoute from './components/PublicRoute'
 import RoleGuard from './components/guards/RoleGuard'
-import LanguageSwitcher from './components/LanguageSwitcher'
 import { useToastPosition } from './hooks/useToastPosition'
 import { configureNotifications } from './utils/notify'
 import DashboardPage from './pages/DashboardPage'
@@ -58,8 +57,6 @@ function AppContent() {
   const { pathname } = useLocation()
   const { t } = useLanguage()
   const toastPosition = useToastPosition()
-  const isDemo = pathname.startsWith('/demo')
-  const hasSidebar = SIDEBAR_ROUTES.some(r => pathname.startsWith(r))
 
   useEffect(() => {
     configureNotifications({
@@ -78,8 +75,6 @@ function AppContent() {
 
   return (
     <>
-        {!isDemo && !hasSidebar && <LanguageSwitcher />}
-
         <Toaster
           position={toastPosition}
           offset="72px"

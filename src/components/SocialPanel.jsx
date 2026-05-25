@@ -195,7 +195,7 @@ function SocialPanel() {
   }
 
   return (
-    <section className="profile-social-panel">
+    <section>
       <div className="profile-edit-header" style={{ marginBottom: '24px' }}>
         <p>{t('social.description')}</p>
       </div>

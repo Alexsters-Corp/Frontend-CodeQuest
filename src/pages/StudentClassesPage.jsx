@@ -4,6 +4,7 @@ import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
 import StudentClassesGrid from '../components/StudentClassesGrid'
+import Button from '../components/ui/Button'
 import { useLanguage } from '../context/useLanguage'
 import { joinClassWithCode, listStudentClasses } from '../services/learningApi'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
@@ -89,13 +90,12 @@ export default function StudentClassesPage() {
               <div className="section-header">
                 <h2>{t('dashboard.sidebar.myClasses')}</h2>
                 <div className="section-actions">
-                  <button
-                    className="join-class-btn"
+                  <Button
+                    variant="primary"
                     onClick={() => setShowJoinModal(true)}
-                    type="button"
                   >
                     {t('dashboard.joinClass')}
-                  </button>
+                  </Button>
                 </div>
               </div>
 
@@ -139,21 +139,20 @@ export default function StudentClassesPage() {
                 />
 
                 <div className="language-delete-actions">
-                  <button
-                    className="language-delete-cancel"
+                  <Button
+                    variant="slate"
                     onClick={() => setShowJoinModal(false)}
-                    type="button"
                     disabled={joining}
                   >
                     {t('common.cancel')}
-                  </button>
-                  <button
-                    className="language-delete-confirm join-confirm-btn"
+                  </Button>
+                  <Button
+                    variant="primary"
                     type="submit"
                     disabled={joining || !inviteCode.trim()}
                   >
                     {joining ? t('common.loading') : t('dashboard.joinAction')}
-                  </button>
+                  </Button>
                 </div>
               </form>
             </div>

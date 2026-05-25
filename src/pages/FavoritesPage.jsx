@@ -73,10 +73,10 @@ function FavoritesPage() {
 
   return (
     <SidebarLayout>
-      <MotionPage className="dashboard-page" delay={0.06}>
+      <MotionPage className="dashboard-page" delay={0}>
       <Navbar title={t('favorites.title')} hideActions />
 
-      <section className="profile-edit-card favorites-card">
+      <section className="favorites-card">
         <div className="favorites-header-row">
           <h2>{t('favorites.title')}</h2>
         </div>

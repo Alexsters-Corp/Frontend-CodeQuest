@@ -12,6 +12,7 @@ import CountryFlag from '../components/CountryFlag'
 import LoadingSpinner from '../components/LoadingSpinner'
 import MotionPage from '../components/MotionPage'
 import SidebarLayout from '../components/SidebarLayout'
+import Button from '../components/ui/Button'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import { followUserByUsername, getPublicUserProfile, getSharedPublicUserProfile, unfollowUserByUsername } from '../services/socialApi'
@@ -267,19 +268,20 @@ function UserProfilePage({ standalone = false }) {
                     </div>
                     {!standalone && isAuthenticated ? (
                       <div className="profile-page-hero__actions">
-                        <button
-                          type="button"
-                          className={`profile-follow-btn ${profile.isFollowing ? 'profile-follow-btn--following' : 'profile-follow-btn--idle'}`}
+                        <Button
+                          variant={profile.isFollowing ? 'slate' : 'primary'}
+                          size="md"
+                          compact
+                          icon={
+                            profile.isFollowing
+                              ? (isMutualFollow ? <AiOutlineUserSwitch /> : <LuUserRoundCheck />)
+                              : <AiOutlineUserAdd />
+                          }
                           onClick={handleToggleFollow}
                           disabled={pendingFollowAction}
                         >
-                          <span className="profile-follow-btn__icon" aria-hidden="true">
-                            {profile.isFollowing
-                              ? (isMutualFollow ? <AiOutlineUserSwitch /> : <LuUserRoundCheck />)
-                              : <AiOutlineUserAdd />}
-                          </span>
-                          <span>{followButtonLabel}</span>
-                        </button>
+                          {followButtonLabel}
+                        </Button>
                       </div>
                     ) : null}
                   </div>

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
+import Button from '../components/ui/Button'
 import { useLanguage } from '../context/useLanguage'
 import { getAdminAnalytics, listAdminUsers, updateAdminUser, deleteAdminUser } from '../services/rbacApi'
 import { notifyError, notifySuccess } from '../utils/notify'
@@ -203,30 +204,31 @@ function AdminDashboardPage() {
       <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar title={t('admin.title')} hideActions />
 
-      <section className="rbac-page">
-      <section className="rbac-card ai-admin-entry">
+      <section className="admin-dashboard-shell">
+      <section className="surface-main ai-admin-entry">
         <div className="rbac-section-head">
           <h2>{t('admin.ai.toolsTitle')}</h2>
-          <button type="button" onClick={() => navigate('/admin/ai')}>
+          <Button type="button" variant="purple" onClick={() => navigate('/admin/ai')}>
             {t('admin.ai.open')}
-          </button>
+          </Button>
         </div>
-        <p className="rbac-muted">{t('admin.ai.toolsHint')}</p>
+        <p className="rbac-muted admin-panel-intro">{t('admin.ai.toolsHint')}</p>
       </section>
 
-      <section className="rbac-card">
+      <section className="surface-main admin-dashboard-panel">
         <div className="rbac-section-head">
           <h2>{t('admin.globalAnalytics')}</h2>
-          <button type="button" onClick={loadAnalytics} disabled={analyticsLoading}>
+          <Button type="button" variant="blue" onClick={loadAnalytics} disabled={analyticsLoading}>
             {analyticsLoading ? t('admin.updatingAnalytics') : t('admin.updateAnalytics')}
-          </button>
+          </Button>
         </div>
+        <p className="rbac-muted admin-panel-intro">Consulta una vista rápida del estado general de usuarios, rutas activas y progreso del sistema.</p>
 
         {analyticsError && <p className="rbac-error">{analyticsError}</p>}
-        {analyticsLoading && <p>{t('admin.loadingAnalytics')}</p>}
+        {analyticsLoading && <p className="admin-panel-loading">{t('admin.loadingAnalytics')}</p>}
 
         {!analyticsLoading && analytics && (
-          <div className="rbac-metric-grid rbac-metric-grid--admin">
+          <div className="rbac-metric-grid rbac-metric-grid--admin admin-metric-grid">
             <article>
               <p>{t('admin.metric.totalUsers')}</p>
               <strong>{Number(analytics.users?.users_total || 0)}</strong>
@@ -257,12 +259,13 @@ function AdminDashboardPage() {
         )}
       </section>
 
-      <section className="rbac-card">
+      <section className="surface-main admin-dashboard-panel">
         <div className="rbac-section-head">
           <h2>{t('admin.userModeration')}</h2>
         </div>
+        <p className="rbac-muted admin-panel-intro">Filtra, edita y administra usuarios desde una sola vista sin perder el contexto del sistema.</p>
 
-        <div className="rbac-filters">
+        <div className="rbac-filters admin-filters">
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
@@ -293,7 +296,7 @@ function AdminDashboardPage() {
         {!usersLoading && users.length === 0 && <p className="rbac-muted">{t('admin.noUsers')}</p>}
 
         {users.length > 0 && (
-          <div className="rbac-table-wrap">
+          <div className="rbac-table-wrap admin-table-wrap">
             <table className="rbac-table">
               <thead>
                 <tr>
@@ -352,22 +355,24 @@ function AdminDashboardPage() {
                       </td>
                       <td>
                         <div className="rbac-action-btns">
-                          <button
+                          <Button
                             type="button"
-                            className="rbac-btn-primary"
+                            variant="primary"
+                            size="sm"
                             onClick={() => handleSaveUser(user)}
                             disabled={!hasChanges || savingUserId === user.id}
                           >
                             {savingUserId === user.id ? t('admin.saving') : t('admin.save')}
-                          </button>
-                          <button
+                          </Button>
+                          <Button
                             type="button"
-                            className="rbac-btn-danger"
+                            variant="red"
+                            size="sm"
                             onClick={() => setDeleteConfirm(user)}
                             disabled={deletingUserId === user.id}
                           >
                             {deletingUserId === user.id ? t('admin.deleting') : t('admin.delete')}
-                          </button>
+                          </Button>
                         </div>
                       </td>
                     </tr>
@@ -387,12 +392,12 @@ function AdminDashboardPage() {
           <h3>{t('admin.deleteConfirmTitle')}</h3>
           <p>{t('admin.deleteConfirmMessage', { name: deleteConfirm.nombre || deleteConfirm.email })}</p>
           <div className="rbac-modal-actions">
-            <button className="rbac-btn-secondary" onClick={() => setDeleteConfirm(null)}>
+            <Button variant="slate" onClick={() => setDeleteConfirm(null)}>
               {t('common.cancel')}
-            </button>
-            <button className="rbac-btn-danger" onClick={() => handleDeleteUser(deleteConfirm)}>
+            </Button>
+            <Button variant="red" onClick={() => handleDeleteUser(deleteConfirm)}>
               {t('admin.confirmDelete')}
-            </button>
+            </Button>
           </div>
         </div>
       </div>
