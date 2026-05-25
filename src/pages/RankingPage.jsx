@@ -75,7 +75,7 @@ function RankingPage() {
       <MotionPage className="dashboard-page" delay={0.06}>
         <Navbar title={t('ranking.title')} hideActions />
 
-        <section className="profile-edit-card ranking-card">
+        <section className="surface-main ranking-card">
           <div className="ranking-header-row">
             <div className="profile-edit-header">
               <h2>{t('ranking.subtitle')}</h2>

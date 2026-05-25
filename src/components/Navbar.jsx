@@ -24,13 +24,15 @@ function Navbar({
         <span className="navbar-avatar" aria-hidden="true">{profileAvatar}</span>
         <div className="dashboard-header-text">
           <h1>{resolvedTitle}</h1>
-          <span className="dashboard-role-badge">{t('nav.role', { role: roleLabel })}</span>
+          <span className="dashboard-role-badge">{roleLabel}</span>
         </div>
       </div>
 
-      <div className="dashboard-header-aside">
-        {headerAside}
-      </div>
+      {headerAside && (
+        <div className="dashboard-header-aside">
+          {headerAside}
+        </div>
+      )}
     </header>
   )
 }

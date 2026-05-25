@@ -7,6 +7,7 @@ import { IoCreateOutline, IoTrophyOutline } from 'react-icons/io5'
 import { AiOutlineUsergroupAdd } from 'react-icons/ai'
 import { SlLocationPin } from 'react-icons/sl'
 import { LuUsersRound } from 'react-icons/lu'
+import Button from '../components/ui/Button'
 import CountryFlag from '../components/CountryFlag'
 import LoadingSpinner from '../components/LoadingSpinner'
 import MotionPage from '../components/MotionPage'
@@ -323,23 +324,25 @@ function ProfilePage() {
                       </button>
                     </div>
                     <div className="profile-page-hero__actions">
-                      <button type="button" className="profile-follow-btn profile-follow-btn--edit" onClick={() => navigate('/profile/edit')}>
-                        <span className="profile-follow-btn__icon" aria-hidden="true">
-                          <IoCreateOutline />
-                        </span>
-                        <span>{t('profile.editButton')}</span>
-                      </button>
-                      <button
-                        type="button"
-                        className="profile-follow-btn profile-follow-btn--share"
+                      <Button
+                        variant="blue"
+                        size="md"
+                        compact
+                        icon={<IoCreateOutline />}
+                        onClick={() => navigate('/profile/edit')}
+                      >
+                        {t('profile.editButton')}
+                      </Button>
+                      <Button
+                        variant="purple"
+                        size="md"
+                        compact
+                        icon={<FiShare />}
                         onClick={() => setShareModalOpen(true)}
                         disabled={!profile.username}
                       >
-                        <span className="profile-follow-btn__icon" aria-hidden="true">
-                          <FiShare />
-                        </span>
-                        <span>{t('profile.shareButton')}</span>
-                      </button>
+                        {t('profile.shareButton')}
+                      </Button>
                     </div>
                   </div>
                 </div>

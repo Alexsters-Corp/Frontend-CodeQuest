@@ -18,7 +18,7 @@ function DemoLandingPage() {
   return (
     <MotionPage className="demo__page" delay={0.05}>
       <Link to="/" className="demo__brand-link" aria-label="Volver al inicio">
-        <LogoCQ height={34} />
+        <LogoCQ height={37} />
       </Link>
 
       <div className="demo__page-wrapper">
@@ -27,7 +27,7 @@ function DemoLandingPage() {
         <section className="demo__hero-section">
           <div className="demo__hero-copy">
             <Link to="/" className="demo__brand-mobile" aria-label="Volver al inicio">
-              <LogoCQ height={28} />
+              <LogoCQ height={31} />
             </Link>
 
             <h1 className="demo__hero-title">

@@ -301,19 +301,26 @@ function DashboardPage() {
                               }}
                             />
                           </div>
-                          <span className="lang-progress-text">
-                            {t('dashboard.modulesCount', {
-                              completed: lang.modulosCompletados,
-                              total: lang.modulosTotal,
-                            })}
-                          </span>
+                          <div className="lang-meta-row">
+                            <span className="lang-level-badge">
+                              {translateDiagnosticLevel(lang.nivel_diagnostico, t)}
+                            </span>
+                            <span className="lang-progress-text">
+                              {t('dashboard.modulesCount', {
+                                completed: lang.modulosCompletados,
+                                total: lang.modulosTotal,
+                              })}
+                            </span>
+                          </div>
                         </>
                       ) : (
                         <span className="lang-diagnostic-badge">{t('dashboard.pendingDiagnostic')}</span>
                       )}
-                      <span className="lang-level-badge">
-                        {translateDiagnosticLevel(lang.nivel_diagnostico, t)}
-                      </span>
+                      {!lang.diagnostico_completado && (
+                        <span className="lang-level-badge">
+                          {translateDiagnosticLevel(lang.nivel_diagnostico, t)}
+                        </span>
+                      )}
                     </button>
                   </div>
                 ))}
