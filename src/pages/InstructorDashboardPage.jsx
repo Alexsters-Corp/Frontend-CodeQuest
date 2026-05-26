@@ -1412,125 +1412,26 @@ function InstructorDashboardPage() {
 
             <div className="instructor-ai-main-layout">
               <div className="instructor-ai-controls">
-                {aiActiveTab === 'lesson' && (
-                  <form className="ai-admin-form" onSubmit={handleLessonSubmit}>
-                    <label htmlFor="instructor-ai-topic">{t('admin.ai.field.topic')}</label>
-                    <input
-                      id="instructor-ai-topic"
-                      type="text"
-                      value={lessonForm.topic}
-                      onChange={(event) => setLessonForm((previous) => ({ ...previous, topic: event.target.value }))}
-                      placeholder={t('admin.ai.placeholder.topic')}
-                    />
-
-                    <label htmlFor="instructor-ai-language">{t('admin.ai.field.language')}</label>
-                    <select
-                      id="instructor-ai-language"
-                      value={lessonForm.languageId}
-                      onChange={(event) => setLessonForm((previous) => ({
-                        ...previous,
-                        languageId: event.target.value,
-                      }))}
-                    >
-                      {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.icon} {t(option.labelKey)}
-                        </option>
-                      ))}
-                    </select>
-
-                    <label htmlFor="instructor-ai-level">{t('admin.ai.field.level')}</label>
-                    <select
-                      id="instructor-ai-level"
-                      value={lessonForm.level}
-                      onChange={(event) => setLessonForm((previous) => ({
-                        ...previous,
-                        level: event.target.value,
-                      }))}
-                    >
-                      <option value="beginner">{t('admin.ai.level.beginner')}</option>
-                      <option value="intermediate">{t('admin.ai.level.intermediate')}</option>
-                      <option value="advanced">{t('admin.ai.level.advanced')}</option>
-                    </select>
-
-                    <label htmlFor="instructor-ai-lesson-model">{t('admin.ai.field.model')}</label>
-                    <select
-                      id="instructor-ai-lesson-model"
-                      value={lessonForm.model}
-                      onChange={(event) => setLessonForm((previous) => ({ ...previous, model: event.target.value }))}
-                    >
-                      {CONTENT_MODEL_OPTIONS.map((option) => (
-                        <option key={option.id} value={option.id}>{t(option.labelKey)}</option>
-                      ))}
-                    </select>
-
-                    <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
-                      <Button type="submit" variant="primary" className="ai-admin-actions__btn" disabled={lessonLoading}>
-                        {lessonLoading ? t('admin.ai.loading') : t('admin.ai.action.generateLesson')}
-                      </Button>
-                    </div>
-
-                    {lessonError && <p className="ai-admin-error">{lessonError}</p>}
-                  </form>
-                )}
-
-                {aiActiveTab === 'exercise' && (
-                  <form className="ai-admin-form" onSubmit={handleExerciseSubmit}>
-                    <label htmlFor="instructor-ai-concept">{t('admin.ai.field.concept')}</label>
-                    <input
-                      id="instructor-ai-concept"
-                      type="text"
-                      value={exerciseForm.concept}
-                      onChange={(event) => setExerciseForm((previous) => ({ ...previous, concept: event.target.value }))}
-                      placeholder={t('admin.ai.placeholder.concept')}
-                    />
-
-                    <label htmlFor="instructor-ai-difficulty">{t('admin.ai.field.difficulty')}</label>
-                    <select
-                      id="instructor-ai-difficulty"
-                      value={exerciseForm.difficulty}
-                      onChange={(event) => setExerciseForm((previous) => ({
-                        ...previous,
-                        difficulty: event.target.value,
-                      }))}
-                    >
-                      <option value="easy">{t('admin.ai.difficulty.easy')}</option>
-                      <option value="medium">{t('admin.ai.difficulty.medium')}</option>
-                      <option value="hard">{t('admin.ai.difficulty.hard')}</option>
-                    </select>
-
-                    <label htmlFor="instructor-ai-language-id">{t('admin.ai.field.languageId')}</label>
-                    <select
-                      id="instructor-ai-language-id"
-                      value={exerciseForm.languageId}
-                      onChange={(event) => setExerciseForm((previous) => ({
-                        ...previous,
-                        languageId: event.target.value,
-                      }))}
-                    >
-                      {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                        <option key={option.id} value={option.id}>
-                          {option.icon} {t(option.labelKey)}
-                        </option>
-                      ))}
-                    </select>
-
-                    <label htmlFor="instructor-ai-exercise-model">{t('admin.ai.field.model')}</label>
-                    <select
-                      id="instructor-ai-exercise-model"
-                      value={exerciseForm.model}
-                      onChange={(event) => setExerciseForm((previous) => ({ ...previous, model: event.target.value }))}
-                    >
-                      {CONTENT_MODEL_OPTIONS.map((option) => (
-                        <option key={option.id} value={option.id}>{t(option.labelKey)}</option>
-                      ))}
-                    </select>
-
-                    <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
-                      <Button type="submit" variant="primary" className="ai-admin-actions__btn" disabled={exerciseLoading}>
-                        {exerciseLoading ? t('admin.ai.loading') : t('admin.ai.action.generateExercise')}
-                      </Button>
-                    </div>
+                <div className="instructor-ai-tabs" role="tablist" aria-label={t('admin.ai.mode.label')}>
+                  <Button
+                    type="button"
+                    variant={creationMode === 'ai' ? 'blue' : 'slate'}
+                    size="sm"
+                    className="instructor-ai-tab-btn"
+                    onClick={() => setCreationMode('ai')}
+                  >
+                    {t('admin.ai.mode.assisted')}
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={creationMode === 'manual' ? 'blue' : 'slate'}
+                    size="sm"
+                    className="instructor-ai-tab-btn"
+                    onClick={() => setCreationMode('manual')}
+                  >
+                    {t('admin.ai.mode.manual')}
+                  </Button>
+                </div>
 
                 {creationMode === 'ai' ? (
                   <>
