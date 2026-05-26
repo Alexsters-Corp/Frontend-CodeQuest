@@ -181,19 +181,19 @@ function ProfileConnectionsPage() {
   return (
     <SidebarLayout>
       <MotionPage className="dashboard-page" delay={0.06}>
-        <section className="profile-page-shell user-profile-page-shell profile-connections-shell">
-          <section className="profile-page-panel profile-connections-panel">
-            <div className="profile-connections-header">
-              <button
-                type="button"
-                className="profile-page-back profile-connections-back"
-                onClick={() => navigate(isOwnProfile ? '/profile' : `/users/${encodeURIComponent(username)}`)}
-              >
-                <IoMdArrowRoundBack />
-                <span>{isOwnProfile ? t('profile.backToProfile') : t('profile.backToPublicProfile')}</span>
-              </button>
-            </div>
+        <section className="profile-connections-shell">
+          <div className="profile-connections-header">
+            <button
+              type="button"
+              className="profile-page-back profile-connections-back"
+              onClick={() => navigate(isOwnProfile ? '/profile' : `/users/${encodeURIComponent(username)}`)}
+            >
+              <IoMdArrowRoundBack />
+              <span>{isOwnProfile ? t('profile.backToProfile') : t('profile.backToPublicProfile')}</span>
+            </button>
+          </div>
 
+          <section className="surface-main profile-connections-panel">
             <div className="ranking-scope-tabs profile-connections-tabs">
               <button
                 type="button"
@@ -211,7 +211,7 @@ function ProfileConnectionsPage() {
               </button>
             </div>
 
-            <div className="social-active-content profile-connections-content">
+            <div className="profile-connections-content">
               {loading ? (
                 <div className="profile-edit-loading-container">
                   <LoadingSpinner size="large" />

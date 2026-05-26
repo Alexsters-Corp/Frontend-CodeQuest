@@ -1,0 +1,193 @@
+/*
+|--------------------------------------------------------------------------
+| Variant Selection Rules
+|--------------------------------------------------------------------------
+| Si una página o acción no tiene una variante claramente definida,
+| asumir la variante según intención UX:
+|
+| primary -> acción principal de la vista
+| blue    -> acciones normales/neutrales
+| purple  -> acciones destacadas/sociales/premium
+| amber   -> recompensas, XP, logros, progreso
+| red     -> acciones destructivas o peligrosas
+| slate   -> acciones de bajo énfasis, cancelar o cerrar
+|
+| Regla general:
+| - Usar primary para la acción más importante de la pantalla.
+| - Si no existe una intención especial, usar blue.
+| - Evitar usar múltiples botones primary juntos.
+| - El color debe representar contexto e intención visual.
+*/
+
+.btn {
+  --btn-bg: rgba(11, 20, 37, 0.66);
+  --btn-border: rgba(34, 211, 238, 0.34);
+  --btn-color: #67e8f9;
+  --btn-hover-bg: rgba(11, 20, 37, 0.82);
+  --btn-hover-border: rgba(34, 211, 238, 0.52);
+  --btn-hover-color: #a5f3fc;
+  --btn-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.06);
+  --btn-shadow-hover: 0 12px 22px rgba(2, 8, 23, 0.18);
+  --btn-gap: 8px;
+  margin-top: 0;
+  min-height: 38px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  border: 1px solid var(--btn-border);
+  background: var(--btn-bg);
+  color: var(--btn-color);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--btn-gap);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.1;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  box-shadow: var(--btn-shadow);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--btn-hover-bg);
+  border-color: var(--btn-hover-border);
+  color: var(--btn-hover-color);
+  transform: translateY(-1px);
+  box-shadow: var(--btn-shadow-hover);
+}
+
+.btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.btn__icon {
+  width: 1em;
+  height: 1em;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  font-size: inherit;
+  line-height: 1;
+}
+
+.btn__icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+.btn--primary {
+  --btn-border: rgba(16, 185, 129, 0.38);
+  --btn-color: #6ee7b7;
+  --btn-hover-border: rgba(52, 211, 153, 0.56);
+  --btn-hover-color: #d1fae5;
+  --btn-shadow: inset 0 0 0 1px rgba(16, 185, 129, 0.08);
+}
+
+.btn--blue {
+  --btn-border: rgba(34, 211, 238, 0.34);
+  --btn-color: #67e8f9;
+  --btn-hover-border: rgba(34, 211, 238, 0.52);
+  --btn-hover-color: #a5f3fc;
+  --btn-shadow: inset 0 0 0 1px rgba(34, 211, 238, 0.06);
+}
+
+.btn--purple {
+  --btn-border: rgba(139, 92, 246, 0.36);
+  --btn-color: #c4b5fd;
+  --btn-hover-border: rgba(167, 139, 250, 0.56);
+  --btn-hover-color: #ede9fe;
+  --btn-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.08);
+}
+
+.btn--amber {
+  --btn-border: rgba(245, 158, 11, 0.36);
+  --btn-color: #fcd34d;
+  --btn-hover-border: rgba(251, 191, 36, 0.54);
+  --btn-hover-color: #fef3c7;
+  --btn-shadow: inset 0 0 0 1px rgba(245, 158, 11, 0.08);
+}
+
+.btn--red {
+  --btn-border: rgba(239, 68, 68, 0.38);
+  --btn-color: #fca5a5;
+  --btn-hover-border: rgba(239, 68, 68, 0.56);
+  --btn-hover-color: #fee2e2;
+  --btn-shadow: inset 0 0 0 1px rgba(239, 68, 68, 0.08);
+}
+
+.btn--slate {
+  --btn-border: rgba(148, 163, 184, 0.24);
+  --btn-color: #dde7f6;
+  --btn-hover-border: rgba(148, 163, 184, 0.4);
+  --btn-hover-color: #ffffff;
+  --btn-shadow: inset 0 0 0 1px rgba(148, 163, 184, 0.05);
+}
+
+.btn--compact {
+  width: fit-content;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 8px;
+  gap: 8px;
+  line-height: 1;
+}
+
+.btn--compact .btn__icon {
+  width: 1em;
+  height: 1em;
+}
+
+.btn--sm {
+  min-height: 34px;
+  padding: 4px 9px;
+  font-size: 0.88rem;
+}
+
+.btn--md {
+  min-height: 38px;
+  padding: 6px 12px;
+  font-size: 0.95rem;
+}
+
+.btn--lg {
+  min-height: 42px;
+  padding: 7px 14px;
+  font-size: 0.98rem;
+}
+
+@media (max-width: 760px) {
+  .btn {
+    min-height: 36px;
+    padding: 5px 11px;
+    font-size: 0.92rem;
+  }
+
+  .btn--sm {
+    min-height: 32px;
+    padding: 4px 8px;
+    font-size: 0.84rem;
+  }
+
+  .btn--md {
+    min-height: 36px;
+    padding: 5px 11px;
+    font-size: 0.92rem;
+  }
+
+  .btn--lg {
+    min-height: 40px;
+    padding: 6px 13px;
+    font-size: 0.95rem;
+  }
+}

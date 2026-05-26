@@ -8,7 +8,6 @@ import { useRole } from '../hooks/useRole'
 import { notifyPending } from '../utils/notify'
 import { apiFetch } from '../services/api'
 import LogoCQ from './LogoCQ'
-import LanguageSwitcher from './LanguageSwitcher'
 
 export default function Sidebar() {
   const navigate = useNavigate()
@@ -74,6 +73,27 @@ export default function Sidebar() {
     navigate(path)
   }
 
+  const mobilePrimaryItems = isAdmin
+    ? [
+        { key: 'home', path: '/dashboard', icon: '🏠', active: location.pathname === '/dashboard' },
+        { key: 'admin', path: '/admin', icon: '🛡️', active: location.pathname.startsWith('/admin') },
+        { key: 'instructor', path: '/instructor', icon: '👨‍🏫', active: location.pathname.startsWith('/instructor') },
+        { key: 'ranking', path: '/ranking?scope=global', icon: '🥇', active: location.pathname.startsWith('/ranking') },
+      ]
+    : (!isInstructor
+        ? [
+            { key: 'home', path: '/dashboard', icon: '🏠', active: location.pathname === '/dashboard' },
+            { key: 'classes', path: '/dashboard/classes', icon: '🏫', active: location.pathname.startsWith('/dashboard/classes') },
+            { key: 'ranking', path: '/ranking?scope=global', icon: '🥇', active: location.pathname.startsWith('/ranking') },
+            { key: 'favorites', path: '/favorites', icon: '⭐', active: location.pathname.startsWith('/favorites') },
+          ]
+        : [
+            { key: 'favorites', path: '/favorites', icon: '⭐', active: location.pathname.startsWith('/favorites') },
+            { key: 'ranking', path: '/ranking?scope=global', icon: '🥇', active: location.pathname.startsWith('/ranking') },
+            { key: 'home', path: '/dashboard', icon: '🏠', active: location.pathname === '/dashboard' },
+            { key: 'classes', path: '/dashboard/classes', icon: '🏫', active: location.pathname.startsWith('/dashboard/classes') },
+          ])
+
   const langDropdown = (
     <div className="sidebar-lang-dropdown">
       <button
@@ -110,8 +130,10 @@ export default function Sidebar() {
     <>
       {/* Top bar móvil */}
       <header className="mobile-header">
-        <LogoCQ height={32} />
-        {langDropdown}
+        <LogoCQ height={35} />
+        <div className="mobile-header__actions">
+          {langDropdown}
+        </div>
       </header>
 
       {mobileMoreOpen && (
@@ -124,6 +146,10 @@ export default function Sidebar() {
       )}
 
       <div className={`mobile-more-panel${mobileMoreOpen ? ' mobile-more-panel--open' : ''}`} role="menu">
+        <button type="button" className="mobile-more-panel__item" role="menuitem" onClick={() => handleMobileNavigate('/social')}>
+          <span className="mobile-bottom-nav__icon">👥</span>
+          <span>{t('dashboard.sidebar.followers')}</span>
+        </button>
         <button type="button" className="mobile-more-panel__item" role="menuitem" onClick={() => handleMobileNavigate('/profile')}>
           <span className="mobile-bottom-nav__icon">👤</span>
           <span>{t('nav.profile')}</span>
@@ -132,16 +158,10 @@ export default function Sidebar() {
           <span className="mobile-bottom-nav__icon">➕</span>
           <span>{t('dashboard.sidebar.onboarding')}</span>
         </button>
-        {(isInstructor || isAdmin) && (
+        {isInstructor && !isAdmin && (
           <button type="button" className="mobile-more-panel__item" role="menuitem" onClick={() => handleMobileNavigate('/instructor')}>
             <span className="mobile-bottom-nav__icon">👨‍🏫</span>
             <span>{t('nav.instructor')}</span>
-          </button>
-        )}
-        {isAdmin && (
-          <button type="button" className="mobile-more-panel__item" role="menuitem" onClick={() => handleMobileNavigate('/admin')}>
-            <span className="mobile-bottom-nav__icon">🛡️</span>
-            <span>{t('nav.admin')}</span>
           </button>
         )}
         <button
@@ -156,33 +176,29 @@ export default function Sidebar() {
         </button>
       </div>
 
-      {/* Bottom nav móvil */}
-      <nav className="mobile-bottom-nav" aria-label="Navegación principal">
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => handleMobileNavigate('/dashboard')}>
-          <span className="mobile-bottom-nav__icon">🏠</span>
-          <span className="mobile-bottom-nav__label">{t('dashboard.sidebar.languages')}</span>
-        </button>
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => handleMobileNavigate('/favorites')}>
-          <span className="mobile-bottom-nav__icon">⭐</span>
-          <span className="mobile-bottom-nav__label">{t('dashboard.sidebar.favorites')}</span>
-        </button>
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => handleMobileNavigate('/ranking?scope=global')}>
-          <span className="mobile-bottom-nav__icon">🥇</span>
-          <span className="mobile-bottom-nav__label">{t('dashboard.sidebar.ranking')}</span>
-        </button>
-        <button type="button" className="mobile-bottom-nav__item" onClick={() => handleMobileNavigate('/social')}>
-          <span className="mobile-bottom-nav__icon">👥</span>
-          <span className="mobile-bottom-nav__label">{t('dashboard.sidebar.followers')}</span>
-        </button>
+      <nav className="mobile-bottom-nav" aria-label={t('dashboard.sidebar.navigate')}>
+        {mobilePrimaryItems.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            className={`mobile-bottom-nav__item${item.active ? ' mobile-bottom-nav__item--active' : ''}`}
+            onClick={() => handleMobileNavigate(item.path)}
+          >
+            <span className="mobile-bottom-nav__icon">{item.icon}</span>
+          </button>
+        ))}
         <button
           type="button"
-          className={`mobile-bottom-nav__item${mobileMoreOpen ? ' mobile-bottom-nav__item--active' : ''}`}
+          className={`mobile-bottom-nav__item mobile-bottom-nav__item--more${mobileMoreOpen ? ' mobile-bottom-nav__item--open' : ''}`}
           aria-expanded={mobileMoreOpen}
-          aria-label={t('nav.moreMenu')}
+          aria-label={mobileMoreOpen ? t('nav.closeMenu') : t('nav.moreMenu')}
           onClick={() => setMobileMoreOpen((isOpen) => !isOpen)}
         >
-          <span className="mobile-bottom-nav__icon">...</span>
-          <span className="mobile-bottom-nav__label">{t('nav.more')}</span>
+          <span className="mobile-bottom-nav__icon mobile-bottom-nav__more-icon" aria-hidden="true">
+            <span />
+            <span />
+            <span />
+          </span>
         </button>
       </nav>
     </>,
@@ -194,7 +210,7 @@ export default function Sidebar() {
       {/* Desktop sidebar */}
       <aside className="dashboard-sidebar">
         <div className="dashboard-sidebar__logo-container">
-          <LogoCQ height={34} />
+          <LogoCQ height={37} />
         </div>
 
         <div className="dashboard-sidebar__lang">

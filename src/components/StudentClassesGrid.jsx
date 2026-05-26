@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import Button from './ui/Button'
 import { useLanguage } from '../context/useLanguage'
 import { listStudentClassLessons } from '../services/learningApi'
 
@@ -214,14 +215,14 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
                 <div className="section-header section-header--compact">
                   <h3>{t('dashboard.classes.publishedContentTitle')}</h3>
                   {activePathId && (
-                    <button 
-                      type="button" 
-                      className="rbac-btn-secondary" 
-                      style={{ fontSize: '0.7rem', padding: '2px 8px' }}
+                    <Button
+                      variant="slate"
+                      size="sm"
+                      compact
                       onClick={() => setActivePathId(null)}
                     >
                       {t('common.showAll') || 'Ver todo'}
-                    </button>
+                    </Button>
                   )}
                 </div>
 
@@ -250,13 +251,13 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
                               {lesson.is_ai_assisted ? ` · ${t('modules.aiAssisted')}` : ''}
                             </p>
                           </div>
-                          <button
-                            type="button"
-                            className="class-path-action-btn"
+                          <Button
+                            variant="blue"
+                            size="sm"
                             onClick={() => handleOpenLesson(lesson.id, selectedClass?.id)}
                           >
                             {t('favorites.openLesson')}
-                          </button>
+                          </Button>
                         </div>
                       ))}
                   </div>

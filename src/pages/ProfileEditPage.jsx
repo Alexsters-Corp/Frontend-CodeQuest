@@ -13,6 +13,7 @@ import {
 } from 'react-icons/io5'
 import MotionPage from '../components/MotionPage'
 import SidebarLayout from '../components/SidebarLayout'
+import Button from '../components/ui/Button'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import { apiFetch } from '../services/api'
@@ -315,15 +316,15 @@ function ProfileEditPage() {
                   </div>
                 </div>
 
-                <button
-                  type="button"
-                  className="profile-edit-change-photo-btn"
+                <Button
+                  variant="blue"
+                  className="profile-edit-sidebar__action"
+                  icon={<IoImageOutline />}
                   onClick={focusAvatarOptions}
                   disabled={saving}
                 >
-                  <IoImageOutline />
-                  <span>{t('profile.changePhoto')}</span>
-                </button>
+                  {t('profile.changePhoto')}
+                </Button>
 
                 <div
                   className="profile-edit-avatar-picker"
@@ -504,13 +505,12 @@ function ProfileEditPage() {
                       <strong>{t('profile.passwordCardTitle')}</strong>
                       <p>{t('profile.passwordCardDescription')}</p>
                     </div>
-                    <button
-                      type="button"
-                      className="profile-edit-access-link"
+                    <Button
+                      variant="blue"
                       onClick={() => navigate('/forgot-password')}
                     >
                       {t('profile.passwordCardAction')}
-                    </button>
+                    </Button>
                   </div>
                 </section>
 
@@ -518,17 +518,16 @@ function ProfileEditPage() {
                 {successMessage ? <p className="profile-edit-message success">{successMessage}</p> : null}
 
                 <div className="profile-edit-actions profile-edit-actions--premium">
-                  <button
-                    type="button"
-                    className="profile-cancel-btn"
+                  <Button
+                    variant="slate"
                     onClick={() => navigate('/profile')}
                     disabled={saving}
                   >
                     {t('common.cancel')}
-                  </button>
-                  <button type="submit" className="profile-save-btn" disabled={saving}>
+                  </Button>
+                  <Button type="submit" variant="primary" disabled={saving}>
                     {saving ? t('common.saving') : t('profile.save')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             </form>

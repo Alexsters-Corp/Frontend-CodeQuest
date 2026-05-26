@@ -12,7 +12,7 @@ function SocialPage() {
       <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar title={t('social.title')} hideActions />
 
-      <section className="profile-edit-card">
+      <section className="surface-main">
         <SocialPanel />
       </section>
       </MotionPage>

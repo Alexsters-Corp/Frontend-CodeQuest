@@ -1,7 +1,9 @@
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
+import { IoMdArrowRoundDown } from 'react-icons/io'
 import MotionPage from '../components/MotionPage'
+import LogoCQ from '../components/LogoCQ'
 import ScrollToTopButton from '../components/ScrollToTopButton'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
@@ -14,9 +16,11 @@ const MotionArticle = motion.article
 function HomePage() {
   const navigate = useNavigate()
   const { isAuthenticated, saveSession } = useAuth()
-  const { t } = useLanguage()
+  const { language, setLanguage, t } = useLanguage()
   const dashboardPath = isAuthenticated ? '/dashboard' : '/registro'
   const [activeSection, setActiveSection] = useState('')
+  const [langOpen, setLangOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [previewMode, setPreviewMode] = useState('login')
   const [previewLoading, setPreviewLoading] = useState(false)
   const [previewForm, setPreviewForm] = useState({
@@ -45,6 +49,14 @@ function HomePage() {
     },
   ]), [t])
 
+  useEffect(() => {
+    if (!langOpen) return undefined
+
+    const close = () => setLangOpen(false)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [langOpen])
+
   const scrollTo = (id) => {
     const target = document.getElementById(id)
     if (!target) {
@@ -68,6 +80,7 @@ function HomePage() {
     }
 
     window.scrollTo({ top: targetY, behavior: 'smooth' })
+    setMobileMenuOpen(false)
   }
 
   const handlePreviewChange = (event) => {
@@ -144,16 +157,56 @@ function HomePage() {
     }
   }
 
+  const langDropdown = (
+    <div className="sidebar-lang-dropdown landing__lang-dropdown">
+      <button
+        type="button"
+        className="sidebar-lang-dropdown__trigger"
+        onClick={(event) => {
+          event.stopPropagation()
+          setLangOpen((prev) => !prev)
+        }}
+      >
+        🌐 {language === 'es' ? 'Español' : 'English'}
+        <IoMdArrowRoundDown className={`sidebar-lang-dropdown__arrow${langOpen ? ' sidebar-lang-dropdown__arrow--open' : ''}`} />
+      </button>
+      {langOpen && (
+        <div className="sidebar-lang-dropdown__menu">
+          <button
+            type="button"
+            className={`sidebar-lang-dropdown__option${language === 'es' ? ' sidebar-lang-dropdown__option--active' : ''}`}
+            onClick={() => { setLanguage('es'); setLangOpen(false) }}
+          >
+            Español
+          </button>
+          <div className="sidebar-lang-dropdown__separator" aria-hidden="true" />
+          <button
+            type="button"
+            className={`sidebar-lang-dropdown__option${language === 'en' ? ' sidebar-lang-dropdown__option--active' : ''}`}
+            onClick={() => { setLanguage('en'); setLangOpen(false) }}
+          >
+            English
+          </button>
+        </div>
+      )}
+    </div>
+  )
+
   return (
     <MotionPage className="landing" delay={0.05}>
       <div className="landing__container">
+        {mobileMenuOpen && (
+          <button
+            type="button"
+            className="landing__mobile-backdrop"
+            aria-label="Cerrar menu movil"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
+
         <header className="landing__header">
           <div className="landing__brand">
-            <span className="landing__brand-mark">&lt;/&gt;</span>
-            <div>
-              <strong>CodeQuest</strong>
-              <span>{t('home.brandTagline')}</span>
-            </div>
+            <LogoCQ height={35} />
           </div>
 
           <nav className="landing__nav">
@@ -166,6 +219,40 @@ function HomePage() {
             <Link className="landing__cta-btn ui-jitter" to={dashboardPath}>
               {isAuthenticated ? t('home.goDashboard') : t('home.getStarted')}
             </Link>
+          </div>
+
+          <div className="landing__mobile-tools">
+            {langDropdown}
+            <button
+              type="button"
+              className={`landing__menu-toggle${mobileMenuOpen ? ' landing__menu-toggle--open' : ''}`}
+              onClick={() => setMobileMenuOpen((prev) => !prev)}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="landing-mobile-menu"
+              aria-label={mobileMenuOpen ? 'Cerrar menu de navegacion' : 'Abrir menu de navegacion'}
+            >
+              <span />
+              <span />
+              <span />
+            </button>
+          </div>
+
+          <div
+            id="landing-mobile-menu"
+            className={`landing__mobile-menu${mobileMenuOpen ? ' landing__mobile-menu--open' : ''}`}
+          >
+            <nav className="landing__mobile-nav">
+              <button type="button" onClick={() => scrollTo('features')}>{t('home.nav.modules')}</button>
+              <button type="button" onClick={() => scrollTo('pricing')}>{t('home.nav.roadmap')}</button>
+            </nav>
+            <div className="landing__mobile-actions">
+              <Link className="landing__link-btn" to="/login" onClick={() => setMobileMenuOpen(false)}>
+                {t('home.login')}
+              </Link>
+              <Link className="landing__cta-btn" to={dashboardPath} onClick={() => setMobileMenuOpen(false)}>
+                {isAuthenticated ? t('home.goDashboard') : t('home.getStarted')}
+              </Link>
+            </div>
           </div>
         </header>
 
@@ -183,6 +270,9 @@ function HomePage() {
             <div className="landing__hero-actions">
               <Link className="landing__cta-btn ui-jitter" to="/demo">
                 {t('home.hero.start')}
+              </Link>
+              <Link className="landing__link-btn landing__hero-session-btn" to={isAuthenticated ? '/dashboard' : '/login'}>
+                {isAuthenticated ? t('home.goDashboard') : t('home.login')}
               </Link>
             </div>
 

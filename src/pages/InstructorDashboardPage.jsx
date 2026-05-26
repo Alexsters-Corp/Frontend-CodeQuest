@@ -6,6 +6,7 @@ import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
 import CodeViewer from '../components/CodeViewer'
+import Button from '../components/ui/Button'
 import { useLanguage } from '../context/useLanguage'
 import {
   createInstructorClass,
@@ -96,10 +97,16 @@ function getValidationProgressClass(score) {
 
 function GuideButton({ type, onOpen, t }) {
   return (
-    <button type="button" className="ai-guide-btn" onClick={() => onOpen(type)}>
-      <IoMdHelpCircleOutline aria-hidden="true" />
+    <Button
+      type="button"
+      variant="purple"
+      size="sm"
+      className="instructor-guide-btn"
+      icon={<IoMdHelpCircleOutline aria-hidden="true" />}
+      onClick={() => onOpen(type)}
+    >
       {t('admin.ai.guide.button')}
-    </button>
+    </Button>
   )
 }
 
@@ -294,12 +301,12 @@ function GeneratedContentCard({
       )}
 
       <div className="ai-result-actions">
-        <button type="button" onClick={() => onSendToValidator(result)}>
+        <Button type="button" variant="blue" onClick={() => onSendToValidator(result)}>
           {t('admin.ai.action.sendToValidator')}
-        </button>
-        <button type="button" className="ai-secondary-btn" onClick={onDiscard}>
+        </Button>
+        <Button type="button" variant="slate" onClick={onDiscard}>
           {t('admin.ai.action.discard')}
-        </button>
+        </Button>
       </div>
     </MotionArticle>
   )
@@ -959,13 +966,13 @@ function InstructorDashboardPage() {
       <MotionPage className="dashboard-page" delay={0.06}>
       <Navbar title={t('instructor.title')} hideActions />
 
-      <section className="rbac-page instructor-v3">
+      <section className="instructor-v3">
         <div className="instructor-3-blocks-grid">
           {/* Bloque 1: Mis Clases */}
-          <section ref={classesRef} className="rbac-card block-classes">
+          <section ref={classesRef} className="surface-main block-classes">
             <div className="rbac-section-head">
               <h2>📚 {t('instructor.myClasses')}</h2>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div className="instructor-section-actions">
                 <IconTooltipButton
                   tooltip={t('instructor.createClass')}
                   buttonClassName="rbac-btn-refresh"
@@ -983,10 +990,10 @@ function InstructorDashboardPage() {
                 </IconTooltipButton>
               </div>
             </div>
-            <p className="rbac-muted" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>Crea grupos para organizar a tus estudiantes y generar códigos de acceso únicos.</p>
+            <p className="rbac-muted instructor-panel-intro">Crea grupos para organizar a tus estudiantes y generar códigos de acceso únicos.</p>
 
             {isCreatingClass && (
-              <form className="ai-admin-form" onSubmit={handleCreateClass} style={{ marginBottom: '1.5rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--cq-border)' }}>
+              <form className="ai-admin-form instructor-inline-shell" onSubmit={handleCreateClass}>
                 <label>{t('instructor.className')}</label>
                 <input
                   value={newClassName}
@@ -1003,9 +1010,14 @@ function InstructorDashboardPage() {
                   disabled={creatingClass}
                   rows={2}
                 />
-                <button type="submit" disabled={creatingClass || !newClassName.trim()} style={{ width: '100%', marginTop: '1rem' }}>
+                <Button
+                  type="submit"
+                  variant="primary"
+                  className="ai-admin-actions__btn"
+                  disabled={creatingClass || !newClassName.trim()}
+                >
                   {creatingClass ? t('instructor.creating') : t('instructor.createClass')}
-                </button>
+                </Button>
               </form>
             )}
 
@@ -1013,8 +1025,8 @@ function InstructorDashboardPage() {
               {loading && !classes.length ? (
                 <p className="rbac-loading-text">{t('common.loading')}</p>
               ) : classes.length === 0 ? (
-                <div className="rbac-empty-state-centered" style={{ padding: '2rem 1rem' }}>
-                  <div className="empty-icon" style={{ fontSize: '2rem' }}>🎓</div>
+                <div className="rbac-empty-state-centered instructor-empty-state-compact">
+                  <div className="empty-icon instructor-empty-state-compact__icon">🎓</div>
                   <p>{t('instructor.noClasses')}</p>
                 </div>
               ) : (
@@ -1026,7 +1038,7 @@ function InstructorDashboardPage() {
                   >
                     <div className="class-row-info">
                       <strong>{item.name}</strong>
-                      <p className="rbac-muted" style={{ fontSize: '0.75rem', margin: '2px 0 4px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: '180px' }}>{item.description || t('instructor.noDescription')}</p>
+                      <p className="rbac-muted class-row-description">{item.description || t('instructor.noDescription')}</p>
                       <span>{Number(item.students_total || 0)} {t('instructor.students')}</span>
                     </div>
                     <div className="class-row-actions">
@@ -1049,7 +1061,7 @@ function InstructorDashboardPage() {
                       </IconTooltipButton>
                       <IconTooltipButton
                         tooltip={t('instructor.deleteClass') || 'Eliminar clase'}
-                        buttonClassName="rbac-icon-btn rbac-btn-danger"
+                        buttonClassName="rbac-icon-btn rbac-icon-btn--danger"
                         onClick={() => handleDeleteClass(item.id)}
                         stopPropagation
                       >
@@ -1063,11 +1075,11 @@ function InstructorDashboardPage() {
           </section>
 
           {/* Bloque 2: Estudiantes */}
-          <section ref={studentsRef} className="rbac-card block-students">
-            <div className="rbac-section-head">
+          <section ref={studentsRef} className="surface-main block-students">
+            <div className="rbac-section-head instructor-students-head">
               <h2>👤 {selectedClass ? t('instructor.analyticsOf', { name: selectedClass.name }) : t('instructor.students')}</h2>
               {selectedClass && (
-                <div className="rbac-actions-inline" style={{ margin: 0 }}>
+                <div className="rbac-actions-inline instructor-section-actions instructor-section-actions--tight">
                   <IconTooltipButton
                     tooltip={t('instructor.editClass')}
                     buttonClassName="rbac-icon-btn"
@@ -1085,7 +1097,7 @@ function InstructorDashboardPage() {
                   </IconTooltipButton>
                   <IconTooltipButton
                     tooltip={t('instructor.deleteClass')}
-                    buttonClassName="rbac-icon-btn rbac-btn-danger"
+                    buttonClassName="rbac-icon-btn rbac-icon-btn--danger"
                     onClick={() => handleDeleteClass(selectedClassId)}
                   >
                     🗑️
@@ -1093,25 +1105,25 @@ function InstructorDashboardPage() {
                 </div>
               )}
             </div>
-            <p className="rbac-muted" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>Visualiza el rendimiento detallado, XP acumulada y progreso de cada integrante de tu clase.</p>
+            <p className="rbac-muted instructor-panel-intro">Visualiza el rendimiento detallado, XP acumulada y progreso de cada integrante de tu clase.</p>
 
             {editingClassId && selectedClass && (
               <div className="rbac-edit-overlay-inline">
-                <form className="inline-edit-form" onSubmit={handleUpdateClass} style={{ marginBottom: '1rem', padding: '1rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid var(--cq-border)' }}>
-                  <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+                <form className="inline-edit-form instructor-inline-shell" onSubmit={handleUpdateClass}>
+                  <div className="instructor-inline-shell__row">
                     <input 
                       value={editClassName} 
                       onChange={(e) => setEditClassName(e.target.value)} 
                       placeholder={t('instructor.classNamePlaceholder')}
                       autoFocus 
-                      style={{ flex: 1, marginBottom: 0 }}
+                      className="instructor-inline-shell__input"
                     />
-                    <button type="submit" disabled={updatingClass} className="rbac-btn-success" style={{ padding: '0 15px', marginTop: 0 }}>
+                    <Button type="submit" variant="primary" size="sm" disabled={updatingClass}>
                       {updatingClass ? '...' : t('common.save') || 'Guardar'}
-                    </button>
-                    <button type="button" onClick={() => setEditingClassId(null)} className="rbac-btn-secondary" style={{ padding: '0 15px', marginTop: 0 }}>
+                    </Button>
+                    <Button type="button" variant="slate" size="sm" onClick={() => setEditingClassId(null)}>
                       {t('common.cancel') || 'Cancelar'}
-                    </button>
+                    </Button>
                   </div>
                 </form>
               </div>
@@ -1122,8 +1134,8 @@ function InstructorDashboardPage() {
                 <p>{t('instructor.noClassSelected')}</p>
               </div>
             ) : analyticsLoading ? (
-              <div className="rbac-loading-text" style={{ padding: '4rem' }}>
-                <div className="spinner" style={{ margin: '0 auto 1rem' }} />
+              <div className="rbac-loading-text instructor-loading-state">
+                <div className="spinner instructor-loading-state__spinner" />
                 <p>{t('instructor.loadingAnalytics')}</p>
               </div>
             ) : analytics ? (
@@ -1137,14 +1149,14 @@ function InstructorDashboardPage() {
                   </article>
                 </div>
 
-                <div className="rbac-assigned-paths-section" style={{ marginBottom: '1.5rem' }}>
-                  <h3 style={{ fontSize: '0.9rem', marginBottom: '0.5rem' }}>🚩 {t('instructor.assignedPaths') || 'Rutas Asignadas'}</h3>
-                  <div className="assigned-paths-tags" style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <div className="rbac-assigned-paths-section instructor-assigned-paths">
+                  <h3 className="instructor-assigned-paths__title">🚩 {t('instructor.assignedPaths') || 'Rutas Asignadas'}</h3>
+                  <div className="assigned-paths-tags instructor-assigned-paths__tags">
                     {analytics.assigned_paths?.length > 0 ? analytics.assigned_paths.map(path => (
-                      <span key={path.id} className="rbac-code-badge" style={{ display: 'flex', alignItems: 'center', gap: '5px', padding: '4px 10px' }}>
-                        {path.name} {path.is_required && <small title={t('instructor.pathRequired')} style={{ opacity: 0.7 }}>⭐</small>}
+                      <span key={path.id} className="rbac-code-badge instructor-assigned-paths__badge">
+                        {path.name} {path.is_required && <small title={t('instructor.pathRequired')} className="instructor-assigned-paths__required">⭐</small>}
                       </span>
-                    )) : <p className="rbac-muted" style={{ fontSize: '0.8rem' }}>{t('instructor.noPathsAssigned') || 'No hay rutas asignadas a esta clase.'}</p>}
+                    )) : <p className="rbac-muted instructor-assigned-paths__empty">{t('instructor.noPathsAssigned') || 'No hay rutas asignadas a esta clase.'}</p>}
                   </div>
                 </div>
 
@@ -1202,15 +1214,17 @@ function InstructorDashboardPage() {
             ) : <p className="rbac-error">{analyticsError}</p>}
           </section>
 
-          <section ref={invitesRef} className="rbac-card block-invites">
-            <h2>🎟️ {t('instructor.invitations')}</h2>
-            <p className="rbac-muted" style={{ fontSize: '0.85rem', marginBottom: '1rem' }}>Gestiona los códigos activos, revoca accesos o consulta cuántas veces ha sido usado cada enlace.</p>
+          <section ref={invitesRef} className="surface-main block-invites">
+            <div className="rbac-section-head instructor-section-head">
+              <h2>🎟️ {t('instructor.invitations')}</h2>
+            </div>
+            <p className="rbac-muted instructor-panel-intro">Gestiona los códigos activos, revoca accesos o consulta cuántas veces ha sido usado cada enlace.</p>
             <div className="invites-compact-list">
               {loading && !invites.length ? (
                 <p className="rbac-loading-text">{t('common.loading')}</p>
               ) : invites.length === 0 ? (
-                <div className="rbac-empty-state-centered" style={{ padding: '1.5rem 1rem' }}>
-                  <p style={{ fontSize: '0.85rem' }}>{t('instructor.noInvitations')}</p>
+                <div className="rbac-empty-state-centered instructor-empty-state-compact">
+                  <p className="instructor-empty-state-compact__text">{t('instructor.noInvitations')}</p>
                 </div>
               ) : (
                 invites.map((inv) => (
@@ -1262,12 +1276,12 @@ function InstructorDashboardPage() {
                 <small>{t('instructor.confirmDeleteClassHint') || 'Se borrará la clase y sus datos asociados.'}</small>
 
                 <div className="instructor-confirm-actions">
-                  <button type="button" className="rbac-btn-secondary instructor-confirm-cancel" onClick={() => setClassDeleteTarget(null)}>
+                  <Button type="button" variant="slate" onClick={() => setClassDeleteTarget(null)}>
                     {t('common.cancel') || 'Cancelar'}
-                  </button>
-                  <button type="button" className="instructor-confirm-danger" onClick={confirmDeleteClass}>
+                  </Button>
+                  <Button type="button" variant="red" onClick={confirmDeleteClass}>
                     {t('instructor.confirmDeleteClassAction') || 'Eliminar'}
-                  </button>
+                  </Button>
                 </div>
               </MotionDiv>
             </MotionDiv>
@@ -1292,12 +1306,12 @@ function InstructorDashboardPage() {
                 <h3>{t('instructor.revokeCode') || 'Revocar invitación'}</h3>
                 <p>{t('instructor.confirmRevoke') || '¿Estás seguro de revocar este código? Ya no podrá ser usado para inscribirse.'}</p>
                 <div className="instructor-confirm-actions">
-                  <button type="button" className="rbac-btn-secondary" onClick={() => setRevokeInviteTarget(null)}>
+                  <Button type="button" variant="slate" onClick={() => setRevokeInviteTarget(null)}>
                     {t('common.cancel')}
-                  </button>
-                  <button type="button" className="instructor-confirm-danger" onClick={confirmRevokeInvite} disabled={revokingInvite}>
+                  </Button>
+                  <Button type="button" variant="red" onClick={confirmRevokeInvite} disabled={revokingInvite}>
                     {revokingInvite ? '...' : t('common.confirm') || 'Confirmar'}
-                  </button>
+                  </Button>
                 </div>
               </MotionDiv>
             </MotionDiv>
@@ -1322,12 +1336,12 @@ function InstructorDashboardPage() {
                 <h3>{t('instructor.rotateCode') || 'Rotar código'}</h3>
                 <p>{t('instructor.confirmRotate') || '¿Estás seguro de rotar el código? El código actual será revocado y se generará uno nuevo.'}</p>
                 <div className="instructor-confirm-actions">
-                  <button type="button" className="rbac-btn-secondary" onClick={() => setRotateCodeTarget(null)}>
+                  <Button type="button" variant="slate" onClick={() => setRotateCodeTarget(null)}>
                     {t('common.cancel')}
-                  </button>
-                  <button type="button" className="rbac-btn-primary" onClick={confirmRotateCode} disabled={rotatingCode}>
+                  </Button>
+                  <Button type="button" variant="blue" onClick={confirmRotateCode} disabled={rotatingCode}>
                     {rotatingCode ? '...' : t('common.confirm') || 'Confirmar'}
-                  </button>
+                  </Button>
                 </div>
               </MotionDiv>
             </MotionDiv>
@@ -1353,19 +1367,19 @@ function InstructorDashboardPage() {
                 <p>{t('instructor.confirmKickStudent') || '¿Estás seguro de que deseas expulsar a este alumno?'}</p>
                 <p><strong>{kickStudentTarget.name}</strong> ({kickStudentTarget.email})</p>
                 <div className="instructor-confirm-actions">
-                  <button type="button" className="rbac-btn-secondary" onClick={() => setKickStudentTarget(null)}>
+                  <Button type="button" variant="slate" onClick={() => setKickStudentTarget(null)}>
                     {t('common.cancel')}
-                  </button>
-                  <button type="button" className="instructor-confirm-danger" onClick={confirmKickStudent}>
+                  </Button>
+                  <Button type="button" variant="red" onClick={confirmKickStudent}>
                     {t('common.confirm') || 'Confirmar'}
-                  </button>
+                  </Button>
                 </div>
               </MotionDiv>
             </MotionDiv>
           )}
 
           {/* Bloque 4: IA */}
-          <section ref={aiRef} className="rbac-card block-ai-tools">
+          <section ref={aiRef} className="surface-main block-ai-tools">
             <div className="instructor-ai-header">
               <div>
                 <h2>🤖 {t('instructor.aiTools')}</h2>
@@ -1373,12 +1387,24 @@ function InstructorDashboardPage() {
               </div>
               <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                 <div className="instructor-ai-tabs" role="tablist" aria-label={t('instructor.aiTools')}>
-                  <button type="button" className={aiActiveTab === 'lesson' ? 'active' : ''} onClick={() => setAiActiveTab('lesson')}>
+                  <Button
+                    type="button"
+                    variant={aiActiveTab === 'lesson' ? 'blue' : 'slate'}
+                    size="sm"
+                    className="instructor-ai-tab-btn"
+                    onClick={() => setAiActiveTab('lesson')}
+                  >
                     {t('admin.ai.lesson.title')}
-                  </button>
-                  <button type="button" className={aiActiveTab === 'exercise' ? 'active' : ''} onClick={() => setAiActiveTab('exercise')}>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={aiActiveTab === 'exercise' ? 'blue' : 'slate'}
+                    size="sm"
+                    className="instructor-ai-tab-btn"
+                    onClick={() => setAiActiveTab('exercise')}
+                  >
                     {t('admin.ai.exercise.title')}
-                  </button>
+                  </Button>
                 </div>
                 <GuideButton type={aiActiveTab === 'lesson' ? GUIDE_TYPES.lesson : GUIDE_TYPES.exercise} onOpen={setActiveGuide} t={t} />
               </div>
@@ -1386,15 +1412,125 @@ function InstructorDashboardPage() {
 
             <div className="instructor-ai-main-layout">
               <div className="instructor-ai-controls">
-                {/* Conmutador de modo de creación */}
-                <div className="instructor-ai-tabs" style={{ marginBottom: '1.25rem', justifyContent: 'center' }}>
-                  <button type="button" className={creationMode === 'ai' ? 'active' : ''} onClick={() => setCreationMode('ai')}>
-                    ✨ Asistente IA
-                  </button>
-                  <button type="button" className={creationMode === 'manual' ? 'active' : ''} onClick={() => setCreationMode('manual')}>
-                    ✍️ Crear Manual
-                  </button>
-                </div>
+                {aiActiveTab === 'lesson' && (
+                  <form className="ai-admin-form" onSubmit={handleLessonSubmit}>
+                    <label htmlFor="instructor-ai-topic">{t('admin.ai.field.topic')}</label>
+                    <input
+                      id="instructor-ai-topic"
+                      type="text"
+                      value={lessonForm.topic}
+                      onChange={(event) => setLessonForm((previous) => ({ ...previous, topic: event.target.value }))}
+                      placeholder={t('admin.ai.placeholder.topic')}
+                    />
+
+                    <label htmlFor="instructor-ai-language">{t('admin.ai.field.language')}</label>
+                    <select
+                      id="instructor-ai-language"
+                      value={lessonForm.languageId}
+                      onChange={(event) => setLessonForm((previous) => ({
+                        ...previous,
+                        languageId: event.target.value,
+                      }))}
+                    >
+                      {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.icon} {t(option.labelKey)}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label htmlFor="instructor-ai-level">{t('admin.ai.field.level')}</label>
+                    <select
+                      id="instructor-ai-level"
+                      value={lessonForm.level}
+                      onChange={(event) => setLessonForm((previous) => ({
+                        ...previous,
+                        level: event.target.value,
+                      }))}
+                    >
+                      <option value="beginner">{t('admin.ai.level.beginner')}</option>
+                      <option value="intermediate">{t('admin.ai.level.intermediate')}</option>
+                      <option value="advanced">{t('admin.ai.level.advanced')}</option>
+                    </select>
+
+                    <label htmlFor="instructor-ai-lesson-model">{t('admin.ai.field.model')}</label>
+                    <select
+                      id="instructor-ai-lesson-model"
+                      value={lessonForm.model}
+                      onChange={(event) => setLessonForm((previous) => ({ ...previous, model: event.target.value }))}
+                    >
+                      {CONTENT_MODEL_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>{t(option.labelKey)}</option>
+                      ))}
+                    </select>
+
+                    <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
+                      <Button type="submit" variant="primary" className="ai-admin-actions__btn" disabled={lessonLoading}>
+                        {lessonLoading ? t('admin.ai.loading') : t('admin.ai.action.generateLesson')}
+                      </Button>
+                    </div>
+
+                    {lessonError && <p className="ai-admin-error">{lessonError}</p>}
+                  </form>
+                )}
+
+                {aiActiveTab === 'exercise' && (
+                  <form className="ai-admin-form" onSubmit={handleExerciseSubmit}>
+                    <label htmlFor="instructor-ai-concept">{t('admin.ai.field.concept')}</label>
+                    <input
+                      id="instructor-ai-concept"
+                      type="text"
+                      value={exerciseForm.concept}
+                      onChange={(event) => setExerciseForm((previous) => ({ ...previous, concept: event.target.value }))}
+                      placeholder={t('admin.ai.placeholder.concept')}
+                    />
+
+                    <label htmlFor="instructor-ai-difficulty">{t('admin.ai.field.difficulty')}</label>
+                    <select
+                      id="instructor-ai-difficulty"
+                      value={exerciseForm.difficulty}
+                      onChange={(event) => setExerciseForm((previous) => ({
+                        ...previous,
+                        difficulty: event.target.value,
+                      }))}
+                    >
+                      <option value="easy">{t('admin.ai.difficulty.easy')}</option>
+                      <option value="medium">{t('admin.ai.difficulty.medium')}</option>
+                      <option value="hard">{t('admin.ai.difficulty.hard')}</option>
+                    </select>
+
+                    <label htmlFor="instructor-ai-language-id">{t('admin.ai.field.languageId')}</label>
+                    <select
+                      id="instructor-ai-language-id"
+                      value={exerciseForm.languageId}
+                      onChange={(event) => setExerciseForm((previous) => ({
+                        ...previous,
+                        languageId: event.target.value,
+                      }))}
+                    >
+                      {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>
+                          {option.icon} {t(option.labelKey)}
+                        </option>
+                      ))}
+                    </select>
+
+                    <label htmlFor="instructor-ai-exercise-model">{t('admin.ai.field.model')}</label>
+                    <select
+                      id="instructor-ai-exercise-model"
+                      value={exerciseForm.model}
+                      onChange={(event) => setExerciseForm((previous) => ({ ...previous, model: event.target.value }))}
+                    >
+                      {CONTENT_MODEL_OPTIONS.map((option) => (
+                        <option key={option.id} value={option.id}>{t(option.labelKey)}</option>
+                      ))}
+                    </select>
+
+                    <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
+                      <Button type="submit" variant="primary" className="ai-admin-actions__btn" disabled={exerciseLoading}>
+                        {exerciseLoading ? t('admin.ai.loading') : t('admin.ai.action.generateExercise')}
+                      </Button>
+                    </div>
 
                 {creationMode === 'ai' ? (
                   <>
@@ -1825,7 +1961,7 @@ function InstructorDashboardPage() {
           </section>
 
           {/* Bloque 5: Validador */}
-          <section ref={validatorRef} className="rbac-card ai-admin-card--full">
+          <section ref={validatorRef} className="surface-main ai-admin-card--full">
             <div className="rbac-section-head">
               <h2>{t('admin.ai.validate.title')}</h2>
               <GuideButton type={GUIDE_TYPES.validator} onOpen={setActiveGuide} t={t} />
@@ -1847,9 +1983,9 @@ function InstructorDashboardPage() {
               />
 
               <div className="ai-admin-actions">
-                <button type="submit" disabled={validationLoading}>
+                <Button type="submit" variant="blue" disabled={validationLoading}>
                   {validationLoading ? t('admin.ai.loading') : t('admin.ai.action.validate')}
-                </button>
+                </Button>
               </div>
             </form>
 
@@ -1932,14 +2068,14 @@ function InstructorDashboardPage() {
                   
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                     <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>{t('admin.ai.validation.validatedBy')} {validationResult.model || RECOMMENDED_MODEL}</span>
-                    <button 
-                      type="button" 
-                      className="rbac-btn-success" 
+                    <Button
+                      type="button"
+                      variant="primary"
                       onClick={handlePublishValidatedContent}
                       disabled={publishingContent || !validationResult.approved || !selectedClassId}
                     >
                       {publishingContent ? '...' : t('admin.ai.action.publish') || 'Publicar a mi clase'}
-                    </button>
+                    </Button>
                   </div>
                 </div>
               </MotionArticle>
@@ -2001,12 +2137,12 @@ function InstructorDashboardPage() {
               </div>
 
               <div className="instructor-confirm-actions" style={{ marginTop: '2rem' }}>
-                <button type="button" className="rbac-btn-secondary" onClick={() => setShowPathModal(false)}>
+                <Button type="button" variant="slate" onClick={() => setShowPathModal(false)}>
                   {t('common.cancel')}
-                </button>
-                <button type="submit" className="rbac-btn-success" disabled={assigningPath}>
+                </Button>
+                <Button type="submit" variant="primary" disabled={assigningPath}>
                   {assigningPath ? '...' : t('common.save')}
-                </button>
+                </Button>
               </div>
             </form>
           </MotionDiv>
