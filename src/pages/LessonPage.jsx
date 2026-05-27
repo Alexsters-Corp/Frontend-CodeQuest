@@ -135,7 +135,7 @@ function LessonPage() {
   const { lessonId } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
   const [lesson, setLesson] = useState(null)
   const [exercises, setExercises] = useState([])
   const [currentStep, setCurrentStep] = useState('theory') // theory | exercise | completed
@@ -241,7 +241,7 @@ function LessonPage() {
 
   useEffect(() => {
     loadLesson()
-  }, [loadLesson])
+  }, [language, loadLesson])
 
   const resetAttempt = () => {
     setCurrentExerciseIdx(0)

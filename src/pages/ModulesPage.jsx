@@ -34,7 +34,7 @@ function renderModuleIcon(icon, fallback, label) {
 
 function ModulesPage() {
   const navigate = useNavigate()
-  const { t } = useLanguage()
+  const { language, t } = useLanguage()
   const [modules, setModules] = useState([])
   const [expandedModule, setExpandedModule] = useState(null)
   const [lessons, setLessons] = useState({})
@@ -119,7 +119,7 @@ function ModulesPage() {
     }
 
     loadModules()
-  }, [languageId, loadModules, navigate])
+  }, [language, languageId, loadModules, navigate])
 
   useEffect(() => {
     let cancelled = false

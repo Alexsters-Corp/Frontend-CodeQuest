@@ -1,4 +1,11 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:4000'
+const LANGUAGE_STORAGE_KEY = 'cq-language'
+
+function getCurrentLanguageHeader() {
+  const storedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY)
+  if (storedLanguage === 'en') return 'en'
+  return 'es'
+}
 
 /**
  * Wrapper para fetch que inyecta automáticamente el JWT
@@ -9,6 +16,7 @@ async function apiFetch(endpoint, options = {}) {
 
   const headers = {
     'Content-Type': 'application/json',
+    'Accept-Language': getCurrentLanguageHeader(),
     ...options.headers,
   }
 
