@@ -1,54 +1,99 @@
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import LogoCQ from '../components/LogoCQ'
-
-const LANGUAGES = [
-  { name: 'Python',     logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
-  { name: 'JavaScript', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg' },
-  { name: 'Java',       logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg' },
-  { name: 'C++',        logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg' },
-  { name: 'C#',         logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg' },
-  { name: 'Go',         logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/go/go-original.svg' },
-  { name: 'Ruby',       logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/ruby/ruby-original.svg' },
-]
+import { useLanguage } from '../context/useLanguage'
+import { IoMdArrowRoundDown } from 'react-icons/io'
 
 function DemoLandingPage() {
   const navigate = useNavigate()
+  const { language, setLanguage, t } = useLanguage()
+  const [langOpen, setLangOpen] = useState(false)
+
+  const languages = [
+    { key: 'python', slug: 'python', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg' },
+    { key: 'javascript', slug: 'javascript', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg' },
+    { key: 'java', slug: 'java', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg' },
+    { key: 'cpp', slug: 'cpp', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/cplusplus/cplusplus-original.svg' },
+    { key: 'csharp', slug: 'csharp', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/csharp/csharp-original.svg' },
+  ]
+  const languageGridClassName = `demo-lang-grid${languages.length === 5 ? ' demo-lang-grid--five' : ''}${languages.length > 5 ? ' demo-lang-grid--multi' : ''}`
+
+  useEffect(() => {
+    if (!langOpen) return undefined
+
+    const close = () => setLangOpen(false)
+    document.addEventListener('click', close)
+    return () => document.removeEventListener('click', close)
+  }, [langOpen])
 
   return (
     <MotionPage className="demo__page" delay={0.05}>
-      <Link to="/" className="demo__brand-link" aria-label="Volver al inicio">
-        <LogoCQ height={37} />
-      </Link>
+      <header className="demo__header">
+        <Link to="/" className="demo__brand-link" aria-label={t('demo.header.backHome')}>
+          <LogoCQ height={35} />
+        </Link>
+
+        <div className="sidebar-lang-dropdown demo__lang-dropdown">
+          <button
+            type="button"
+            className="sidebar-lang-dropdown__trigger"
+            onClick={(event) => {
+              event.stopPropagation()
+              setLangOpen((prev) => !prev)
+            }}
+          >
+            🌐 {language === 'es' ? t('language.es') : t('language.en')}
+            <IoMdArrowRoundDown className={`sidebar-lang-dropdown__arrow${langOpen ? ' sidebar-lang-dropdown__arrow--open' : ''}`} />
+          </button>
+          {langOpen && (
+            <div className="sidebar-lang-dropdown__menu">
+              <button
+                type="button"
+                className={`sidebar-lang-dropdown__option${language === 'es' ? ' sidebar-lang-dropdown__option--active' : ''}`}
+                onClick={() => { setLanguage('es'); setLangOpen(false) }}
+              >
+                {t('language.es')}
+              </button>
+              <div className="sidebar-lang-dropdown__separator" aria-hidden="true" />
+              <button
+                type="button"
+                className={`sidebar-lang-dropdown__option${language === 'en' ? ' sidebar-lang-dropdown__option--active' : ''}`}
+                onClick={() => { setLanguage('en'); setLangOpen(false) }}
+              >
+                {t('language.en')}
+              </button>
+            </div>
+          )}
+        </div>
+      </header>
 
       <div className="demo__page-wrapper">
 
         {/* Contenido centrado — igual que antes */}
         <section className="demo__hero-section">
           <div className="demo__hero-copy">
-            <Link to="/" className="demo__brand-mobile" aria-label="Volver al inicio">
-              <LogoCQ height={31} />
-            </Link>
+            <div className="demo__hero-heading">
+              <h1 className="demo__hero-title">
+                {t('demo.hero.titleLine1')}
+                <em> {t('demo.hero.titleLine2')}</em>
+              </h1>
 
-            <h1 className="demo__hero-title">
-              Empieza a programar
-              <em> ahora mismo</em>
-            </h1>
-
-            <p className="demo__hero-subtitle">Elige tu primer lenguaje</p>
+              <p className="demo__hero-subtitle">{t('demo.hero.subtitle')}</p>
+            </div>
 
             <div className="demo__lang-scroll-wrapper">
               <div className="demo__lang-scroll">
-                <div className="demo-lang-grid">
-                  {LANGUAGES.map((lang) => (
+                <div className={languageGridClassName}>
+                  {languages.map((lang) => (
                     <button
-                      key={lang.name}
+                      key={lang.key}
                       type="button"
                       className="demo-lang-card"
-                      onClick={() => navigate('/demo/lesson')}
+                      onClick={() => navigate(`/demo/lesson?language=${encodeURIComponent(lang.slug)}`)}
                     >
-                      <img src={lang.logo} alt={lang.name} />
-                      <span className="demo-lang-card__name">{lang.name}</span>
+                      <img src={lang.logo} alt={t(`demo.language.${lang.key}`)} />
+                      <span className="demo-lang-card__name">{t(`demo.language.${lang.key}`)}</span>
                     </button>
                   ))}
                 </div>
@@ -56,15 +101,6 @@ function DemoLandingPage() {
               <div className="demo__scroll-hint" aria-hidden="true">▼</div>
             </div>
 
-            <div className="demo__badges">
-              <span className="demo__badge">⚡ Ejecución instantánea</span>
-              <span className="demo__badge">🧑🏻‍💻 Editor profesional</span>
-              <span className="demo__badge">🎯 Ejercicios reales</span>
-            </div>
-
-            <p className="demo__footer-note">
-              No necesitas una cuenta. Empieza gratis.
-            </p>
           </div>
         </section>
 
