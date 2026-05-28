@@ -40,21 +40,43 @@ async function demoRequestJson(endpoint, options = {}) {
  * Obtiene la leccion demo (la marcada como is_free_demo=1 en BD).
  * Devuelve { lesson, exercises, demo, lessonId }.
  */
-export async function getDemoLessonContent() {
-  return demoRequestJson('/api/learning/demo/lesson')
+export async function getDemoLessonContent({ languageSlug, locale } = {}) {
+  const params = new URLSearchParams()
+  if (languageSlug) {
+    params.set('language', String(languageSlug))
+  }
+
+  const endpoint = params.size > 0
+    ? `/api/learning/demo/lesson?${params.toString()}`
+    : '/api/learning/demo/lesson'
+
+  return demoRequestJson(endpoint, {
+    headers: locale ? { 'Accept-Language': locale } : undefined,
+  })
 }
 
 /**
  * Devuelve metricas del catalogo: totalLessons, totalLanguages, languages, nextLessonsTitles.
  */
-export async function getDemoPreview() {
-  return demoRequestJson('/api/learning/demo/preview')
+export async function getDemoPreview({ languageSlug, locale } = {}) {
+  const params = new URLSearchParams()
+  if (languageSlug) {
+    params.set('language', String(languageSlug))
+  }
+
+  const endpoint = params.size > 0
+    ? `/api/learning/demo/preview?${params.toString()}`
+    : '/api/learning/demo/preview'
+
+  return demoRequestJson(endpoint, {
+    headers: locale ? { 'Accept-Language': locale } : undefined,
+  })
 }
 
 /**
  * Valida la respuesta a un ejercicio del demo. No persiste nada.
  */
-export async function submitDemoExercise({ lessonId, exerciseId, answer }) {
+export async function submitDemoExercise({ lessonId, exerciseId, answer, locale }) {
   const normalizedLessonId = Number(lessonId)
   const normalizedExerciseId = String(exerciseId || '').trim()
 
@@ -70,6 +92,7 @@ export async function submitDemoExercise({ lessonId, exerciseId, answer }) {
     `/api/learning/demo/lessons/${normalizedLessonId}/exercises/${encodeURIComponent(normalizedExerciseId)}/submit`,
     {
       method: 'POST',
+      headers: locale ? { 'Accept-Language': locale } : undefined,
       body: JSON.stringify({ answer: String(answer || '') }),
     }
   )

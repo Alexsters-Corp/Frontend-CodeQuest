@@ -575,7 +575,7 @@ function LessonPage() {
 
             {alreadyCompleted && (
               <div className="lesson-completed-badge">
-                ✅ Ya completaste esta lección
+                {t('lesson.completedBadge')}
               </div>
             )}
 

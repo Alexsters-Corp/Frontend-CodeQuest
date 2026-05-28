@@ -1,5 +1,5 @@
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { IoMdArrowRoundBack } from 'react-icons/io'
 import { CiSaveDown1 } from 'react-icons/ci'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
@@ -61,7 +61,8 @@ function hasRealProgress(saved) {
 
 function DemoLessonPage() {
   const navigate = useNavigate()
-  const { t } = useLanguage()
+  const [searchParams] = useSearchParams()
+  const { t, language } = useLanguage()
   const [lesson, setLesson] = useState(null)
   const [exercises, setExercises] = useState([])
   const [lessonId, setLessonId] = useState(null)
@@ -78,6 +79,7 @@ function DemoLessonPage() {
 
   const autosaveTimeoutRef = useRef(null)
   const initialAutosaveRef = useRef(null)
+  const selectedLanguageSlug = searchParams.get('language') || 'python'
 
   // Cargar estado autosave antes de montar (una sola vez)
   useEffect(() => {
@@ -110,7 +112,10 @@ function DemoLessonPage() {
     async function loadDemo() {
       setLoading(true)
       try {
-        const data = await getDemoLessonContent()
+        const data = await getDemoLessonContent({
+          languageSlug: selectedLanguageSlug,
+          locale: language,
+        })
         if (!active) {
           return
         }
@@ -148,7 +153,7 @@ function DemoLessonPage() {
     return () => {
       active = false
     }
-  }, [t])
+  }, [language, selectedLanguageSlug, t])
 
   // Autosave con debounce a sessionStorage
   useEffect(() => {
@@ -235,8 +240,8 @@ function DemoLessonPage() {
     const detectedLabel = detectLanguageMismatch(executionSource, expectedSlug)
     if (detectedLabel) {
       setConsoleOutput([
-        `Esta leccion usa ${expectedLabel}. El codigo que escribiste parece ser ${detectedLabel}.`,
-        `Asegurate de escribir en ${expectedLabel} para poder ejecutar.`,
+        t('demo.lesson.languageMismatchLine1', { expected: expectedLabel, detected: detectedLabel }),
+        t('demo.lesson.languageMismatchLine2', { expected: expectedLabel }),
       ])
       return
     }
@@ -278,6 +283,7 @@ function DemoLessonPage() {
         lessonId,
         exerciseId: currentExercise.id,
         answer,
+        locale: language,
       })
 
       setFeedback(data)
@@ -290,7 +296,7 @@ function DemoLessonPage() {
 
   function handleFinishDemo() {
     clearAutosaveState()
-    navigate('/demo/complete')
+    navigate(`/demo/complete?language=${encodeURIComponent(selectedLanguageSlug)}`)
   }
 
   const handleNextExercise = () => {
@@ -311,7 +317,7 @@ function DemoLessonPage() {
       <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
           <div className="spinner" />
-          <p>Cargando leccion demo...</p>
+          <p>{t('demo.lesson.loading')}</p>
         </div>
       </MotionPage>
     )
@@ -321,8 +327,8 @@ function DemoLessonPage() {
     return (
       <MotionPage className="lesson-page" delay={0.05}>
         <div className="lesson-loading">
-          <p>No fue posible cargar la leccion demo.</p>
-          <button type="button" onClick={() => navigate('/demo')}><IoMdArrowRoundBack /> Volver</button>
+          <p>{t('demo.lesson.loadError')}</p>
+          <button type="button" onClick={() => navigate('/demo')}><IoMdArrowRoundBack /> {t('common.back')}</button>
         </div>
       </MotionPage>
     )
@@ -358,7 +364,7 @@ function DemoLessonPage() {
           <>
             <div className="lesson-header">
               <button className="lesson-back-link" type="button" onClick={() => navigate('/demo')}>
-                <IoMdArrowRoundBack /> Volver
+                <IoMdArrowRoundBack /> {t('common.back')}
               </button>
               <span className="lesson-modulo">{lesson.modulo_nombre}</span>
             </div>
@@ -375,7 +381,7 @@ function DemoLessonPage() {
 
             <div className="lesson-actions">
               <button className="lesson-start-btn ui-jitter" onClick={handleStartExercises} type="button">
-                Empezar ejercicios
+                {t('demo.lesson.startExercises')}
               </button>
             </div>
           </>
@@ -385,7 +391,7 @@ function DemoLessonPage() {
           <>
             <div className="exercise-header">
               <span className="exercise-progress">
-                Ejercicio {currentExerciseIdx + 1} de {exercises.length}
+                {t('demo.lesson.exerciseProgress', { current: currentExerciseIdx + 1, total: exercises.length })}
               </span>
               <div className="exercise-progress-bar">
                 <div
@@ -441,15 +447,15 @@ function DemoLessonPage() {
                       onRun={handleRunCode}
                       isExecuting={isExecuting}
                       consoleOutput={consoleOutput}
-                      runLabel="Ejecutar codigo"
-                      runningLabel="Ejecutando..."
-                      outputLabel="Salida"
-                      outputEmptyLabel="Ejecuta tu codigo para ver resultados."
+                      runLabel={t('demo.lesson.runCode')}
+                      runningLabel={t('demo.lesson.runningCode')}
+                      outputLabel={t('demo.lesson.output')}
+                      outputEmptyLabel={t('demo.lesson.outputEmpty')}
                       shortcutHint="Ctrl/Cmd + Enter"
-                      ariaLabel="Editor de codigo"
-                      loadingLabel="Cargando editor..."
-                      editorErrorLabel="No se pudo cargar Monaco."
-                      placeholder="Escribe tu codigo aqui..."
+                      ariaLabel={t('demo.lesson.editorAria')}
+                      loadingLabel={t('demo.lesson.editorLoading')}
+                      editorErrorLabel={t('demo.lesson.editorError')}
+                      placeholder={t('demo.lesson.editorPlaceholder')}
                     />
                   </Suspense>
                 </div>
@@ -458,7 +464,7 @@ function DemoLessonPage() {
 
             {feedback && (
               <div className={`exercise-feedback ${feedback.isCorrect ? 'feedback-correct' : 'feedback-incorrect'}`}>
-                <strong>{feedback.isCorrect ? '¡Correcto!' : 'Aun no.'}</strong>
+                <strong>{feedback.isCorrect ? t('demo.lesson.correct') : t('demo.lesson.incorrect')}</strong>
                 {!feedback.isCorrect && feedback.hint && <p className="feedback-hint">💡 {feedback.hint}</p>}
               </div>
             )}
@@ -476,11 +482,11 @@ function DemoLessonPage() {
                   }
                   type="button"
                 >
-                  {submitting ? 'Validando...' : 'Comprobar'}
+                  {submitting ? t('demo.lesson.validating') : t('demo.lesson.check')}
                 </button>
               ) : (
                 <button className="exercise-next-btn" onClick={handleNextExercise} type="button">
-                  {currentExerciseIdx < exercises.length - 1 ? 'Siguiente' : 'Terminar demo'}
+                  {currentExerciseIdx < exercises.length - 1 ? t('common.next') : t('demo.lesson.finishDemo')}
                 </button>
               )}
             </div>

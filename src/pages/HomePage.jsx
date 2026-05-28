@@ -1,34 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { IoMdArrowRoundDown } from 'react-icons/io'
+import { IoMdArrowRoundDown, IoMdArrowRoundForward } from 'react-icons/io'
+import { RiLoginCircleFill } from 'react-icons/ri'
+import { BsLightningChargeFill } from 'react-icons/bs'
+import { RiCodeSSlashLine } from 'react-icons/ri'
+import { PiTargetBold } from 'react-icons/pi'
 import MotionPage from '../components/MotionPage'
 import LogoCQ from '../components/LogoCQ'
 import ScrollToTopButton from '../components/ScrollToTopButton'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
-import { API_URL } from '../services/api'
-import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
-const MotionAside = motion.aside
 const MotionArticle = motion.article
+const MotionAside = motion.aside
 
 function HomePage() {
-  const navigate = useNavigate()
-  const { isAuthenticated, saveSession } = useAuth()
+  const { isAuthenticated } = useAuth()
   const { language, setLanguage, t } = useLanguage()
-  const dashboardPath = isAuthenticated ? '/dashboard' : '/registro'
   const [activeSection, setActiveSection] = useState('')
   const [langOpen, setLangOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
-  const [previewMode, setPreviewMode] = useState('login')
-  const [previewLoading, setPreviewLoading] = useState(false)
-  const [previewForm, setPreviewForm] = useState({
-    nombre: '',
-    email: '',
-    username: '',
-    password: '',
-  })
   const highlightTimeoutRef = useRef(null)
 
   const featureCards = useMemo(() => ([
@@ -49,6 +41,30 @@ function HomePage() {
     },
   ]), [t])
 
+  const heroHighlights = useMemo(() => ([
+    {
+      key: 'instant',
+      number: '01',
+      icon: <BsLightningChargeFill aria-hidden="true" />,
+      title: t('home.hero.highlight.instantTitle'),
+      description: t('home.hero.highlight.instantDescription'),
+    },
+    {
+      key: 'editor',
+      number: '02',
+      icon: <RiCodeSSlashLine aria-hidden="true" />,
+      title: t('home.hero.highlight.editorTitle'),
+      description: t('home.hero.highlight.editorDescription'),
+    },
+    {
+      key: 'exercises',
+      number: '03',
+      icon: <PiTargetBold aria-hidden="true" />,
+      title: t('home.hero.highlight.exerciseTitle'),
+      description: t('home.hero.highlight.exerciseDescription'),
+    },
+  ]), [t])
+
   useEffect(() => {
     if (!langOpen) return undefined
 
@@ -59,102 +75,23 @@ function HomePage() {
 
   const scrollTo = (id) => {
     const target = document.getElementById(id)
-    if (!target) {
-      return
-    }
+    if (!target) return
 
     setActiveSection(id)
     if (highlightTimeoutRef.current) {
       clearTimeout(highlightTimeoutRef.current)
     }
-    highlightTimeoutRef.current = setTimeout(() => {
-      setActiveSection('')
-    }, 900)
+    highlightTimeoutRef.current = setTimeout(() => setActiveSection(''), 900)
 
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const targetY = target.getBoundingClientRect().top + window.scrollY - 20
 
-    if (prefersReducedMotion) {
-      window.scrollTo({ top: targetY, behavior: 'auto' })
-      return
-    }
+    window.scrollTo({
+      top: targetY,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    })
 
-    window.scrollTo({ top: targetY, behavior: 'smooth' })
     setMobileMenuOpen(false)
-  }
-
-  const handlePreviewChange = (event) => {
-    const { name, value } = event.target
-    setPreviewForm((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
-
-  const switchPreviewMode = (nextMode) => {
-    setPreviewMode(nextMode)
-  }
-
-  const handlePreviewSubmit = async (event) => {
-    event.preventDefault()
-
-    if (!previewForm.email.trim() || !previewForm.password.trim()) {
-      notifyInfo(t('home.preview.completeFields'))
-      return
-    }
-
-    if (previewMode === 'register' && !previewForm.nombre.trim()) {
-      notifyInfo(t('home.preview.enterName'))
-      return
-    }
-
-    if (previewMode === 'register' && !previewForm.username.trim()) {
-      notifyInfo(t('home.preview.enterUsername'))
-      return
-    }
-
-    setPreviewLoading(true)
-
-    try {
-      const endpoint = previewMode === 'login' ? '/api/auth/login' : '/api/auth/register'
-      const body = previewMode === 'login'
-        ? {
-          email: previewForm.email,
-          password: previewForm.password,
-        }
-        : {
-          nombre: previewForm.nombre,
-          email: previewForm.email,
-          username: previewForm.username,
-          password: previewForm.password,
-        }
-
-      const response = await fetch(`${API_URL}${endpoint}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      })
-
-      const data = await response.json().catch(() => ({}))
-      if (!response.ok) {
-        throw new Error(data.message || (previewMode === 'login' ? t('auth.login.error') : t('auth.register.error')))
-      }
-
-      saveSession({
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        user: data.user,
-      })
-
-      notifySuccess(previewMode === 'login' ? t('home.toast.loginSuccess') : t('home.toast.registerSuccess'))
-      navigate('/dashboard')
-    } catch (error) {
-      notifyError(error.message || (previewMode === 'login' ? t('auth.login.error') : t('auth.register.error')))
-    } finally {
-      setPreviewLoading(false)
-    }
   }
 
   const langDropdown = (
@@ -215,10 +152,7 @@ function HomePage() {
           </nav>
 
           <div className="landing__actions">
-            <Link className="landing__link-btn" to="/login">{t('home.login')}</Link>
-            <Link className="landing__cta-btn ui-jitter" to={dashboardPath}>
-              {isAuthenticated ? t('home.goDashboard') : t('home.getStarted')}
-            </Link>
+            {langDropdown}
           </div>
 
           <div className="landing__mobile-tools">
@@ -245,34 +179,32 @@ function HomePage() {
               <button type="button" onClick={() => scrollTo('features')}>{t('home.nav.modules')}</button>
               <button type="button" onClick={() => scrollTo('pricing')}>{t('home.nav.roadmap')}</button>
             </nav>
-            <div className="landing__mobile-actions">
-              <Link className="landing__link-btn" to="/login" onClick={() => setMobileMenuOpen(false)}>
-                {t('home.login')}
-              </Link>
-              <Link className="landing__cta-btn" to={dashboardPath} onClick={() => setMobileMenuOpen(false)}>
-                {isAuthenticated ? t('home.goDashboard') : t('home.getStarted')}
-              </Link>
-            </div>
           </div>
         </header>
 
         <section className={`landing__hero ${activeSection === 'about' ? 'landing-section--targeted' : ''}`} id="about">
           <div className="landing__hero-copy">
             <span className="landing__status">{t('home.status')}</span>
-            <h1>
-              {t('home.hero.titleLine1')}
-              <em>{t('home.hero.titleLine2')}</em>
+            <h1 className="landing__hero-title">
+              <span className="landing__hero-line">{t('home.hero.titleLine1')}</span>
+              <em>
+                <span className="landing__hero-line">{t('home.hero.titleLine2a')}</span>
+                <span className="landing__hero-line landing__hero-terminal">{t('home.hero.titleLine2b')}</span>
+              </em>
+              <span className="landing__hero-terminal-stroke" aria-hidden="true" />
             </h1>
             <p>
               {t('home.hero.description')}
             </p>
 
             <div className="landing__hero-actions">
-              <Link className="landing__cta-btn ui-jitter" to="/demo">
-                {t('home.hero.start')}
+              <Link className="landing__cta-btn landing__hero-login-btn ui-jitter" to={isAuthenticated ? '/dashboard' : '/login'}>
+                <span>{isAuthenticated ? t('home.goDashboard') : t('home.login')}</span>
+                <RiLoginCircleFill aria-hidden="true" />
               </Link>
-              <Link className="landing__link-btn landing__hero-session-btn" to={isAuthenticated ? '/dashboard' : '/login'}>
-                {isAuthenticated ? t('home.goDashboard') : t('home.login')}
+              <Link className="landing__link-btn landing__hero-start-btn" to="/demo">
+                <span>{t('home.hero.start')}</span>
+                <IoMdArrowRoundForward aria-hidden="true" />
               </Link>
             </div>
 
@@ -283,84 +215,26 @@ function HomePage() {
           </div>
 
           <MotionAside
-            className="landing__auth-preview"
+            className="landing__auth-preview landing__auth-preview--highlights"
             initial={{ opacity: 0, x: 28 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
           >
-            <form onSubmit={handlePreviewSubmit} className="landing__auth-form">
-              <div className="landing__auth-tabs">
-                <button
-                  type="button"
-                  className={previewMode === 'login' ? 'active' : ''}
-                  onClick={() => switchPreviewMode('login')}
-                >
-                  {t('home.preview.loginTab')}
-                </button>
-                <button
-                  type="button"
-                  className={previewMode === 'register' ? 'active' : ''}
-                  onClick={() => switchPreviewMode('register')}
-                >
-                  {t('home.preview.signupTab')}
-                </button>
-              </div>
-
-              {previewMode === 'register' && (
-                <>
-                  <label htmlFor="landing-nombre">{t('home.preview.name')}</label>
-                  <input
-                    id="landing-nombre"
-                    name="nombre"
-                    value={previewForm.nombre}
-                    onChange={handlePreviewChange}
-                    placeholder="Alex Dev"
-                    autoComplete="name"
-                  />
-
-                  <label htmlFor="landing-username">{t('home.preview.username')}</label>
-                  <input
-                    id="landing-username"
-                    name="username"
-                    value={previewForm.username}
-                    onChange={handlePreviewChange}
-                    placeholder="alexdev"
-                  />
-                </>
-              )}
-
-              <label htmlFor="landing-email">{t('home.preview.email')}</label>
-              <input
-                id="landing-email"
-                name="email"
-                type="email"
-                value={previewForm.email}
-                onChange={handlePreviewChange}
-                placeholder="dev@codequest.io"
-                autoComplete="email"
-              />
-
-              <label htmlFor="landing-password">{t('home.preview.password')}</label>
-              <input
-                id="landing-password"
-                name="password"
-                type="password"
-                value={previewForm.password}
-                onChange={handlePreviewChange}
-                placeholder="••••••••"
-                autoComplete={previewMode === 'login' ? 'current-password' : 'new-password'}
-              />
-
-              <button
-                className="landing__cta-btn landing__auth-submit ui-jitter"
-                type="submit"
-                disabled={previewLoading}
+            {heroHighlights.map((item, index) => (
+              <MotionArticle
+                key={item.key}
+                className="landing__hero-side-card"
+                initial={{ opacity: 0, y: 18 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.38, delay: 0.14 + (index * 0.08) }}
               >
-                {previewLoading
-                  ? (previewMode === 'login' ? t('home.preview.loginLoading') : t('home.preview.registerLoading'))
-                  : (previewMode === 'login' ? t('home.preview.loginAction') : t('home.preview.registerAction'))}
-              </button>
-            </form>
+                <span className="landing__hero-side-card-icon">{item.icon}</span>
+                <div className="landing__hero-side-card-copy">
+                  <strong>{item.title}</strong>
+                  <p>{item.description}</p>
+                </div>
+              </MotionArticle>
+            ))}
           </MotionAside>
         </section>
 

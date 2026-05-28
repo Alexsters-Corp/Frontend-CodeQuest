@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import MotionPage from '../components/MotionPage'
 import { getDemoPreview } from '../services/demoApi'
+import { useLanguage } from '../context/useLanguage'
 
 /**
  * Pantalla post-leccion del demo.
@@ -11,15 +12,21 @@ import { getDemoPreview } from '../services/demoApi'
  */
 function DemoCompletionPage() {
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
+  const { t, language } = useLanguage()
   const [preview, setPreview] = useState(null)
   const [loading, setLoading] = useState(true)
+  const selectedLanguageSlug = searchParams.get('language') || 'python'
 
   useEffect(() => {
     let active = true
 
     async function loadPreview() {
       try {
-        const data = await getDemoPreview()
+        const data = await getDemoPreview({
+          languageSlug: selectedLanguageSlug,
+          locale: language,
+        })
         if (active) {
           setPreview(data)
         }
@@ -43,7 +50,7 @@ function DemoCompletionPage() {
     return () => {
       active = false
     }
-  }, [])
+  }, [language, selectedLanguageSlug])
 
   return (
     <MotionPage className="lesson-page" delay={0.06}>
@@ -54,27 +61,27 @@ function DemoCompletionPage() {
           aria-hidden="true"
           className="demo__completion-mascot"
         />
-        <h1>¡Felicidades!</h1>
-        <h2>Acabas de completar tu primera leccion en CodeQuest.</h2>
+        <h1>{t('demo.complete.title')}</h1>
+        <h2>{t('demo.complete.subtitle')}</h2>
 
         <div className="demo-completion__stats">
           <div className="demo-completion__stat">
             <span className="demo-completion__stat-number">
-              {loading ? '...' : preview?.totalLessons ?? '+'}
+              {loading ? t('demo.complete.loadingStat') : preview?.totalLessons ?? '+'}
             </span>
-            <span className="demo-completion__stat-label">lecciones esperandote</span>
+            <span className="demo-completion__stat-label">{t('demo.complete.lessonsLabel')}</span>
           </div>
           <div className="demo-completion__stat">
             <span className="demo-completion__stat-number">
-              {loading ? '...' : preview?.totalLanguages ?? '+'}
+              {loading ? t('demo.complete.loadingStat') : preview?.totalLanguages ?? '+'}
             </span>
-            <span className="demo-completion__stat-label">lenguajes disponibles</span>
+            <span className="demo-completion__stat-label">{t('demo.complete.languagesLabel')}</span>
           </div>
         </div>
 
         {preview?.nextLessonsTitles?.length > 0 && (
           <div className="demo-completion__next">
-            <h3>Lo que te espera al registrarte:</h3>
+            <h3>{t('demo.complete.nextTitle')}</h3>
             <ul>
               {preview.nextLessonsTitles.map((title, idx) => (
                 <li key={idx}>
@@ -91,12 +98,12 @@ function DemoCompletionPage() {
             className="demo__cta-btn ui-jitter"
             onClick={() => navigate('/registro')}
           >
-            Crear mi cuenta gratis
+            {t('demo.complete.createAccount')}
           </button>
         </div>
 
         <p className="demo-completion__footnote">
-          Puedes crear tu cuenta gratis cuando quieras.
+          {t('demo.complete.footnote')}
         </p>
       </div>
     </MotionPage>
