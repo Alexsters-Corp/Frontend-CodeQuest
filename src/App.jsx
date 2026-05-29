@@ -22,12 +22,15 @@ import DiagnosticTestPage from './pages/DiagnosticTestPage'
 import ModulesPage from './pages/ModulesPage'
 import LessonPage from './pages/LessonPage'
 import FavoritesPage from './pages/FavoritesPage'
+import ProfilePage from './pages/ProfilePage'
 import StudentClassesPage from './pages/StudentClassesPage'
 import UnauthorizedPage from './pages/UnauthorizedPage'
 import InstructorDashboardPage from './pages/InstructorDashboardPage'
 import AdminDashboardPage from './pages/AdminDashboardPage'
+import AdminManualCreationPage from './pages/AdminManualCreationPage'
 import AdminAiPage from './pages/AdminAiPage'
-import ProfilePage from './pages/ProfilePage'
+import ForbiddenPage from './pages/UnauthorizedPage'
+
 import ProfileEditPage from './pages/ProfileEditPage'
 import ProfileConnectionsPage from './pages/ProfileConnectionsPage'
 import UserProfilePage from './pages/UserProfilePage'
@@ -268,6 +271,16 @@ function AppContent() {
               <PrivateRoute>
                 <RoleGuard allowedRoles={['admin']}>
                   <AdminAiPage />
+                </RoleGuard>
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/admin/manual-creation"
+            element={
+              <PrivateRoute>
+                <RoleGuard allowedRoles={['admin']}>
+                  <AdminManualCreationPage />
                 </RoleGuard>
               </PrivateRoute>
             }

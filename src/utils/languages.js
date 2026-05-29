@@ -36,6 +36,18 @@ export const LANGUAGE_CONFIG = Object.freeze({
     monaco: 'csharp',
     label: 'C#',
   },
+  6: {
+    id: 6,
+    slug: 'go',
+    monaco: 'go',
+    label: 'Go',
+  },
+  7: {
+    id: 7,
+    slug: 'ruby',
+    monaco: 'ruby',
+    label: 'Ruby',
+  },
 })
 
 const LANGUAGE_SIGNATURES = Object.freeze({
@@ -65,6 +77,17 @@ const LANGUAGE_SIGNATURES = Object.freeze({
     /\bConsole\s*\.\s*Write(?:Line)?\s*\(/,
     /\bnamespace\s+\w+/,
     /\busing\s+System\b/,
+  ],
+  go: [
+    /\bpackage\s+main\b/,
+    /\bimport\s+[("]/,
+    /\bfunc\s+\w+\s*\(/,
+  ],
+  ruby: [
+    /\bdef\s+\w+/,
+    /\bputs\b/,
+    /\bclass\s+\w+/,
+    /\brescue\s+\w+/,
   ],
 })
 

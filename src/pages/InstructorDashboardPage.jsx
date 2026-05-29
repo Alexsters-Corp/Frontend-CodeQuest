@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { IoMdHelpCircleOutline } from 'react-icons/io'
 import { createPortal } from 'react-dom'
@@ -57,6 +58,8 @@ const GUIDE_TYPES = Object.freeze({
   lesson: 'lesson',
   exercise: 'exercise',
   validator: 'validator',
+  lessonManual: 'lessonManual',
+  exerciseManual: 'exerciseManual',
 })
 
 const MotionDiv = motion.div
@@ -210,10 +213,6 @@ function EmptyPreviewPlaceholder({ t }) {
   return (
     <div className="ai-empty-placeholder">
       <div className="ai-empty-placeholder__content">
-        <img src="/codey-saludando.png" alt="Codey" className="ai-empty-placeholder__codey" />
-        <div className="ai-empty-placeholder__logo-wrapper">
-          <LogoCQ height={54} />
-        </div>
         <p className="ai-admin-empty" style={{ marginTop: '0.5rem' }}>{t('admin.ai.empty')}</p>
       </div>
     </div>
@@ -349,6 +348,7 @@ function formatDate(dateString, t) {
 }
 
 function InstructorDashboardPage() {
+  const navigate = useNavigate()
   const { t } = useLanguage()
   const classesRef = useRef(null)
   const studentsRef = useRef(null)
@@ -981,6 +981,11 @@ function InstructorDashboardPage() {
   }
 
   const validationScore = normalizeValidationScore(validationResult?.qualityScore)
+  const shouldShowValidatorSection = creationMode === 'ai'
+    || validationLoading
+    || Boolean(validationError)
+    || Boolean(validationResult)
+    || Boolean(validationForm.content?.trim())
 
   return (
     <SidebarLayout>
@@ -1427,7 +1432,15 @@ function InstructorDashboardPage() {
                     {t('admin.ai.exercise.title')}
                   </Button>
                 </div>
-                <GuideButton type={aiActiveTab === 'lesson' ? GUIDE_TYPES.lesson : GUIDE_TYPES.exercise} onOpen={setActiveGuide} t={t} />
+                <GuideButton
+                  type={
+                    creationMode === 'manual'
+                      ? (aiActiveTab === 'lesson' ? GUIDE_TYPES.lessonManual : GUIDE_TYPES.exerciseManual)
+                      : (aiActiveTab === 'lesson' ? GUIDE_TYPES.lesson : GUIDE_TYPES.exercise)
+                  }
+                  onOpen={setActiveGuide}
+                  t={t}
+                />
               </div>
             </div>
 
@@ -1847,7 +1860,7 @@ function InstructorDashboardPage() {
 
               <div className="instructor-ai-preview-panel">
                 <h3>� Vista previa del contenido</h3>
-                <div className="instructor-ai-output-container" style={{ flex: 1, minHeight: 0 }}>
+                <div className="instructor-ai-output-container">
                   {aiActiveTab === 'lesson' && (
                     <GeneratedContentCard
                       type="lesson"
@@ -1883,6 +1896,7 @@ function InstructorDashboardPage() {
           </section>
 
           {/* Bloque 5: Validador */}
+          {shouldShowValidatorSection && (
           <section ref={validatorRef} className="surface-main ai-admin-card--full">
             <div className="rbac-section-head">
               <h2>{t('admin.ai.validate.title')}</h2>
@@ -2007,6 +2021,7 @@ function InstructorDashboardPage() {
               </div>
             )}
           </section>
+          )}
         </div>
       </section>
       <GuideModal type={activeGuide} onClose={() => setActiveGuide(null)} t={t} />

@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useLocation } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { IoMdHelpCircleOutline } from 'react-icons/io'
 import CodeViewer from '../components/CodeViewer'
 import MotionPage from '../components/MotionPage'
 import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
+import Button from '../components/ui/Button'
 import { useLanguage } from '../context/useLanguage'
 import { generateExercise, generateLesson, listPublishTargets, publishContent, validateContent } from '../services/aiAdminApi'
 import { notifyError, notifySuccess } from '../utils/notify'
@@ -44,6 +45,8 @@ const GUIDE_TYPES = Object.freeze({
   lesson: 'lesson',
   exercise: 'exercise',
   validator: 'validator',
+  lessonManual: 'lessonManual',
+  exerciseManual: 'exerciseManual',
 })
 
 const AUTO_CREATE_TARGET = 'auto'
