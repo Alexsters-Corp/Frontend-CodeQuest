@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
 import CodeViewer from '../components/CodeViewer'
 import Button from '../components/ui/Button'
+import LogoCQ from '../components/LogoCQ'
 import { useLanguage } from '../context/useLanguage'
 import {
   createInstructorClass,
@@ -56,6 +57,8 @@ const GUIDE_TYPES = Object.freeze({
   lesson: 'lesson',
   exercise: 'exercise',
   validator: 'validator',
+  lessonManual: 'lessonManual',
+  exerciseManual: 'exerciseManual',
 })
 
 const MotionDiv = motion.div
@@ -205,6 +208,16 @@ function GuideModal({ type, onClose, t }) {
   )
 }
 
+function EmptyPreviewPlaceholder({ t }) {
+  return (
+    <div className="ai-empty-placeholder">
+      <div className="ai-empty-placeholder__content">
+        <p className="ai-admin-empty" style={{ marginTop: '0.5rem' }}>{t('admin.ai.empty')}</p>
+      </div>
+    </div>
+  )
+}
+
 function GeneratedContentCard({
   type,
   result,
@@ -218,7 +231,7 @@ function GeneratedContentCard({
   t,
 }) {
   if (!result) {
-    return <p className="ai-admin-empty">{t('admin.ai.empty')}</p>
+    return <EmptyPreviewPlaceholder t={t} />
   }
 
   const isLesson = type === 'lesson'
@@ -237,6 +250,12 @@ function GeneratedContentCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28 }}
     >
+      <div className="ai-preview-watermark">
+        <img src="/codey-saludando.png" alt="" className="ai-preview-watermark__codey" />
+        <div className="ai-preview-watermark__logo-wrapper">
+          <LogoCQ height={42} />
+        </div>
+      </div>
       <header className="ai-result-card__header">
         <span className="ai-model-badge">
           {t('admin.ai.generatedBy')} · {result.modelUsed || result.ai_model_used || model || 'llama-3.3-70b-versatile'}
@@ -960,6 +979,11 @@ function InstructorDashboardPage() {
   }
 
   const validationScore = normalizeValidationScore(validationResult?.qualityScore)
+  const shouldShowValidatorSection = creationMode === 'ai'
+    || validationLoading
+    || Boolean(validationError)
+    || Boolean(validationResult)
+    || Boolean(validationForm.content?.trim())
 
   return (
     <SidebarLayout>
@@ -1406,7 +1430,15 @@ function InstructorDashboardPage() {
                     {t('admin.ai.exercise.title')}
                   </Button>
                 </div>
-                <GuideButton type={aiActiveTab === 'lesson' ? GUIDE_TYPES.lesson : GUIDE_TYPES.exercise} onOpen={setActiveGuide} t={t} />
+                <GuideButton
+                  type={
+                    creationMode === 'manual'
+                      ? (aiActiveTab === 'lesson' ? GUIDE_TYPES.lessonManual : GUIDE_TYPES.exerciseManual)
+                      : (aiActiveTab === 'lesson' ? GUIDE_TYPES.lesson : GUIDE_TYPES.exercise)
+                  }
+                  onOpen={setActiveGuide}
+                  t={t}
+                />
               </div>
             </div>
 
@@ -1429,7 +1461,7 @@ function InstructorDashboardPage() {
                     className="instructor-ai-tab-btn"
                     onClick={() => setCreationMode('manual')}
                   >
-                    {t('admin.ai.mode.manual')}
+                    {'Creacion manual'}
                   </Button>
                 </div>
 
@@ -1826,7 +1858,7 @@ function InstructorDashboardPage() {
 
               <div className="instructor-ai-preview-panel">
                 <h3>� Vista previa del contenido</h3>
-                <div className="instructor-ai-output-container" style={{ flex: 1, minHeight: 0 }}>
+                <div className="instructor-ai-output-container">
                   {aiActiveTab === 'lesson' && (
                     <GeneratedContentCard
                       type="lesson"
@@ -1862,6 +1894,7 @@ function InstructorDashboardPage() {
           </section>
 
           {/* Bloque 5: Validador */}
+          {shouldShowValidatorSection && (
           <section ref={validatorRef} className="surface-main ai-admin-card--full">
             <div className="rbac-section-head">
               <h2>{t('admin.ai.validate.title')}</h2>
@@ -1981,9 +2014,12 @@ function InstructorDashboardPage() {
                 </div>
               </MotionArticle>
             ) : (
-              <p className="ai-admin-empty">{t('admin.ai.empty')}</p>
+              <div style={{ marginTop: '1.5rem' }}>
+                <EmptyPreviewPlaceholder t={t} />
+              </div>
             )}
           </section>
+          )}
         </div>
       </section>
       <GuideModal type={activeGuide} onClose={() => setActiveGuide(null)} t={t} />
