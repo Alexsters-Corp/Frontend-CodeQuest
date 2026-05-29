@@ -7,6 +7,7 @@ import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
 import CodeViewer from '../components/CodeViewer'
 import Button from '../components/ui/Button'
+import LogoCQ from '../components/LogoCQ'
 import { useLanguage } from '../context/useLanguage'
 import {
   createInstructorClass,
@@ -205,6 +206,20 @@ function GuideModal({ type, onClose, t }) {
   )
 }
 
+function EmptyPreviewPlaceholder({ t }) {
+  return (
+    <div className="ai-empty-placeholder">
+      <div className="ai-empty-placeholder__content">
+        <img src="/codey-saludando.png" alt="Codey" className="ai-empty-placeholder__codey" />
+        <div className="ai-empty-placeholder__logo-wrapper">
+          <LogoCQ height={54} />
+        </div>
+        <p className="ai-admin-empty" style={{ marginTop: '0.5rem' }}>{t('admin.ai.empty')}</p>
+      </div>
+    </div>
+  )
+}
+
 function GeneratedContentCard({
   type,
   result,
@@ -218,7 +233,7 @@ function GeneratedContentCard({
   t,
 }) {
   if (!result) {
-    return <p className="ai-admin-empty">{t('admin.ai.empty')}</p>
+    return <EmptyPreviewPlaceholder t={t} />
   }
 
   const isLesson = type === 'lesson'
@@ -237,6 +252,12 @@ function GeneratedContentCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.28 }}
     >
+      <div className="ai-preview-watermark">
+        <img src="/codey-saludando.png" alt="" className="ai-preview-watermark__codey" />
+        <div className="ai-preview-watermark__logo-wrapper">
+          <LogoCQ height={42} />
+        </div>
+      </div>
       <header className="ai-result-card__header">
         <span className="ai-model-badge">
           {t('admin.ai.generatedBy')} · {result.modelUsed || result.ai_model_used || model || 'llama-3.3-70b-versatile'}
@@ -1981,7 +2002,9 @@ function InstructorDashboardPage() {
                 </div>
               </MotionArticle>
             ) : (
-              <p className="ai-admin-empty">{t('admin.ai.empty')}</p>
+              <div style={{ marginTop: '1.5rem' }}>
+                <EmptyPreviewPlaceholder t={t} />
+              </div>
             )}
           </section>
         </div>
