@@ -13,12 +13,17 @@ function parseScopeParam(value) {
   return value === 'following' ? 'following' : 'global'
 }
 
+function parseTypeParam(value) {
+  return value === 'weekly' ? 'weekly' : 'historical'
+}
+
 function RankingPage() {
   const navigate = useNavigate()
   const { t } = useLanguage()
   const { user } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
   const [scope, setScope] = useState(() => parseScopeParam(searchParams.get('scope')))
+  const [type, setType] = useState(() => parseTypeParam(searchParams.get('type')))
   const [entries, setEntries] = useState([])
   const [loading, setLoading] = useState(true)
   const [errorMessage, setErrorMessage] = useState('')
@@ -26,6 +31,8 @@ function RankingPage() {
   useEffect(() => {
     const parsedScope = parseScopeParam(searchParams.get('scope'))
     setScope((currentScope) => (currentScope === parsedScope ? currentScope : parsedScope))
+    const parsedType = parseTypeParam(searchParams.get('type'))
+    setType((currentType) => (currentType === parsedType ? currentType : parsedType))
   }, [searchParams])
 
   const handleScopeChange = (nextScope) => {
@@ -37,12 +44,21 @@ function RankingPage() {
     setSearchParams(nextParams, { replace: true })
   }
 
-  const loadLeaderboard = useCallback(async (currentScope = scope) => {
+  const handleTypeChange = (nextType) => {
+    const resolvedType = parseTypeParam(nextType)
+    setType(resolvedType)
+
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.set('type', resolvedType)
+    setSearchParams(nextParams, { replace: true })
+  }
+
+  const loadLeaderboard = useCallback(async (currentScope = scope, currentType = type) => {
     setLoading(true)
     setErrorMessage('')
 
     try {
-      const data = await getLeaderboard(currentScope)
+      const data = await getLeaderboard(currentScope, currentType)
       setEntries(Array.isArray(data.entries) ? data.entries : [])
     } catch (error) {
       const message = error.message || t('ranking.loadError')
@@ -51,11 +67,11 @@ function RankingPage() {
     } finally {
       setLoading(false)
     }
-  }, [scope, t])
+  }, [scope, type, t])
 
   useEffect(() => {
-    loadLeaderboard(scope)
-  }, [scope, loadLeaderboard])
+    loadLeaderboard(scope, type)
+  }, [scope, type, loadLeaderboard])
 
   const handleOpenProfile = (entry) => {
     if (!entry?.username) {
@@ -70,6 +86,13 @@ function RankingPage() {
     navigate(`/users/${encodeURIComponent(entry.username)}`)
   }
 
+  const displayXp = (entry) => {
+    if (type === 'weekly') {
+      return entry.weeklyXp || 0
+    }
+    return entry.totalXp || 0
+  }
+
   return (
     <SidebarLayout>
       <MotionPage className="dashboard-page" delay={0.06}>
@@ -81,6 +104,23 @@ function RankingPage() {
               <h2>{t('ranking.subtitle')}</h2>
               <p>{t('ranking.description')}</p>
             </div>
+          </div>
+
+          <div className="ranking-scope-tabs" role="tablist" aria-label={t('ranking.typeLabel')}>
+            <button
+              type="button"
+              className={`ranking-tab ${type === 'historical' ? 'ranking-tab--active' : ''}`}
+              onClick={() => handleTypeChange('historical')}
+            >
+              {t('ranking.historicalTab')}
+            </button>
+            <button
+              type="button"
+              className={`ranking-tab ${type === 'weekly' ? 'ranking-tab--active' : ''}`}
+              onClick={() => handleTypeChange('weekly')}
+            >
+              {t('ranking.weeklyTab')}
+            </button>
           </div>
 
           <div className="ranking-scope-tabs" role="tablist" aria-label={t('ranking.scopeLabel')}>
@@ -108,7 +148,7 @@ function RankingPage() {
           ) : errorMessage ? (
             <div className="profile-edit-actions">
               <p className="profile-edit-message error">{errorMessage}</p>
-              <button type="button" className="profile-cancel-btn" onClick={() => loadLeaderboard(scope)}>
+              <button type="button" className="profile-cancel-btn" onClick={() => loadLeaderboard(scope, type)}>
                 {t('common.retry')}
               </button>
             </div>
@@ -120,7 +160,7 @@ function RankingPage() {
             <div className="ranking-list" role="list">
               {entries.map((entry) => (
                 <article
-                  key={`${scope}-${entry.id}`}
+                  key={`${type}-${scope}-${entry.id}`}
                   className={`ranking-item${entry.rank <= 3 ? ` ranking-item--top ranking-item--top-${entry.rank}` : ''}`}
                   role="listitem"
                 >
@@ -143,7 +183,7 @@ function RankingPage() {
                     </div>
 
                     <strong className="ranking-item-xp">
-                      {t('ranking.xpLabel', { value: entry.totalXp || 0 })}
+                      {t('ranking.xpLabel', { value: displayXp(entry) })}
                     </strong>
                   </button>
                 </article>
