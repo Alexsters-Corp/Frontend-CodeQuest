@@ -208,12 +208,12 @@ function AdminDashboardPage() {
       <section className="surface-main ai-admin-entry">
         <div className="rbac-section-head">
           <h2>{t('admin.ai.toolsTitle')}</h2>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', alignItems: 'flex-end' }}>
+          <div className="rbac-action-btns" style={{ justifyContent: 'flex-end', flexWrap: 'wrap' }}>
             <Button type="button" variant="purple" onClick={() => navigate('/admin/ai')}>
               {t('admin.ai.open')}
             </Button>
-            <Button type="button" variant="slate" onClick={() => navigate('/admin/manual-creation')}>
-              {t('admin.ai.mode.manual')}
+            <Button type="button" variant="blue" onClick={() => navigate('/admin/manual-creation')}>
+              {'Creacion manual'}
             </Button>
           </div>
         </div>

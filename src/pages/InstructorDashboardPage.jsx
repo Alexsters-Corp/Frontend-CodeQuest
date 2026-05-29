@@ -1463,7 +1463,7 @@ function InstructorDashboardPage() {
                     className="instructor-ai-tab-btn"
                     onClick={() => setCreationMode('manual')}
                   >
-                    {t('admin.ai.mode.manual')}
+                    {'Creacion manual'}
                   </Button>
                 </div>
 

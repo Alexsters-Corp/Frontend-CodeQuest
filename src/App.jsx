@@ -285,6 +285,7 @@ function AppContent() {
               </PrivateRoute>
             }
           />
+          <Route path="/admin/manual-creatio" element={<Navigate to="/admin/manual-creation" replace />} />
           <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
           {/* Demo publico (HU-025) - sin guards, accesible sin auth */}
