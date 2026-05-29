@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { IoMdHelpCircleOutline } from 'react-icons/io'
 import { createPortal } from 'react-dom'
@@ -348,7 +347,6 @@ function formatDate(dateString, t) {
 }
 
 function InstructorDashboardPage() {
-  const navigate = useNavigate()
   const { t } = useLanguage()
   const classesRef = useRef(null)
   const studentsRef = useRef(null)

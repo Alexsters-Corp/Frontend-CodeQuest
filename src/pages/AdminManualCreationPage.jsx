@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { IoMdHelpCircleOutline } from 'react-icons/io'
@@ -95,7 +95,6 @@ function GeneratedContentCard({ type, result, title, difficulty, languageLabel, 
   const normalizedDifficulty = normalizeDifficultyLevel(difficulty)
   const exercise = isLesson ? (result.exercise || {}) : result
   const theoryParagraphs = String(result.theory || '').split(/\n{2,}/).map(p => p.trim()).filter(Boolean)
-  const testCases = Array.isArray(exercise.testCases) ? exercise.testCases : []
 
   return (
     <MotionArticle className="ai-result-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -163,7 +162,6 @@ function ValidationResultCard({ result, onEdit, onPublish, publishing, publishBl
   const score = normalizeScore(result.qualityScore)
   const tone = scoreTone(score)
   const issues = Array.isArray(result.issues) ? result.issues : []
-  const dimensions = result.dimensions && typeof result.dimensions === 'object' ? Object.entries(result.dimensions) : []
 
   return (
     <MotionArticle className="ai-validation-card" initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
@@ -187,6 +185,11 @@ function ValidationResultCard({ result, onEdit, onPublish, publishing, publishBl
           <button type="button" className="ai-secondary-btn" onClick={onEdit}>{t('admin.ai.action.edit')}</button>
         </div>
       </footer>
+      {publishStatus && (
+        <p className={`ai-publish-status ai-publish-status--${publishStatus.type}`}>
+          {publishStatus.message}
+        </p>
+      )}
     </MotionArticle>
   )
 }
