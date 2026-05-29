@@ -169,11 +169,15 @@ function LessonPage() {
   const hasSourceClassId = Number.isInteger(sourceClassId) && sourceClassId > 0
 
   const handleBackToMyClass = useCallback(() => {
-    navigate('/dashboard/classes', {
-      state: {
-        focusClassId: hasSourceClassId ? sourceClassId : null,
-      },
-    })
+    if (hasSourceClassId) {
+      navigate('/dashboard/classes', {
+        state: {
+          focusClassId: sourceClassId,
+        },
+      })
+    } else {
+      navigate('/dashboard')
+    }
   }, [hasSourceClassId, navigate, sourceClassId])
 
   const editorLanguage = useMemo(
@@ -531,7 +535,7 @@ function LessonPage() {
                 onClick={handleBackToMyClass}
                 type="button"
               >
-                🏫 {t('lesson.backToMyClass')}
+                {hasSourceClassId ? '🏫' : '💻'} {hasSourceClassId ? t('lesson.backToMyClass') : t('lesson.backDashboard')}
               </button>
             </div>
 
@@ -565,7 +569,21 @@ function LessonPage() {
         <MotionPage className="lesson-page" delay={0.06}>
           <div className="lesson-container">
             <div className="lesson-header">
-              <button className="lesson-back-link" onClick={() => navigate('/modules')} type="button">
+              <button
+                className="lesson-back-link"
+                onClick={() => {
+                  if (hasSourceClassId) {
+                    navigate('/dashboard/classes', {
+                      state: {
+                        focusClassId: sourceClassId,
+                      },
+                    })
+                  } else {
+                    navigate('/modules')
+                  }
+                }}
+                type="button"
+              >
                 <IoMdArrowRoundBack /> {t('lesson.back')}
               </button>
               <span className="lesson-modulo">{lesson.modulo_nombre}</span>
