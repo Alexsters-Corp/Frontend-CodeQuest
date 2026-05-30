@@ -6,11 +6,13 @@ import SidebarLayout from '../components/SidebarLayout'
 import StudentClassesGrid from '../components/StudentClassesGrid'
 import Button from '../components/ui/Button'
 import { useLanguage } from '../context/useLanguage'
+import { useAuth } from '../context/useAuth'
 import { joinClassWithCode, listStudentClasses } from '../services/learningApi'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 export default function StudentClassesPage() {
   const { t } = useLanguage()
+  const { user } = useAuth()
   const location = useLocation()
   const [studentClasses, setStudentClasses] = useState([])
   const [loadingClasses, setLoadingClasses] = useState(false)
@@ -82,7 +84,7 @@ export default function StudentClassesPage() {
   return (
     <SidebarLayout>
       <MotionPage className="dashboard-page" delay={0.06}>
-        <Navbar title={t('dashboard.sidebar.myClasses')} hideActions />
+        <Navbar title={user?.nombre || t('nav.defaultName')} hideActions />
 
         <div className="dashboard-content-layout dashboard-content-layout--single">
           <div className="dashboard-main">
