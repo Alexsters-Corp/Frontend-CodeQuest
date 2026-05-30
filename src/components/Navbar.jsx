@@ -16,7 +16,7 @@ function Navbar({
     ? t(`roles.${role}`)
     : t('roles.unknown')
   const profileAvatar = String(user?.avatar || '').trim() || DEFAULT_AVATAR
-  const resolvedTitle = title || t('dashboard.title')
+  const resolvedTitle = title || user?.nombre || t('nav.defaultName')
 
   return (
     <header className="dashboard-header">

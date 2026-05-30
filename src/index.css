@@ -1,4 +1,4 @@
-﻿/* --- 1. VARIABLES --- */
+/* --- 1. VARIABLES --- */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap');
 @import './sidebar-redesign.css';
@@ -1110,6 +1110,9 @@ button.profile-icon-chip:hover {
   background: rgba(17, 30, 50, 0.86);
   border-color: rgba(148, 163, 184, 0.22);
   color: #eef5ff;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .ai-admin-form input::placeholder,

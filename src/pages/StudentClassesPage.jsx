@@ -82,7 +82,7 @@ export default function StudentClassesPage() {
   return (
     <SidebarLayout>
       <MotionPage className="dashboard-page" delay={0.06}>
-        <Navbar title={t('dashboard.sidebar.myClasses')} hideActions />
+        <Navbar hideActions />
 
         <div className="dashboard-content-layout dashboard-content-layout--single">
           <div className="dashboard-main">
