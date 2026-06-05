@@ -179,9 +179,7 @@ function ValidationResultCard({ result, onEdit, onPublish, publishing, publishBl
       <footer className="ai-validation-footer">
         <span>{t('admin.ai.validation.validatedBy')} · {result.modelUsed || AI_MODEL_LABEL}</span>
         <div className="ai-result-actions">
-          <button type="button" onClick={onPublish} disabled={publishing} className={publishBlockedReason ? 'ai-publish-btn--blocked' : ''} title={publishBlockedReason || ''}>
-            {publishing ? t('admin.ai.publish.publishing') : t('admin.ai.action.publish')}
-          </button>
+          <button type="button" onClick={onPublish} disabled={publishing} className={publishBlockedReason ? 'ai-publish-btn--blocked' : ''} title={publishBlockedReason || ''}>x</button>
           <button type="button" className="ai-secondary-btn" onClick={onEdit}>{t('admin.ai.action.edit')}</button>
         </div>
       </footer>
@@ -416,62 +414,62 @@ function AdminManualCreationPage() {
               <p className="rbac-muted">{t('admin.ai.lesson.hint')}</p>
 
               <form className="ai-admin-form" style={{ marginTop: '1.5rem' }} onSubmit={handleManualLessonSubmit}>
-                <label>Título de la lección</label>
-                <input type="text" value={manualLessonForm.title} onChange={e => setManualLessonForm(p => ({ ...p, title: e.target.value }))} placeholder="Ej. Estructuras de Control" required />
+                <label>{t('admin.ai.manual.lessonTitle')}</label>
+                <input type="text" value={manualLessonForm.title} onChange={e => setManualLessonForm(p => ({ ...p, title: e.target.value }))} placeholder={t('admin.ai.manual.lessonTitlePlaceholder')} required />
 
-                <label>Teoría / Explicación (Markdown)</label>
-                <textarea value={manualLessonForm.theory} onChange={e => setManualLessonForm(p => ({ ...p, theory: e.target.value }))} placeholder="Escribe el contenido educativo..." rows={8} required />
+                <label>{t('admin.ai.manual.theory')}</label>
+                <textarea value={manualLessonForm.theory} onChange={e => setManualLessonForm(p => ({ ...p, theory: e.target.value }))} placeholder={t('admin.ai.manual.theoryPlaceholder')} rows={8} required />
 
-                <label>Ejemplo de código</label>
+                <label>{t('admin.ai.manual.codeExample')}</label>
                 <textarea value={manualLessonForm.codeExample} onChange={e => setManualLessonForm(p => ({ ...p, codeExample: e.target.value }))} placeholder="Ej. if (x > 0) { ... }" rows={4} style={{ fontFamily: 'monospace' }} />
 
-                <label>Lenguaje</label>
+                <label>{t('admin.ai.field.language')}</label>
                 <select value={manualLessonForm.languageId} onChange={e => setManualLessonForm(p => ({ ...p, languageId: e.target.value, publishTargetPathId: '' }))}>
                   {JUDGE0_LANGUAGE_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.icon} {t(o.labelKey)}</option>)}
                 </select>
 
-                <label>Dificultad</label>
+                <label>{t('admin.ai.field.difficulty')}</label>
                 <select value={manualLessonForm.level} onChange={e => setManualLessonForm(p => ({ ...p, level: e.target.value, publishTargetPathId: '' }))}>
                   <option value="beginner">{t('admin.ai.level.beginner')}</option>
                   <option value="intermediate">{t('admin.ai.level.intermediate')}</option>
                   <option value="advanced">{t('admin.ai.level.advanced')}</option>
                 </select>
 
-                <label>Ruta de publicación</label>
+                <label>{t('admin.ai.field.publishTarget')}</label>
                 <select value={manualLessonForm.publishTargetPathId} onChange={e => setManualLessonForm(p => ({ ...p, publishTargetPathId: e.target.value }))} disabled={publishTargetsLoading}>
                   <option value="">{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
                   {lessonTargetPaths.map(path => <option key={path.id} value={path.id}>{path.name} - {path.difficultyLevel}</option>)}
                   <option value={AUTO_CREATE_TARGET}>{t('admin.ai.publish.autoTarget', { level: getPathLevelForLesson(manualLessonForm.level) })}</option>
                 </select>
 
-                <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>📝 Ejercicio</h4>
-                <label>Consigna</label>
-                <textarea value={manualLessonForm.exercisePrompt} onChange={e => setManualLessonForm(p => ({ ...p, exercisePrompt: e.target.value }))} placeholder="Instrucciones para el alumno..." rows={3} required />
+                <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>{t('admin.ai.manual.exerciseSection')}</h4>
+                <label>{t('admin.ai.manual.exercisePrompt')}</label>
+                <textarea value={manualLessonForm.exercisePrompt} onChange={e => setManualLessonForm(p => ({ ...p, exercisePrompt: e.target.value }))} placeholder={t('admin.ai.manual.exercisePromptPlaceholder')} rows={3} required />
 
-                <label>Código base</label>
+                <label>{t('admin.ai.manual.baseCode')}</label>
                 <textarea value={manualLessonForm.exerciseStarterCode} onChange={e => setManualLessonForm(p => ({ ...p, exerciseStarterCode: e.target.value }))} placeholder="Ej. function solution() { ... }" rows={3} style={{ fontFamily: 'monospace' }} />
 
-                <label>Solución</label>
-                <textarea value={manualLessonForm.exerciseSolutionCode} onChange={e => setManualLessonForm(p => ({ ...p, exerciseSolutionCode: e.target.value }))} placeholder="El código que resuelve el reto..." rows={3} style={{ fontFamily: 'monospace' }} />
+                <label>{t('admin.ai.manual.solutionCode')}</label>
+                <textarea value={manualLessonForm.exerciseSolutionCode} onChange={e => setManualLessonForm(p => ({ ...p, exerciseSolutionCode: e.target.value }))} placeholder={t('admin.ai.manual.solutionPlaceholder')} rows={3} style={{ fontFamily: 'monospace' }} />
 
-                <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>🧪 Casos de Prueba</h4>
+                <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>{t('admin.ai.manual.testCases')}</h4>
                 {manualLessonForm.testCases.map((tc, idx) => (
                   <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Caso #{idx + 1}</span>
-                      <button type="button" className="rbac-revoke-btn" style={{ padding: '2px 6px', fontSize: '0.75rem' }} onClick={() => removeManualLessonTestCase(idx)}>✕</button>
+                      <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{t('admin.ai.manual.caseLabel', { index: idx + 1 })}</span>
+                      <button type="button" className="rbac-revoke-btn" style={{ padding: '2px 6px', fontSize: '0.75rem' }} onClick={() => removeManualLessonTestCase(idx)}>x</button>
                     </div>
-                    <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Input</label>
-                    <input type="text" value={tc.input} onChange={e => handleManualLessonTestCaseChange(idx, 'input', e.target.value)} placeholder='Ej. "hola" o vacío' style={{ fontSize: '0.8rem', padding: '0.35rem' }} />
-                    <label style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>Expected Output</label>
-                    <input type="text" value={tc.expectedOutput} onChange={e => handleManualLessonTestCaseChange(idx, 'expectedOutput', e.target.value)} placeholder="Salida esperada" style={{ fontSize: '0.8rem', padding: '0.35rem' }} required />
+                    <label style={{ fontSize: '0.75rem', marginTop: 0 }}>{t('admin.ai.manual.inputLabel')}</label>
+                    <input type="text" value={tc.input} onChange={e => handleManualLessonTestCaseChange(idx, 'input', e.target.value)} placeholder={t('admin.ai.manual.emptyInputPlaceholder')} style={{ fontSize: '0.8rem', padding: '0.35rem' }} />
+                    <label style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>{t('admin.ai.manual.expectedOutputLabel')}</label>
+                    <input type="text" value={tc.expectedOutput} onChange={e => handleManualLessonTestCaseChange(idx, 'expectedOutput', e.target.value)} placeholder={t('admin.ai.manual.expectedOutputPlaceholder')} style={{ fontSize: '0.8rem', padding: '0.35rem' }} required />
                   </div>
                 ))}
 
-                <button type="button" className="rbac-btn-secondary" style={{ width: '100%', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }} onClick={addManualLessonTestCase}>+ Agregar caso</button>
+                <button type="button" className="rbac-btn-secondary" style={{ width: '100%', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }} onClick={addManualLessonTestCase}>{t('admin.ai.manual.addCase')}</button>
 
                 <div className="ai-admin-actions">
-                  <button type="submit" style={{ width: '100%' }}>Previsualizar y Validar</button>
+                  <button type="submit" style={{ width: '100%' }}>{t('admin.ai.manual.previewValidate')}</button>
                 </div>
               </form>
 
@@ -496,55 +494,55 @@ function AdminManualCreationPage() {
               <p className="rbac-muted">{t('admin.ai.exercise.hint')}</p>
 
               <form className="ai-admin-form" style={{ marginTop: '1.5rem' }} onSubmit={handleManualExerciseSubmit}>
-                <label>Concepto / Reto</label>
-                <input type="text" value={manualExerciseForm.concept} onChange={e => setManualExerciseForm(p => ({ ...p, concept: e.target.value }))} placeholder="Ej. Inversión de Strings" required />
+                <label>{t('admin.ai.manual.challenge')}</label>
+                <input type="text" value={manualExerciseForm.concept} onChange={e => setManualExerciseForm(p => ({ ...p, concept: e.target.value }))} placeholder={t('admin.ai.manual.challengePlaceholder')} required />
 
-                <label>Descripción detallada</label>
-                <textarea value={manualExerciseForm.prompt} onChange={e => setManualExerciseForm(p => ({ ...p, prompt: e.target.value }))} placeholder="Explica el problema..." rows={6} required />
+                <label>{t('admin.ai.manual.detailedDescription')}</label>
+                <textarea value={manualExerciseForm.prompt} onChange={e => setManualExerciseForm(p => ({ ...p, prompt: e.target.value }))} placeholder={t('admin.ai.manual.problemPlaceholder')} rows={6} required />
 
-                <label>Código inicial</label>
+                <label>{t('admin.ai.manual.baseCode')}</label>
                 <textarea value={manualExerciseForm.starterCode} onChange={e => setManualExerciseForm(p => ({ ...p, starterCode: e.target.value }))} placeholder="Ej. function reverse(s) { ... }" rows={4} style={{ fontFamily: 'monospace' }} />
 
-                <label>Solución</label>
-                <textarea value={manualExerciseForm.solutionCode} onChange={e => setManualExerciseForm(p => ({ ...p, solutionCode: e.target.value }))} placeholder="Código completo..." rows={4} style={{ fontFamily: 'monospace' }} />
+                <label>{t('admin.ai.manual.solutionCode')}</label>
+                <textarea value={manualExerciseForm.solutionCode} onChange={e => setManualExerciseForm(p => ({ ...p, solutionCode: e.target.value }))} placeholder={t('admin.ai.manual.solutionPlaceholder')} rows={4} style={{ fontFamily: 'monospace' }} />
 
-                <label>Lenguaje</label>
+                <label>{t('admin.ai.field.language')}</label>
                 <select value={manualExerciseForm.languageId} onChange={e => setManualExerciseForm(p => ({ ...p, languageId: e.target.value, publishTargetPathId: '' }))}>
                   {JUDGE0_LANGUAGE_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.icon} {t(o.labelKey)}</option>)}
                 </select>
 
-                <label>Dificultad</label>
+                <label>{t('admin.ai.field.difficulty')}</label>
                 <select value={manualExerciseForm.difficulty} onChange={e => setManualExerciseForm(p => ({ ...p, difficulty: e.target.value, publishTargetPathId: '' }))}>
                   <option value="easy">{t('admin.ai.difficulty.easy')}</option>
                   <option value="medium">{t('admin.ai.difficulty.medium')}</option>
                   <option value="hard">{t('admin.ai.difficulty.hard')}</option>
                 </select>
 
-                <label>Ruta de publicación</label>
+                <label>{t('admin.ai.field.publishTarget')}</label>
                 <select value={manualExerciseForm.publishTargetPathId} onChange={e => setManualExerciseForm(p => ({ ...p, publishTargetPathId: e.target.value }))} disabled={publishTargetsLoading}>
                   <option value="">{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
                   {exerciseTargetPaths.map(path => <option key={path.id} value={path.id}>{path.name} - {path.difficultyLevel}</option>)}
                   <option value={AUTO_CREATE_TARGET}>{t('admin.ai.publish.autoTarget', { level: getPathLevelForLesson(normalizeDifficultyLevel(manualExerciseForm.difficulty)) })}</option>
                 </select>
 
-                <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>🧪 Casos de Prueba</h4>
+                <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>{t('admin.ai.manual.testCases')}</h4>
                 {manualExerciseForm.testCases.map((tc, idx) => (
                   <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Caso #{idx + 1}</span>
-                      <button type="button" className="rbac-revoke-btn" style={{ padding: '2px 6px', fontSize: '0.75rem' }} onClick={() => removeManualExerciseTestCase(idx)}>✕</button>
+                      <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{t('admin.ai.manual.caseLabel', { index: idx + 1 })}</span>
+                      <button type="button" className="rbac-revoke-btn" style={{ padding: '2px 6px', fontSize: '0.75rem' }} onClick={() => removeManualExerciseTestCase(idx)}>x</button>
                     </div>
-                    <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Input</label>
-                    <input type="text" value={tc.input} onChange={e => handleManualExerciseTestCaseChange(idx, 'input', e.target.value)} placeholder='Ej. "hola" o vacío' style={{ fontSize: '0.8rem', padding: '0.35rem' }} />
-                    <label style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>Expected Output</label>
-                    <input type="text" value={tc.expectedOutput} onChange={e => handleManualExerciseTestCaseChange(idx, 'expectedOutput', e.target.value)} placeholder="Salida esperada" style={{ fontSize: '0.8rem', padding: '0.35rem' }} required />
+                    <label style={{ fontSize: '0.75rem', marginTop: 0 }}>{t('admin.ai.manual.inputLabel')}</label>
+                    <input type="text" value={tc.input} onChange={e => handleManualExerciseTestCaseChange(idx, 'input', e.target.value)} placeholder={t('admin.ai.manual.emptyInputPlaceholder')} style={{ fontSize: '0.8rem', padding: '0.35rem' }} />
+                    <label style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>{t('admin.ai.manual.expectedOutputLabel')}</label>
+                    <input type="text" value={tc.expectedOutput} onChange={e => handleManualExerciseTestCaseChange(idx, 'expectedOutput', e.target.value)} placeholder={t('admin.ai.manual.expectedOutputPlaceholder')} style={{ fontSize: '0.8rem', padding: '0.35rem' }} required />
                   </div>
                 ))}
 
-                <button type="button" className="rbac-btn-secondary" style={{ width: '100%', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }} onClick={addManualExerciseTestCase}>+ Agregar caso</button>
+                <button type="button" className="rbac-btn-secondary" style={{ width: '100%', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }} onClick={addManualExerciseTestCase}>{t('admin.ai.manual.addCase')}</button>
 
                 <div className="ai-admin-actions">
-                  <button type="submit" style={{ width: '100%' }}>Previsualizar y Validar</button>
+                  <button type="submit" style={{ width: '100%' }}>{t('admin.ai.manual.previewValidate')}</button>
                 </div>
               </form>
 
@@ -585,7 +583,7 @@ function AdminManualCreationPage() {
                 }}
               />
               <div className="ai-admin-actions">
-                <button type="submit" disabled={validationLoading}>{validationLoading ? t('admin.ai.loading') : t('admin.ai.action.validate')}</button>
+                <button type="submit" disabled={validationLoading}>x</button>
               </div>
             </form>
             <ValidationResultCard result={validationResult} onEdit={() => validationInputRef.current?.focus()} onPublish={handlePublish} publishing={publishingContent} publishBlockedReason={publishBlockedReason} publishStatus={publishStatus} t={t} />

@@ -15,7 +15,7 @@ async function requestJson(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
-    const error = new Error(data.message || 'No fue posible completar la solicitud.')
+    const error = new Error(data.message || 'Request failed.')
     error.status = response.status
     error.code = data.code
     error.details = data.details
@@ -47,7 +47,7 @@ export function clearSelectedLanguageId() {
 export function setSelectedLanguageId(languageId) {
   const normalized = parsePositiveInt(languageId)
   if (!normalized) {
-    throw new Error('Debes seleccionar un lenguaje válido.')
+    throw new Error('Invalid language selection.')
   }
 
   localStorage.setItem(STORAGE_KEYS.selectedLanguageId, String(normalized))
@@ -82,7 +82,7 @@ export async function selectLanguage(languageId) {
 export async function startDiagnosticExam(languageId) {
   const normalizedLanguageId = parsePositiveInt(languageId)
   if (!normalizedLanguageId) {
-    throw new Error('Debes seleccionar un lenguaje válido.')
+    throw new Error('Invalid language selection.')
   }
 
   return requestJson('/api/learning/diagnostic/start', {
@@ -94,11 +94,11 @@ export async function startDiagnosticExam(languageId) {
 export async function finishDiagnosticExam({ attemptId, answers }) {
   const normalizedAttemptId = parsePositiveInt(attemptId)
   if (!normalizedAttemptId) {
-    throw new Error('No se encontró un intento diagnóstico válido.')
+    throw new Error('Invalid diagnostic attempt.')
   }
 
   if (!Array.isArray(answers)) {
-    throw new Error('Las respuestas del diagnóstico no son válidas.')
+    throw new Error('Invalid diagnostic answers.')
   }
 
   return requestJson(`/api/learning/diagnostic/attempts/${normalizedAttemptId}/finish`, {
@@ -118,7 +118,7 @@ export async function listStudentClasses() {
 export async function listStudentClassLessons(classId) {
   const normalizedClassId = parsePositiveInt(classId)
   if (!normalizedClassId) {
-    throw new Error('Clase no válida para consultar contenido.')
+    throw new Error('Invalid class for content lookup.')
   }
 
   return requestJson(`/api/learning/progress/classes/${normalizedClassId}/lessons`)
@@ -127,7 +127,7 @@ export async function listStudentClassLessons(classId) {
 export async function joinClassWithCode(code) {
   const normalizedCode = String(code || '').trim().toUpperCase()
   if (!normalizedCode) {
-    throw new Error('Debes ingresar un código de invitación.')
+    throw new Error('Invitation code is required.')
   }
 
   return requestJson('/api/learning/progress/join-class', {
@@ -139,7 +139,7 @@ export async function joinClassWithCode(code) {
 export async function getModulesByLanguage(languageId) {
   const normalizedLanguageId = parsePositiveInt(languageId)
   if (!normalizedLanguageId) {
-    throw new Error('Debes seleccionar un lenguaje válido para ver módulos.')
+    throw new Error('Invalid language selection.')
   }
 
   const data = await requestJson(`/api/learning/languages/${normalizedLanguageId}/modules`)

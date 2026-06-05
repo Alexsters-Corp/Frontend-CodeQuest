@@ -213,7 +213,7 @@ function AdminDashboardPage() {
               {t('admin.ai.open')}
             </Button>
             <Button type="button" variant="blue" onClick={() => navigate('/admin/manual-creation')}>
-              {'Creacion manual'}
+              {t('admin.ai.mode.manual')}
             </Button>
           </div>
         </div>

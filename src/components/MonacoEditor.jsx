@@ -127,7 +127,7 @@ function MonacoEditor({
           <button
             type="button"
             className={`monaco-run-btn ${isExecuting ? 'is-running' : ''}`}
-            onClick={onRun}
+            onClick={() => onRun(value)}
             disabled={!canRun}
           >
             {isExecuting ? (
