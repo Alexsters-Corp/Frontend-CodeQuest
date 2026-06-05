@@ -704,15 +704,15 @@ function InstructorDashboardPage() {
 
     if (isLesson) {
       if (!manualLessonForm.title.trim()) {
-        notifyError('El título es requerido.')
+        notifyError(t('admin.ai.error.titleRequired'))
         return
       }
       if (!manualLessonForm.theory.trim()) {
-        notifyError('La teoría es requerida.')
+        notifyError(t('admin.ai.error.theoryRequired'))
         return
       }
       if (!manualLessonForm.exercisePrompt.trim()) {
-        notifyError('La descripción del ejercicio es requerida.')
+        notifyError(t('admin.ai.error.exerciseDescriptionRequired'))
         return
       }
 
@@ -745,23 +745,23 @@ function InstructorDashboardPage() {
       try {
         const payload = await validateContent({ content: stringified })
         setValidationResult(payload)
-        notifySuccess(t('admin.ai.success.validate') || 'Contenido validado con éxito.')
+        notifySuccess(t('admin.ai.success.validate'))
         window.setTimeout(() => {
           validatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }, 300)
       } catch (error) {
-        setValidationError(error.message || 'Error al validar el contenido.')
-        notifyError(error.message || 'Error al validar el contenido.')
+        setValidationError(error.message || t('admin.ai.error.validate'))
+        notifyError(error.message || t('admin.ai.error.validate'))
       } finally {
         setValidationLoading(false)
       }
     } else {
       if (!manualExerciseForm.concept.trim()) {
-        notifyError('El concepto es requerido.')
+        notifyError(t('admin.ai.error.conceptRequired'))
         return
       }
       if (!manualExerciseForm.prompt.trim()) {
-        notifyError('La descripción del ejercicio es requerida.')
+        notifyError(t('admin.ai.error.exerciseDescriptionRequired'))
         return
       }
 
@@ -789,13 +789,13 @@ function InstructorDashboardPage() {
       try {
         const payload = await validateContent({ content: stringified })
         setValidationResult(payload)
-        notifySuccess(t('admin.ai.success.validate') || 'Contenido validado con éxito.')
+        notifySuccess(t('admin.ai.success.validate'))
         window.setTimeout(() => {
           validatorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
         }, 300)
       } catch (error) {
-        setValidationError(error.message || 'Error al validar el contenido.')
-        notifyError(error.message || 'Error al validar el contenido.')
+        setValidationError(error.message || t('admin.ai.error.validate'))
+        notifyError(error.message || t('admin.ai.error.validate'))
       } finally {
         setValidationLoading(false)
       }
@@ -1500,9 +1500,7 @@ function InstructorDashboardPage() {
                         </select>
 
                         <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
-                          <button type="submit" disabled={lessonLoading} style={{ width: '100%' }}>
-                            {lessonLoading ? t('admin.ai.loading') : t('admin.ai.action.generateLesson')}
-                          </button>
+                          <button type="submit" disabled={lessonLoading} style={{ width: '100%' }}>x</button>
                         </div>
 
                         {lessonError && <p className="ai-admin-error">{lessonError}</p>}
@@ -1556,9 +1554,7 @@ function InstructorDashboardPage() {
                         </select>
 
                         <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
-                          <button type="submit" disabled={exerciseLoading} style={{ width: '100%' }}>
-                            {exerciseLoading ? t('admin.ai.loading') : t('admin.ai.action.generateExercise')}
-                          </button>
+                          <button type="submit" disabled={exerciseLoading} style={{ width: '100%' }}>x</button>
                         </div>
 
                         {exerciseError && <p className="ai-admin-error">{exerciseError}</p>}
@@ -1569,25 +1565,25 @@ function InstructorDashboardPage() {
                   <>
                     {aiActiveTab === 'lesson' && (
                       <form className="ai-admin-form" onSubmit={handleManualSubmit}>
-                        <label>Título de la lección</label>
+                        <label>{t('admin.ai.manual.lessonTitle')}</label>
                         <input
                           type="text"
                           value={manualLessonForm.title}
                           onChange={(e) => setManualLessonForm(prev => ({ ...prev, title: e.target.value }))}
-                          placeholder="Ej. Introducción a Arrays"
+                          placeholder={t('admin.ai.manual.lessonTitlePlaceholder')}
                           required
                         />
 
-                        <label>Teoría / Explicación</label>
+                        <label>{t('admin.ai.manual.theory')}</label>
                         <textarea
                           value={manualLessonForm.theory}
                           onChange={(e) => setManualLessonForm(prev => ({ ...prev, theory: e.target.value }))}
-                          placeholder="Describe los conceptos clave de la lección..."
+                          placeholder={t('admin.ai.manual.theoryPlaceholder')}
                           rows={6}
                           required
                         />
 
-                        <label>Ejemplo de código (opcional)</label>
+                        <label>{t('admin.ai.manual.codeExample')}</label>
                         <textarea
                           value={manualLessonForm.codeExample}
                           onChange={(e) => setManualLessonForm(prev => ({ ...prev, codeExample: e.target.value }))}
@@ -1609,7 +1605,7 @@ function InstructorDashboardPage() {
                           t={t}
                         />
 
-                        <label>Nivel de dificultad</label>
+                        <label>{t('admin.ai.field.level')}</label>
                         <select
                           value={manualLessonForm.level}
                           onChange={(e) => setManualLessonForm(prev => ({ ...prev, level: e.target.value }))}
@@ -1619,18 +1615,18 @@ function InstructorDashboardPage() {
                           <option value="advanced">{t('admin.ai.level.advanced')}</option>
                         </select>
 
-                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>📝 Ejercicio de la Lección</h4>
+                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>{t('admin.ai.manual.exerciseSection')}</h4>
 
-                        <label>Consigna del ejercicio</label>
+                        <label>{t('admin.ai.manual.exercisePrompt')}</label>
                         <textarea
                           value={manualLessonForm.exercisePrompt}
                           onChange={(e) => setManualLessonForm(prev => ({ ...prev, exercisePrompt: e.target.value }))}
-                          placeholder="Instrucciones del ejercicio para el alumno..."
+                          placeholder={t('admin.ai.manual.exercisePromptPlaceholder')}
                           rows={4}
                           required
                         />
 
-                        <label>Código inicial (base)</label>
+                        <label>{t('admin.ai.manual.baseCode')}</label>
                         <textarea
                           value={manualLessonForm.exerciseStarterCode}
                           onChange={(e) => setManualLessonForm(prev => ({ ...prev, exerciseStarterCode: e.target.value }))}
@@ -1639,7 +1635,7 @@ function InstructorDashboardPage() {
                           style={{ fontFamily: 'monospace' }}
                         />
 
-                        <label>Código solución</label>
+                        <label>{t('admin.ai.manual.solutionCode')}</label>
                         <textarea
                           value={manualLessonForm.exerciseSolutionCode}
                           onChange={(e) => setManualLessonForm(prev => ({ ...prev, exerciseSolutionCode: e.target.value }))}
@@ -1648,12 +1644,12 @@ function InstructorDashboardPage() {
                           style={{ fontFamily: 'monospace' }}
                         />
 
-                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>🧪 Casos de Prueba</h4>
+                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>{t('admin.ai.manual.testCases')}</h4>
                         
                         {manualLessonForm.testCases.map((tc, idx) => (
                           <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem', position: 'relative' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                              <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Caso #{idx + 1}</span>
+                              <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{t('admin.ai.manual.caseLabel', { index: idx + 1 })}</span>
                               {manualLessonForm.testCases.length > 1 && (
                                 <button
                                   type="button"
@@ -1661,24 +1657,24 @@ function InstructorDashboardPage() {
                                   style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                                   onClick={() => removeManualLessonTestCase(idx)}
                                 >
-                                  ✕
+                                  x
                                 </button>
                               )}
                             </div>
-                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Entrada (input)</label>
+                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>{t('admin.ai.manual.inputLabel')}</label>
                             <input
                               type="text"
                               value={tc.input}
                               onChange={(e) => handleManualLessonTestCaseChange(idx, 'input', e.target.value)}
-                              placeholder='Ej. "hola" o vacío'
+                              placeholder={t('admin.ai.manual.emptyInputPlaceholder')}
                               style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', marginBottom: '0.5rem' }}
                             />
-                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Salida esperada</label>
+                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>{t('admin.ai.manual.expectedOutputLabel')}</label>
                             <input
                               type="text"
                               value={tc.expectedOutput}
                               onChange={(e) => handleManualLessonTestCaseChange(idx, 'expectedOutput', e.target.value)}
-                              placeholder="Ej. 123 o true"
+                              placeholder={t('admin.ai.manual.expectedOutputPlaceholder')}
                               style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', marginBottom: 0 }}
                               required
                             />
@@ -1691,7 +1687,7 @@ function InstructorDashboardPage() {
                           style={{ width: '100%', padding: '0.45rem', fontSize: '0.8rem', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }}
                           onClick={addManualLessonTestCase}
                         >
-                          + Agregar caso de prueba
+                          {t('admin.ai.manual.addTestCase')}
                         </button>
 
                         <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
@@ -1704,25 +1700,25 @@ function InstructorDashboardPage() {
 
                     {aiActiveTab === 'exercise' && (
                       <form className="ai-admin-form" onSubmit={handleManualSubmit}>
-                        <label>Nombre del ejercicio</label>
+                        <label>{t('admin.ai.manual.exerciseName')}</label>
                         <input
                           type="text"
                           value={manualExerciseForm.concept}
                           onChange={(e) => setManualExerciseForm(prev => ({ ...prev, concept: e.target.value }))}
-                          placeholder="Ej. Suma de Elementos"
+                          placeholder={t('admin.ai.manual.exerciseNamePlaceholder')}
                           required
                         />
 
-                        <label>Descripción del ejercicio</label>
+                        <label>{t('admin.ai.manual.exerciseDescription')}</label>
                         <textarea
                           value={manualExerciseForm.prompt}
                           onChange={(e) => setManualExerciseForm(prev => ({ ...prev, prompt: e.target.value }))}
-                          placeholder="Describe el reto a solucionar..."
+                          placeholder={t('admin.ai.manual.solveChallengePlaceholder')}
                           rows={6}
                           required
                         />
 
-                        <label>Código inicial (base)</label>
+                        <label>{t('admin.ai.manual.baseCode')}</label>
                         <textarea
                           value={manualExerciseForm.starterCode}
                           onChange={(e) => setManualExerciseForm(prev => ({ ...prev, starterCode: e.target.value }))}
@@ -1731,7 +1727,7 @@ function InstructorDashboardPage() {
                           style={{ fontFamily: 'monospace' }}
                         />
 
-                        <label>Código solución</label>
+                        <label>{t('admin.ai.manual.solutionCode')}</label>
                         <textarea
                           value={manualExerciseForm.solutionCode}
                           onChange={(e) => setManualExerciseForm(prev => ({ ...prev, solutionCode: e.target.value }))}
@@ -1753,7 +1749,7 @@ function InstructorDashboardPage() {
                           t={t}
                         />
 
-                        <label>Nivel de dificultad</label>
+                        <label>{t('admin.ai.field.level')}</label>
                         <select
                           value={manualExerciseForm.difficulty}
                           onChange={(e) => setManualExerciseForm(prev => ({ ...prev, difficulty: e.target.value }))}
@@ -1763,12 +1759,12 @@ function InstructorDashboardPage() {
                           <option value="hard">{t('admin.ai.difficulty.hard')}</option>
                         </select>
 
-                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>🧪 Casos de Prueba</h4>
+                        <h4 style={{ margin: '1.5rem 0 0.5rem', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '0.25rem', fontSize: '0.9rem', color: '#10b981' }}>{t('admin.ai.manual.testCases')}</h4>
 
                         {manualExerciseForm.testCases.map((tc, idx) => (
                           <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem', position: 'relative' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                              <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Caso #{idx + 1}</span>
+                              <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{t('admin.ai.manual.caseLabel', { index: idx + 1 })}</span>
                               {manualExerciseForm.testCases.length > 1 && (
                                 <button
                                   type="button"
@@ -1776,24 +1772,24 @@ function InstructorDashboardPage() {
                                   style={{ padding: '2px 6px', fontSize: '0.75rem' }}
                                   onClick={() => removeManualExerciseTestCase(idx)}
                                 >
-                                  ✕
+                                  x
                                 </button>
                               )}
                             </div>
-                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Entrada (input)</label>
+                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>{t('admin.ai.manual.inputLabel')}</label>
                             <input
                               type="text"
                               value={tc.input}
                               onChange={(e) => handleManualExerciseTestCaseChange(idx, 'input', e.target.value)}
-                              placeholder='Ej. "hola" o vacío'
+                              placeholder={t('admin.ai.manual.emptyInputPlaceholder')}
                               style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', marginBottom: '0.5rem' }}
                             />
-                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>Salida esperada</label>
+                            <label style={{ fontSize: '0.75rem', marginTop: 0 }}>{t('admin.ai.manual.expectedOutputLabel')}</label>
                             <input
                               type="text"
                               value={tc.expectedOutput}
                               onChange={(e) => handleManualExerciseTestCaseChange(idx, 'expectedOutput', e.target.value)}
-                              placeholder="Ej. 123 o true"
+                              placeholder={t('admin.ai.manual.expectedOutputPlaceholder')}
                               style={{ fontSize: '0.8rem', padding: '0.35rem 0.5rem', marginBottom: 0 }}
                               required
                             />
@@ -1806,7 +1802,7 @@ function InstructorDashboardPage() {
                           style={{ width: '100%', padding: '0.45rem', fontSize: '0.8rem', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }}
                           onClick={addManualExerciseTestCase}
                         >
-                          + Agregar caso de prueba
+                          {t('admin.ai.manual.addTestCase')}
                         </button>
 
                         <div className="ai-admin-actions" style={{ marginTop: '1rem' }}>
@@ -1821,7 +1817,7 @@ function InstructorDashboardPage() {
               </div>
 
               <div className="instructor-ai-preview-panel">
-                <h3>� Vista previa del contenido</h3>
+                <h3>{t('admin.ai.manual.previewTitle')}</h3>
                 <div className="instructor-ai-output-container">
                   {aiActiveTab === 'lesson' && (
                     <GeneratedContentCard
@@ -1941,7 +1937,7 @@ function InstructorDashboardPage() {
                       }}
                       style={{ marginBottom: '0.75rem' }}
                     >
-                      <option value="">{t('common.select') || 'Seleccionar clase...'}</option>
+                      <option value="">{t('admin.ai.publish.selectClass')}</option>
                       {classes.map((item) => (
                         <option key={item.id} value={item.id}>
                           {item.name}
@@ -1950,14 +1946,14 @@ function InstructorDashboardPage() {
                     </select>
 
                     <label style={{ fontSize: '0.8rem', opacity: 0.8 }}>
-                      {t('admin.ai.publish.selectTarget') || 'Publicar en ruta:'} ({t('common.optional') || 'opcional'})
+                      {t('admin.ai.publish.instructorTargetLabel')} ({t('common.optional')})
                     </label>
                     <select
                       value={publishTargetPathId}
                       onChange={(e) => setPublishTargetPathId(e.target.value)}
                       style={{ marginBottom: 0 }}
                     >
-                      <option value="">{t('common.select') || 'Sin ruta (auto)'}</option>
+                      <option value="">{t('admin.ai.publish.classAutoPath')}</option>
                       {analytics?.assigned_paths?.map(path => (
                         <option key={path.id} value={path.learning_path_id}>{path.name}</option>
                       ))}
@@ -1972,7 +1968,7 @@ function InstructorDashboardPage() {
                       onClick={handlePublishValidatedContent}
                       disabled={publishingContent || !validationResult.approved || !selectedClassId}
                     >
-                      {publishingContent ? '...' : t('admin.ai.action.publish') || 'Publicar a mi clase'}
+                      {publishingContent ? '...' : t('admin.ai.action.publish')}
                     </Button>
                   </div>
                 </div>

@@ -104,7 +104,7 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
     <section className="dashboard-classes" id="dashboard-my-classes">
       {normalizedClasses.length === 0 ? (
         <div className="empty-state dashboard-classes-empty">
-          <span className="empty-state__icon" aria-hidden="true">🏫</span>
+          <span className="empty-state__icon" aria-hidden="true">CQ</span>
           <h3>{t('dashboard.classes.emptyTitle')}</h3>
           <p>{t('dashboard.classes.emptyDescription')}</p>
         </div>
@@ -128,9 +128,9 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
                     type="button"
                     className="lang-menu-trigger"
                     onClick={(e) => { e.stopPropagation(); setOpenClassMenuId(openClassMenuId === cls.id ? null : cls.id) }}
-                    aria-label="Opciones"
+                    aria-label={t('dashboard.languageOptions')}
                   >
-                    ⋯
+                    ...
                   </button>
                   {openClassMenuId === cls.id && (
                     <div className="lang-card-menu" role="menu">
@@ -138,8 +138,7 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
                         type="button" 
                         className="lang-card-menu__item" 
                         onClick={(e) => { e.stopPropagation(); setSelectedClassId(Number(cls.id)) }}
-                      >
-                        📊 {t('dashboard.classes.viewMyClass')}
+                      >{t('dashboard.classes.viewMyClass')}
                       </button>
                     </div>
                   )}
@@ -149,7 +148,7 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
                     onClick={() => setSelectedClassId(Number(cls.id))}
                     type="button"
                   >
-                    <span className="lang-icon" style={{ fontSize: '2rem' }}>🏫</span>
+                    <span className="lang-icon" style={{ fontSize: '2rem' }}>CQ</span>
                     <strong className="lang-name" style={{ fontSize: '0.9rem', marginBottom: '4px' }}>{cls.name}</strong>
                     
                     <p className="rbac-muted" style={{ fontSize: '0.7rem', margin: '0 0 2px' }}>
@@ -221,7 +220,7 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
                       compact
                       onClick={() => setActivePathId(null)}
                     >
-                      {t('common.showAll') || 'Ver todo'}
+                      {t('common.showAll')}
                     </Button>
                   )}
                 </div>
@@ -248,7 +247,7 @@ export default function StudentClassesGrid({ classes, loading, focusClassId = nu
                             <p className="class-lesson-item__title">{lesson.title}</p>
                             <p className="class-lesson-item__meta">
                               {lesson.learning_path?.name || t('modules.title')}
-                              {lesson.is_ai_assisted ? ` · ${t('modules.aiAssisted')}` : ''}
+                              {lesson.is_ai_assisted ? ` - ${t('modules.aiAssisted')}` : ''}
                             </p>
                           </div>
                           <Button
