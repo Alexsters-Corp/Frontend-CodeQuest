@@ -11,6 +11,7 @@ import TheoryContent from '../components/TheoryContent'
 import CodeViewer from '../components/CodeViewer'
 import { notifyError, notifyInfo, notifyPending } from '../utils/notify'
 import { useLanguage } from '../context/useLanguage'
+import { normalizeExecutionFeedback } from '../utils/executionErrors'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
 
@@ -251,8 +252,9 @@ function DemoLessonPage() {
       const result = await executeDemoCode(executionSource, lessonLanguageId)
       const nextOutput = [...(result.output || [])]
       if (Array.isArray(result.errors) && result.errors.length > 0) {
-        nextOutput.push(...result.errors.map((line) => `[error] ${line}`))
-        notifyError(result.errors[0], { id: 'demo-code-error', rateLimitKey: 'demo-code-error', rateLimitMs: 2200 })
+        const feedback = normalizeExecutionFeedback({ errors: result.errors, t })
+        nextOutput.push(...feedback.consoleLines)
+        notifyError(feedback.toastMessage, { id: 'demo-code-error', rateLimitKey: 'demo-code-error', rateLimitMs: 2200 })
       }
       setConsoleOutput(nextOutput)
     } catch (error) {

@@ -10,6 +10,7 @@ import { executeCode } from '../services/codeExecutionService'
 import { getLessonContent, getLessonSolution, submitLessonExercise, submitLessonSolution } from '../services/learningApi'
 import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
 import { notifyError, notifyInfo } from '../utils/notify'
+import { normalizeExecutionFeedback } from '../utils/executionErrors'
 
 import SidebarLayout from '../components/SidebarLayout'
 import TheoryContent from '../components/TheoryContent'
@@ -330,15 +331,18 @@ function LessonPage() {
     try {
       const result = await executeCode(executionSource, lessonLanguageId)
       const nextOutput = [...(result.output || [])]
+      const executionFeedback = Array.isArray(result.errors) && result.errors.length > 0
+        ? normalizeExecutionFeedback({ errors: result.errors, t })
+        : null
 
-      if (Array.isArray(result.errors) && result.errors.length > 0) {
-        nextOutput.push(...result.errors.map((line) => `[error] ${line}`))
+      if (executionFeedback) {
+        nextOutput.push(...executionFeedback.consoleLines)
       }
 
       setConsoleOutput(nextOutput)
 
-      if (Array.isArray(result.errors) && result.errors.length > 0) {
-        notifyError(result.errors[0], { id: 'lesson-code-error', rateLimitKey: 'lesson-code-error', rateLimitMs: 2200 })
+      if (executionFeedback) {
+        notifyError(executionFeedback.toastMessage, { id: 'lesson-code-error', rateLimitKey: 'lesson-code-error', rateLimitMs: 2200 })
       } else {
         setRunCelebrationTick((prev) => prev + 1)
       }
