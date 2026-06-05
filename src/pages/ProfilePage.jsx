@@ -217,7 +217,16 @@ function ProfilePage() {
     return `https://api.qrserver.com/v1/create-qr-code/?size=360x360&format=svg&margin=0&qzone=2&ecc=H&data=${encodeURIComponent(publicProfileUrl)}`
   }, [publicProfileUrl])
   const languageCards = overview?.languages || []
-  const recentXpEntries = overview?.recentXP || []
+  const recentXpEntries = useMemo(() => {
+    const dayOrder = [0, 1, 2, 3, 4, 5, 6]
+    return [...(overview?.recentXP || [])].sort((left, right) => {
+      const leftDate = new Date(`${left.dia}T00:00:00`)
+      const rightDate = new Date(`${right.dia}T00:00:00`)
+      const leftDay = Number.isNaN(leftDate.getTime()) ? 99 : dayOrder.indexOf(leftDate.getDay())
+      const rightDay = Number.isNaN(rightDate.getTime()) ? 99 : dayOrder.indexOf(rightDate.getDay())
+      return leftDay - rightDay
+    })
+  }, [overview?.recentXP])
   const extraStatsCards = [
     { label: t('dashboard.totalXp'), value: `${formatCompactNumber(profile.totalXp || 0)} XP` },
     { label: t('dashboard.level'), value: formatCompactNumber(profile.currentLevel || 1) },
@@ -293,10 +302,10 @@ function ProfilePage() {
                   <div className="profile-page-hero__copy">
                     <div className="profile-page-hero__headline">
                       <h1>{profile.username || t('profile.notSet')}</h1>
-                      <div className="profile-page-hero__mini-metrics">
-                        <span>
+                      <div className="profile-page-hero__mini-metrics profile-page-hero__mini-metrics--streak" data-streak-label={t('profile.streakActiveLabel')}>
+                        <span data-streak-label={t('profile.streakActiveLabel')}>
                           <span className={streakEmojiClass}>🔥</span>
-                          {t('dashboard.days', { count: streakCount })}
+                          <strong>{t('dashboard.days', { count: streakCount })}</strong>
                         </span>
                         <span>{t('ranking.levelLabel', { value: profile.currentLevel || 1 })}</span>
                       </div>
@@ -359,8 +368,8 @@ function ProfilePage() {
                     </div>
                   </div>
                   <p className="profile-page-hero__progress-copy">{t('profile.nextLevelProgress')}</p>
-                  <div className="profile-page-hero__progress-meta">
-                    <span>{profile.totalXp?.toLocaleString() || 0} XP</span>
+                  <div className="profile-page-hero__progress-heading">
+                    <span>{t('ranking.levelLabel', { value: profile.currentLevel || 1 })}</span>
                     <span>{t('profile.nextLevelLabel')}</span>
                   </div>
                   <div className="profile-page-hero__progress">
@@ -528,9 +537,9 @@ function ProfilePage() {
                     <img src={qrCodeUrl} alt={t('profile.shareQrAlt', { username: profile.username || t('profile.notSet') })} />
                   ) : null}
                   <div className="profile-share-modal__qr-signature" aria-hidden="true">
-                    <span className="profile-share-modal__qr-signature-left">{'<'}</span>
-                    <span className="profile-share-modal__qr-signature-slash">{'/'}</span>
-                    <span className="profile-share-modal__qr-signature-right">{'>'}</span>
+                    <span className="profile-share-modal__qr-signature-left">{'</'}</span>
+                    <span className="profile-share-modal__qr-signature-slash">Code</span>
+                    <span className="profile-share-modal__qr-signature-right">{'Quest>'}</span>
                   </div>
                 </div>
               </div>
