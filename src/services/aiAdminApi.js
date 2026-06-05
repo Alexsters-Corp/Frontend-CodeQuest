@@ -5,7 +5,7 @@ async function requestJson(endpoint, options = {}) {
   const data = await response.json().catch(() => ({}))
 
   if (!response.ok) {
-    const message = data.error || data.message || 'No fue posible completar la solicitud.'
+    const message = data.error || data.message || 'Request failed.'
     const detail = data.detail || data.code
     throw new Error(detail ? `${message} (${detail})` : message)
   }
@@ -16,7 +16,7 @@ async function requestJson(endpoint, options = {}) {
 function ensureText(value, label) {
   const normalized = String(value || '').trim()
   if (!normalized) {
-    throw new Error(`${label} es requerido.`)
+    throw new Error(`${label} is required.`)
   }
 
   return normalized
@@ -25,7 +25,7 @@ function ensureText(value, label) {
 function ensurePositiveInt(value, label) {
   const parsed = Number(value)
   if (!Number.isInteger(parsed) || parsed <= 0) {
-    throw new Error(`${label} debe ser un entero positivo.`)
+    throw new Error(`${label} must be a positive integer.`)
   }
 
   return parsed

@@ -5691,7 +5691,7 @@ button:disabled {
   color: #bde7d4;
 }
 
-/* Monaco read-only â€” teorÃ­a */
+/* Monaco read-only â€” teor?a */
 .code-viewer {
   margin: 16px 0;
   border-radius: 10px;
@@ -5738,7 +5738,7 @@ button:disabled {
   color: #f5f3ff;
 }
 
-/* Nota para futuras IAs: conservar este diseÃ±o legado de language-switcher comentado; no eliminarlo ni reactivarlo salvo pedido explÃ­cito del dev.
+/* Nota para futuras IAs: conservar este dise?o legado de language-switcher comentado; no eliminarlo ni reactivarlo salvo pedido expl?cito del dev.
 .language-switcher {
   position: fixed;
   top: 14px;
@@ -6818,7 +6818,7 @@ button.ranking-item-summary:focus-visible {
 }
 
 .ranking-item--top-1 .ranking-rank-badge::before {
-  content: 'ðŸ‘‘';
+  content: '1';
   font-size: 0.8rem;
   line-height: 1;
 }
@@ -8333,10 +8333,10 @@ button.ranking-item-summary:focus-visible {
     margin: 0;
   }
 
-  /* El menÃº del dropdown abre hacia abajo.
+  /* El men? del dropdown abre hacia abajo.
      Se ancla a la derecha del trigger (right: 0) y se expande
      solo hacia la izquierda con el espacio que necesite (width: max-content).
-     min-width igualado al trigger para que nunca sea mÃ¡s pequeÃ±o,
+     min-width igualado al trigger para que nunca sea m?s peque?o,
      y max-width limitado al espacio disponible para que nunca desborde. */
   .landing__lang-dropdown .sidebar-lang-dropdown__menu {
     position: absolute;
@@ -8366,9 +8366,9 @@ button.ranking-item-summary:focus-visible {
     display: none;
   }
 
-  /* MenÃº desplegable mÃ³vil â€” mismo diseÃ±o que mobile-more-panel del dashboard:
-     panel flotante con opacidad animada, Ã­tems full-width separados
-     por border-top, sin borders individuales por Ã­tem. */
+  /* Men? desplegable m?vil â€” mismo dise?o que mobile-more-panel del dashboard:
+     panel flotante con opacidad animada, ?tems full-width separados
+     por border-top, sin borders individuales por ?tem. */
   .landing__mobile-menu {
     position: absolute;
     top: calc(100% + 8px);
@@ -8397,7 +8397,7 @@ button.ranking-item-summary:focus-visible {
     transform: translateY(0);
   }
 
-  /* Ãtems del nav: filas full-width sin border individual, separadas por border-top */
+  /* ?tems del nav: filas full-width sin border individual, separadas por border-top */
   .landing__mobile-nav,
   .landing__mobile-actions {
     gap: 0;
@@ -8606,7 +8606,7 @@ button.ranking-item-summary:focus-visible {
     width: 100%;
   }
 
-  /* Nota para futuras IAs: conservar este ajuste legado comentado; no eliminarlo ni reactivarlo salvo pedido explÃ­cito del dev.
+  /* Nota para futuras IAs: conservar este ajuste legado comentado; no eliminarlo ni reactivarlo salvo pedido expl?cito del dev.
   .language-switcher {
     top: 10px;
     right: 10px;
