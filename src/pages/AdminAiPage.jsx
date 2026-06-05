@@ -9,37 +9,13 @@ import SidebarLayout from '../components/SidebarLayout'
 import Button from '../components/ui/Button'
 import { useLanguage } from '../context/useLanguage'
 import { generateExercise, generateLesson, listPublishTargets, publishContent, validateContent } from '../services/aiAdminApi'
+import { CONTENT_MODEL_OPTIONS, JUDGE0_LANGUAGE_OPTIONS, getAiLanguageLabel, getJudge0LanguageOption, getMonacoFromJudge0Id, sortPublishTargetPaths } from '../utils/aiToolOptions'
 import { notifyError, notifySuccess } from '../utils/notify'
 
 const MotionArticle = motion.article
 const MotionDiv = motion.div
 const AI_MODEL_LABEL = 'llama-3.3-70b-versatile'
 const RECOMMENDED_MODEL = 'llama-3.3-70b-versatile'
-
-const CONTENT_MODEL_OPTIONS = Object.freeze([
-  {
-    id: 'llama-3.3-70b-versatile',
-    labelKey: 'admin.ai.model.llama33',
-  },
-  {
-    id: 'llama-4-scout',
-    labelKey: 'admin.ai.model.llama4Scout',
-  },
-  {
-    id: 'qwen-qwq-32b',
-    labelKey: 'admin.ai.model.qwen',
-  },
-])
-
-const JUDGE0_LANGUAGE_OPTIONS = Object.freeze([
-  { id: 63, labelKey: 'admin.ai.language.javascript', monaco: 'javascript', icon: '🟨' },
-  { id: 71, labelKey: 'admin.ai.language.python3', monaco: 'python', icon: '🐍' },
-  { id: 62, labelKey: 'admin.ai.language.java', monaco: 'java', icon: '☕' },
-  { id: 54, labelKey: 'admin.ai.language.cpp', monaco: 'cpp', icon: '⚙️' },
-  { id: 51, labelKey: 'admin.ai.language.csharp', monaco: 'csharp', icon: '🟦' },
-  { id: 60, labelKey: 'admin.ai.language.go', monaco: 'go', icon: '🐹' },
-  { id: 72, labelKey: 'admin.ai.language.ruby', monaco: 'ruby', icon: '💎' },
-])
 
 const GUIDE_TYPES = Object.freeze({
   lesson: 'lesson',
@@ -49,13 +25,6 @@ const GUIDE_TYPES = Object.freeze({
   exerciseManual: 'exerciseManual',
 })
 
-const AUTO_CREATE_TARGET = 'auto'
-
-const APP_LEVEL_TO_PATH_LEVEL = Object.freeze({
-  beginner: 'principiante',
-  intermediate: 'intermedio',
-  advanced: 'avanzado',
-})
 
 function formatJson(payload) {
   if (!payload) {
@@ -83,15 +52,6 @@ function useDelayedVisible(active, delayMs = 2000) {
   }, [active, delayMs])
 
   return active && visible
-}
-
-function monacoFromJudge0Id(languageId) {
-  return JUDGE0_LANGUAGE_OPTIONS.find((option) => option.id === Number(languageId))?.monaco || 'plaintext'
-}
-
-function getLanguageLabel(languageId, t) {
-  const option = JUDGE0_LANGUAGE_OPTIONS.find((item) => item.id === Number(languageId))
-  return option ? `${option.id} — ${t(option.labelKey)}` : String(languageId || '')
 }
 
 function normalizeDifficultyLevel(value) {
@@ -137,17 +97,31 @@ function scoreTone(score) {
 
 function getTargetPathsForLanguage(targets, languageId) {
   const target = targets.find((item) => Number(item.judge0LanguageId) === Number(languageId))
-  return target?.paths || []
+  return sortPublishTargetPaths(target?.paths || [])
 }
 
 function normalizePublishTargetId(value) {
-  if (value === AUTO_CREATE_TARGET) return null
   const numeric = Number(value)
   return Number.isInteger(numeric) && numeric > 0 ? numeric : null
 }
 
-function getPathLevelForLesson(level) {
-  return APP_LEVEL_TO_PATH_LEVEL[normalizeDifficultyLevel(level)] || 'principiante'
+function LanguageSelect({ id, value, onChange, t }) {
+  const selected = getJudge0LanguageOption(value)
+
+  return (
+    <div className="ai-language-select">
+      <span className="ai-language-select__logo" aria-hidden="true">
+        <img src={selected.logo} alt="" loading="lazy" />
+      </span>
+      <select id={id} value={value} onChange={onChange}>
+        {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.id} - {t(option.labelKey)}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
 }
 
 function GeneratedContentCard({
@@ -660,7 +634,7 @@ function AdminAiPage() {
   const publishBlockedReason = useMemo(() => {
     if (!validationResult) return ''
     if (!validationContext || !['lesson', 'exercise'].includes(validationContext.type)) return t('admin.ai.publish.generatedOnly')
-    if (!validationContext.learningPathId && validationContext.publishTargetMode !== AUTO_CREATE_TARGET) {
+    if (!validationContext.learningPathId) {
       return t('admin.ai.publish.targetRequired')
     }
     if (!validationResult.approved || validationScore < 80) return t('admin.ai.validation.publishDisabled')
@@ -757,7 +731,7 @@ function AdminAiPage() {
               />
 
               <label htmlFor="ai-language">{t('admin.ai.field.language')}</label>
-              <select
+              <LanguageSelect
                 id="ai-language"
                 value={lessonForm.languageId}
                 onChange={(event) => setLessonForm((previous) => ({
@@ -765,13 +739,8 @@ function AdminAiPage() {
                   languageId: event.target.value,
                   publishTargetPathId: '',
                 }))}
-              >
-                {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.icon} {t(option.labelKey)}
-                  </option>
-                ))}
-              </select>
+                t={t}
+              />
 
               <label htmlFor="ai-level">{t('admin.ai.field.level')}</label>
               <select
@@ -798,15 +767,12 @@ function AdminAiPage() {
                 }))}
                 disabled={publishTargetsLoading}
               >
-                <option value="">{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
+                <option value="" disabled hidden>{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
                 {lessonTargetPaths.map((path) => (
                   <option key={path.id} value={path.id}>
                     {path.name} - {path.difficultyLevel}
                   </option>
                 ))}
-                <option value={AUTO_CREATE_TARGET}>
-                  {t('admin.ai.publish.autoTarget', { level: getPathLevelForLesson(lessonForm.level) })}
-                </option>
               </select>
 
               <label htmlFor="ai-lesson-model">{t('admin.ai.field.model')}</label>
@@ -836,8 +802,8 @@ function AdminAiPage() {
                 result={lessonResult}
                 title={lessonResult?.title || t('admin.ai.lesson.untitled')}
                 difficulty={lessonForm.level}
-                languageLabel={getLanguageLabel(lessonForm.languageId, t)}
-                monacoLanguage={monacoFromJudge0Id(lessonForm.languageId)}
+                languageLabel={getAiLanguageLabel(lessonForm.languageId, t)}
+                monacoLanguage={getMonacoFromJudge0Id(lessonForm.languageId)}
                 model={lessonForm.model}
                 onSendToValidator={sendLessonToValidator}
                 onDiscard={() => setLessonResult(null)}
@@ -882,7 +848,7 @@ function AdminAiPage() {
               </select>
 
               <label htmlFor="ai-language-id">{t('admin.ai.field.languageId')}</label>
-              <select
+              <LanguageSelect
                 id="ai-language-id"
                 value={exerciseForm.languageId}
                 onChange={(event) => setExerciseForm((previous) => ({
@@ -890,13 +856,8 @@ function AdminAiPage() {
                   languageId: event.target.value,
                   publishTargetPathId: '',
                 }))}
-              >
-                {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                  <option key={option.id} value={option.id}>
-                    {option.icon} {t(option.labelKey)}
-                  </option>
-                ))}
-              </select>
+                t={t}
+              />
 
               <label htmlFor="ai-exercise-target">{t('admin.ai.field.publishTarget')}</label>
               <select
@@ -908,17 +869,12 @@ function AdminAiPage() {
                 }))}
                 disabled={publishTargetsLoading}
               >
-                <option value="">{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
+                <option value="" disabled hidden>{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
                 {exerciseTargetPaths.map((path) => (
                   <option key={path.id} value={path.id}>
                     {path.name} - {path.difficultyLevel}
                   </option>
                 ))}
-                <option value={AUTO_CREATE_TARGET}>
-                  {t('admin.ai.publish.autoTarget', {
-                    level: getPathLevelForLesson(normalizeDifficultyLevel(exerciseForm.difficulty)),
-                  })}
-                </option>
               </select>
 
               <label htmlFor="ai-exercise-model">{t('admin.ai.field.model')}</label>
@@ -948,8 +904,8 @@ function AdminAiPage() {
                 result={exerciseResult}
                 title={t('admin.ai.exercise.generatedTitle', { concept: exerciseForm.concept || t('admin.ai.exercise.title') })}
                 difficulty={exerciseForm.difficulty}
-                languageLabel={getLanguageLabel(exerciseForm.languageId, t)}
-                monacoLanguage={monacoFromJudge0Id(exerciseForm.languageId)}
+                languageLabel={getAiLanguageLabel(exerciseForm.languageId, t)}
+                monacoLanguage={getMonacoFromJudge0Id(exerciseForm.languageId)}
                 model={exerciseForm.model}
                 onSendToValidator={sendExerciseToValidator}
                 onDiscard={() => setExerciseResult(null)}

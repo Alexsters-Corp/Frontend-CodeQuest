@@ -82,6 +82,7 @@ describe('StudentClassesPage', () => {
   })
 
   it('shows load error notification when classes request fails', async () => {
+    const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
     listStudentClasses.mockRejectedValueOnce(new Error('fallo al cargar'))
 
     renderPage()
@@ -89,6 +90,9 @@ describe('StudentClassesPage', () => {
     await waitFor(() => {
       expect(notifyError).toHaveBeenCalledWith('fallo al cargar')
     })
+
+    expect(consoleErrorSpy).toHaveBeenCalledWith('Error loading student classes:', expect.any(Error))
+    consoleErrorSpy.mockRestore()
   })
 
   it('joins a class and refreshes classes list', async () => {

@@ -8,21 +8,12 @@ import Navbar from '../components/Navbar'
 import SidebarLayout from '../components/SidebarLayout'
 import { useLanguage } from '../context/useLanguage'
 import { listPublishTargets, publishContent, validateContent } from '../services/aiAdminApi'
+import { JUDGE0_LANGUAGE_OPTIONS, getAiLanguageLabel, getJudge0LanguageOption, getMonacoFromJudge0Id, sortPublishTargetPaths } from '../utils/aiToolOptions'
 import { notifyError, notifySuccess } from '../utils/notify'
 
 const MotionArticle = motion.article
 const MotionDiv = motion.div
 const AI_MODEL_LABEL = 'manual-admin'
-
-const JUDGE0_LANGUAGE_OPTIONS = Object.freeze([
-  { id: 63, labelKey: 'admin.ai.language.javascript', monaco: 'javascript', icon: '🟨' },
-  { id: 71, labelKey: 'admin.ai.language.python3', monaco: 'python', icon: '🐍' },
-  { id: 62, labelKey: 'admin.ai.language.java', monaco: 'java', icon: '☕' },
-  { id: 54, labelKey: 'admin.ai.language.cpp', monaco: 'cpp', icon: '⚙️' },
-  { id: 51, labelKey: 'admin.ai.language.csharp', monaco: 'csharp', icon: '🟦' },
-  { id: 60, labelKey: 'admin.ai.language.go', monaco: 'go', icon: '🐹' },
-  { id: 72, labelKey: 'admin.ai.language.ruby', monaco: 'ruby', icon: '💎' },
-])
 
 const GUIDE_TYPES = Object.freeze({
   lessonManual: 'lessonManual',
@@ -30,26 +21,10 @@ const GUIDE_TYPES = Object.freeze({
   validator: 'validator',
 })
 
-const AUTO_CREATE_TARGET = 'auto'
-
-const APP_LEVEL_TO_PATH_LEVEL = Object.freeze({
-  beginner: 'principiante',
-  intermediate: 'intermedio',
-  advanced: 'avanzado',
-})
 
 function formatJson(payload) {
   if (!payload) return ''
   return JSON.stringify(payload, null, 2)
-}
-
-function monacoFromJudge0Id(languageId) {
-  return JUDGE0_LANGUAGE_OPTIONS.find((option) => option.id === Number(languageId))?.monaco || 'plaintext'
-}
-
-function getLanguageLabel(languageId, t) {
-  const option = JUDGE0_LANGUAGE_OPTIONS.find((item) => item.id === Number(languageId))
-  return option ? `${option.id} — ${t(option.labelKey)}` : String(languageId || '')
 }
 
 function normalizeDifficultyLevel(value) {
@@ -75,20 +50,34 @@ function scoreTone(score) {
 
 function getTargetPathsForLanguage(targets, languageId) {
   const target = targets.find((item) => Number(item.judge0LanguageId) === Number(languageId))
-  return target?.paths || []
+  return sortPublishTargetPaths(target?.paths || [])
 }
 
 function normalizePublishTargetId(value) {
-  if (value === AUTO_CREATE_TARGET) return null
   const numeric = Number(value)
   return Number.isInteger(numeric) && numeric > 0 ? numeric : null
 }
 
-function getPathLevelForLesson(level) {
-  return APP_LEVEL_TO_PATH_LEVEL[normalizeDifficultyLevel(level)] || 'principiante'
+// Reusable Components
+function LanguageSelect({ value, onChange, t }) {
+  const selected = getJudge0LanguageOption(value)
+
+  return (
+    <div className="ai-language-select">
+      <span className="ai-language-select__logo" aria-hidden="true">
+        <img src={selected.logo} alt="" loading="lazy" />
+      </span>
+      <select value={value} onChange={onChange}>
+        {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.id} - {t(option.labelKey)}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
 }
 
-// Reusable Components
 function GeneratedContentCard({ type, result, title, difficulty, languageLabel, monacoLanguage, onSendToValidator, onDiscard, t }) {
   if (!result) return null
   const isLesson = type === 'lesson'
@@ -381,7 +370,7 @@ function AdminManualCreationPage() {
   const publishBlockedReason = useMemo(() => {
     if (!validationResult) return ''
     if (!validationContext) return t('admin.ai.publish.generatedOnly')
-    if (!validationContext.learningPathId && validationContext.publishTargetMode !== AUTO_CREATE_TARGET) return t('admin.ai.publish.targetRequired')
+    if (!validationContext.learningPathId) return t('admin.ai.publish.targetRequired')
     if (!validationResult.approved || validationScore < 80) return t('admin.ai.validation.publishDisabled')
     return ''
   }, [t, validationContext, validationResult, validationScore])
@@ -423,10 +412,8 @@ function AdminManualCreationPage() {
                 <label>{t('admin.ai.manual.codeExample')}</label>
                 <textarea value={manualLessonForm.codeExample} onChange={e => setManualLessonForm(p => ({ ...p, codeExample: e.target.value }))} placeholder="Ej. if (x > 0) { ... }" rows={4} style={{ fontFamily: 'monospace' }} />
 
-                <label>{t('admin.ai.field.language')}</label>
-                <select value={manualLessonForm.languageId} onChange={e => setManualLessonForm(p => ({ ...p, languageId: e.target.value, publishTargetPathId: '' }))}>
-                  {JUDGE0_LANGUAGE_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.icon} {t(o.labelKey)}</option>)}
-                </select>
+                <label>Lenguaje</label>
+                <LanguageSelect value={manualLessonForm.languageId} onChange={e => setManualLessonForm(p => ({ ...p, languageId: e.target.value, publishTargetPathId: '' }))} t={t} />
 
                 <label>{t('admin.ai.field.difficulty')}</label>
                 <select value={manualLessonForm.level} onChange={e => setManualLessonForm(p => ({ ...p, level: e.target.value, publishTargetPathId: '' }))}>
@@ -437,9 +424,8 @@ function AdminManualCreationPage() {
 
                 <label>{t('admin.ai.field.publishTarget')}</label>
                 <select value={manualLessonForm.publishTargetPathId} onChange={e => setManualLessonForm(p => ({ ...p, publishTargetPathId: e.target.value }))} disabled={publishTargetsLoading}>
-                  <option value="">{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
+                  <option value="" disabled hidden>{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
                   {lessonTargetPaths.map(path => <option key={path.id} value={path.id}>{path.name} - {path.difficultyLevel}</option>)}
-                  <option value={AUTO_CREATE_TARGET}>{t('admin.ai.publish.autoTarget', { level: getPathLevelForLesson(manualLessonForm.level) })}</option>
                 </select>
 
                 <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>{t('admin.ai.manual.exerciseSection')}</h4>
@@ -454,19 +440,25 @@ function AdminManualCreationPage() {
 
                 <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>{t('admin.ai.manual.testCases')}</h4>
                 {manualLessonForm.testCases.map((tc, idx) => (
-                  <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{t('admin.ai.manual.caseLabel', { index: idx + 1 })}</span>
-                      <button type="button" className="rbac-revoke-btn" style={{ padding: '2px 6px', fontSize: '0.75rem' }} onClick={() => removeManualLessonTestCase(idx)}>x</button>
+                  <div key={idx} className="manual-test-case">
+                    <div className="manual-test-case__header">
+                      <span>Caso #{idx + 1}</span>
+                      <button type="button" className="rbac-revoke-btn" onClick={() => removeManualLessonTestCase(idx)}>x</button>
                     </div>
-                    <label style={{ fontSize: '0.75rem', marginTop: 0 }}>{t('admin.ai.manual.inputLabel')}</label>
-                    <input type="text" value={tc.input} onChange={e => handleManualLessonTestCaseChange(idx, 'input', e.target.value)} placeholder={t('admin.ai.manual.emptyInputPlaceholder')} style={{ fontSize: '0.8rem', padding: '0.35rem' }} />
-                    <label style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>{t('admin.ai.manual.expectedOutputLabel')}</label>
-                    <input type="text" value={tc.expectedOutput} onChange={e => handleManualLessonTestCaseChange(idx, 'expectedOutput', e.target.value)} placeholder={t('admin.ai.manual.expectedOutputPlaceholder')} style={{ fontSize: '0.8rem', padding: '0.35rem' }} required />
+                    <div className="manual-test-case__grid">
+                      <label>
+                        <span>Input</span>
+                        <input type="text" value={tc.input} onChange={e => handleManualLessonTestCaseChange(idx, 'input', e.target.value)} placeholder='Ej. "hola" o vacio' />
+                      </label>
+                      <label>
+                        <span>Expected Output</span>
+                        <input type="text" value={tc.expectedOutput} onChange={e => handleManualLessonTestCaseChange(idx, 'expectedOutput', e.target.value)} placeholder="Salida esperada" required />
+                      </label>
+                    </div>
                   </div>
                 ))}
 
-                <button type="button" className="rbac-btn-secondary" style={{ width: '100%', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }} onClick={addManualLessonTestCase}>{t('admin.ai.manual.addCase')}</button>
+                <button type="button" className="rbac-btn-secondary" style={{ width: '100%', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }} onClick={addManualLessonTestCase}>{t('admin.ai.manual.addTestCase')}</button>
 
                 <div className="ai-admin-actions">
                   <button type="submit" style={{ width: '100%' }}>{t('admin.ai.manual.previewValidate')}</button>
@@ -478,8 +470,8 @@ function AdminManualCreationPage() {
                 result={lessonResult}
                 title={lessonResult?.title || t('admin.ai.lesson.untitled')}
                 difficulty={manualLessonForm.level}
-                languageLabel={getLanguageLabel(manualLessonForm.languageId, t)}
-                monacoLanguage={monacoFromJudge0Id(manualLessonForm.languageId)}
+                languageLabel={getAiLanguageLabel(manualLessonForm.languageId, t)}
+                monacoLanguage={getMonacoFromJudge0Id(manualLessonForm.languageId)}
                 onSendToValidator={() => sendToValidator(lessonResult, 'lesson')}
                 onDiscard={() => setLessonResult(null)}
                 t={t}
@@ -506,10 +498,8 @@ function AdminManualCreationPage() {
                 <label>{t('admin.ai.manual.solutionCode')}</label>
                 <textarea value={manualExerciseForm.solutionCode} onChange={e => setManualExerciseForm(p => ({ ...p, solutionCode: e.target.value }))} placeholder={t('admin.ai.manual.solutionPlaceholder')} rows={4} style={{ fontFamily: 'monospace' }} />
 
-                <label>{t('admin.ai.field.language')}</label>
-                <select value={manualExerciseForm.languageId} onChange={e => setManualExerciseForm(p => ({ ...p, languageId: e.target.value, publishTargetPathId: '' }))}>
-                  {JUDGE0_LANGUAGE_OPTIONS.map(o => <option key={o.id} value={o.id}>{o.icon} {t(o.labelKey)}</option>)}
-                </select>
+                <label>Lenguaje</label>
+                <LanguageSelect value={manualExerciseForm.languageId} onChange={e => setManualExerciseForm(p => ({ ...p, languageId: e.target.value, publishTargetPathId: '' }))} t={t} />
 
                 <label>{t('admin.ai.field.difficulty')}</label>
                 <select value={manualExerciseForm.difficulty} onChange={e => setManualExerciseForm(p => ({ ...p, difficulty: e.target.value, publishTargetPathId: '' }))}>
@@ -520,26 +510,31 @@ function AdminManualCreationPage() {
 
                 <label>{t('admin.ai.field.publishTarget')}</label>
                 <select value={manualExerciseForm.publishTargetPathId} onChange={e => setManualExerciseForm(p => ({ ...p, publishTargetPathId: e.target.value }))} disabled={publishTargetsLoading}>
-                  <option value="">{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
+                  <option value="" disabled hidden>{publishTargetsLoading ? t('admin.ai.publish.loadingTargets') : t('admin.ai.publish.selectTarget')}</option>
                   {exerciseTargetPaths.map(path => <option key={path.id} value={path.id}>{path.name} - {path.difficultyLevel}</option>)}
-                  <option value={AUTO_CREATE_TARGET}>{t('admin.ai.publish.autoTarget', { level: getPathLevelForLesson(normalizeDifficultyLevel(manualExerciseForm.difficulty)) })}</option>
                 </select>
 
                 <h4 style={{ margin: '1.5rem 0 0.5rem', color: '#10b981' }}>{t('admin.ai.manual.testCases')}</h4>
                 {manualExerciseForm.testCases.map((tc, idx) => (
-                  <div key={idx} style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '8px', padding: '0.75rem', marginBottom: '0.75rem' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                      <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>{t('admin.ai.manual.caseLabel', { index: idx + 1 })}</span>
-                      <button type="button" className="rbac-revoke-btn" style={{ padding: '2px 6px', fontSize: '0.75rem' }} onClick={() => removeManualExerciseTestCase(idx)}>x</button>
+                  <div key={idx} className="manual-test-case">
+                    <div className="manual-test-case__header">
+                      <span>Caso #{idx + 1}</span>
+                      <button type="button" className="rbac-revoke-btn" onClick={() => removeManualExerciseTestCase(idx)}>x</button>
                     </div>
-                    <label style={{ fontSize: '0.75rem', marginTop: 0 }}>{t('admin.ai.manual.inputLabel')}</label>
-                    <input type="text" value={tc.input} onChange={e => handleManualExerciseTestCaseChange(idx, 'input', e.target.value)} placeholder={t('admin.ai.manual.emptyInputPlaceholder')} style={{ fontSize: '0.8rem', padding: '0.35rem' }} />
-                    <label style={{ fontSize: '0.75rem', marginTop: '0.5rem' }}>{t('admin.ai.manual.expectedOutputLabel')}</label>
-                    <input type="text" value={tc.expectedOutput} onChange={e => handleManualExerciseTestCaseChange(idx, 'expectedOutput', e.target.value)} placeholder={t('admin.ai.manual.expectedOutputPlaceholder')} style={{ fontSize: '0.8rem', padding: '0.35rem' }} required />
+                    <div className="manual-test-case__grid">
+                      <label>
+                        <span>Input</span>
+                        <input type="text" value={tc.input} onChange={e => handleManualExerciseTestCaseChange(idx, 'input', e.target.value)} placeholder='Ej. "hola" o vacio' />
+                      </label>
+                      <label>
+                        <span>Expected Output</span>
+                        <input type="text" value={tc.expectedOutput} onChange={e => handleManualExerciseTestCaseChange(idx, 'expectedOutput', e.target.value)} placeholder="Salida esperada" required />
+                      </label>
+                    </div>
                   </div>
                 ))}
 
-                <button type="button" className="rbac-btn-secondary" style={{ width: '100%', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }} onClick={addManualExerciseTestCase}>{t('admin.ai.manual.addCase')}</button>
+                <button type="button" className="rbac-btn-secondary" style={{ width: '100%', marginBottom: '1.5rem', border: '1px dashed rgba(255,255,255,0.15)' }} onClick={addManualExerciseTestCase}>{t('admin.ai.manual.addTestCase')}</button>
 
                 <div className="ai-admin-actions">
                   <button type="submit" style={{ width: '100%' }}>{t('admin.ai.manual.previewValidate')}</button>
@@ -551,8 +546,8 @@ function AdminManualCreationPage() {
                 result={exerciseResult}
                 title={t('admin.ai.exercise.generatedTitle', { concept: manualExerciseForm.concept || t('admin.ai.exercise.title') })}
                 difficulty={manualExerciseForm.difficulty}
-                languageLabel={getLanguageLabel(manualExerciseForm.languageId, t)}
-                monacoLanguage={monacoFromJudge0Id(manualExerciseForm.languageId)}
+                languageLabel={getAiLanguageLabel(manualExerciseForm.languageId, t)}
+                monacoLanguage={getMonacoFromJudge0Id(manualExerciseForm.languageId)}
                 onSendToValidator={() => sendToValidator(exerciseResult, 'exercise')}
                 onDiscard={() => setExerciseResult(null)}
                 t={t}

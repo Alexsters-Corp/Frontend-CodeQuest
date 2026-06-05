@@ -24,34 +24,10 @@ import {
 } from '../services/rbacApi'
 import { listAvailableLearningPaths } from '../services/learningApi'
 import { generateExercise, generateLesson, validateContent, publishContent } from '../services/aiAdminApi'
+import { CONTENT_MODEL_OPTIONS, JUDGE0_LANGUAGE_OPTIONS, getAiLanguageLabel, getJudge0LanguageOption, getMonacoFromJudge0Id } from '../utils/aiToolOptions'
 import { notifyError, notifyInfo, notifySuccess } from '../utils/notify'
 
 const RECOMMENDED_MODEL = 'llama-3.3-70b-versatile'
-
-const CONTENT_MODEL_OPTIONS = Object.freeze([
-  {
-    id: 'llama-3.3-70b-versatile',
-    labelKey: 'admin.ai.model.llama33',
-  },
-  {
-    id: 'llama-4-scout',
-    labelKey: 'admin.ai.model.llama4Scout',
-  },
-  {
-    id: 'qwen-qwq-32b',
-    labelKey: 'admin.ai.model.qwen',
-  },
-])
-
-const JUDGE0_LANGUAGE_OPTIONS = Object.freeze([
-  { id: 63, labelKey: 'admin.ai.language.javascript', monaco: 'javascript', icon: '🟨' },
-  { id: 71, labelKey: 'admin.ai.language.python3', monaco: 'python', icon: '🐍' },
-  { id: 62, labelKey: 'admin.ai.language.java', monaco: 'java', icon: '☕' },
-  { id: 54, labelKey: 'admin.ai.language.cpp', monaco: 'cpp', icon: '⚙️' },
-  { id: 51, labelKey: 'admin.ai.language.csharp', monaco: 'csharp', icon: '🟦' },
-  { id: 60, labelKey: 'admin.ai.language.go', monaco: 'go', icon: '🐹' },
-  { id: 72, labelKey: 'admin.ai.language.ruby', monaco: 'ruby', icon: '💎' },
-])
 
 const GUIDE_TYPES = Object.freeze({
   lesson: 'lesson',
@@ -67,15 +43,6 @@ const MotionArticle = motion.article
 function formatJson(payload) {
   if (!payload) return ''
   return JSON.stringify(payload, null, 2)
-}
-
-function monacoFromJudge0Id(languageId) {
-  return JUDGE0_LANGUAGE_OPTIONS.find((option) => option.id === Number(languageId))?.monaco || 'plaintext'
-}
-
-function getLanguageLabel(languageId, t) {
-  const option = JUDGE0_LANGUAGE_OPTIONS.find((item) => item.id === Number(languageId))
-  return option ? `${option.id} — ${t(option.labelKey)}` : String(languageId || '')
 }
 
 function normalizeDifficultyLevel(value) {
@@ -96,6 +63,25 @@ function getValidationProgressClass(score) {
   if (score < 60) return 'ai-progress-fill--danger'
   if (score < 80) return 'ai-progress-fill--warning'
   return 'ai-progress-fill--success'
+}
+
+function LanguageSelect({ value, onChange, t }) {
+  const selected = getJudge0LanguageOption(value)
+
+  return (
+    <div className="ai-language-select">
+      <span className="ai-language-select__logo" aria-hidden="true">
+        <img src={selected.logo} alt="" loading="lazy" />
+      </span>
+      <select value={value} onChange={onChange}>
+        {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
+          <option key={option.id} value={option.id}>
+            {option.id} - {t(option.labelKey)}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
 }
 
 function GuideButton({ type, onOpen, t }) {
@@ -1479,20 +1465,14 @@ function InstructorDashboardPage() {
                         />
 
                         <label htmlFor="instructor-ai-language">{t('admin.ai.field.language')}</label>
-                        <select
-                          id="instructor-ai-language"
+                        <LanguageSelect
                           value={lessonForm.languageId}
                           onChange={(event) => setLessonForm((previous) => ({
                             ...previous,
                             languageId: event.target.value,
                           }))}
-                        >
-                          {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.icon} {t(option.labelKey)}
-                            </option>
-                          ))}
-                        </select>
+                          t={t}
+                        />
 
                         <label htmlFor="instructor-ai-level">{t('admin.ai.field.level')}</label>
                         <select
@@ -1553,20 +1533,14 @@ function InstructorDashboardPage() {
                         </select>
 
                         <label htmlFor="instructor-ai-language-id">{t('admin.ai.field.languageId')}</label>
-                        <select
-                          id="instructor-ai-language-id"
+                        <LanguageSelect
                           value={exerciseForm.languageId}
                           onChange={(event) => setExerciseForm((previous) => ({
                             ...previous,
                             languageId: event.target.value,
                           }))}
-                        >
-                          {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.icon} {t(option.labelKey)}
-                            </option>
-                          ))}
-                        </select>
+                          t={t}
+                        />
 
                         <label htmlFor="instructor-ai-exercise-model">{t('admin.ai.field.model')}</label>
                         <select
@@ -1618,8 +1592,8 @@ function InstructorDashboardPage() {
                           style={{ fontFamily: 'monospace' }}
                         />
 
-                        <label>{t('admin.ai.field.language')}</label>
-                        <select
+                        <label>Lenguaje de programación</label>
+                        <LanguageSelect
                           value={manualLessonForm.languageId}
                           onChange={(e) => {
                             const val = e.target.value;
@@ -1628,13 +1602,8 @@ function InstructorDashboardPage() {
                             setExerciseForm(prev => ({ ...prev, languageId: val }));
                             setLessonForm(prev => ({ ...prev, languageId: val }));
                           }}
-                        >
-                          {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.icon} {t(option.labelKey)}
-                            </option>
-                          ))}
-                        </select>
+                          t={t}
+                        />
 
                         <label>{t('admin.ai.field.level')}</label>
                         <select
@@ -1767,8 +1736,8 @@ function InstructorDashboardPage() {
                           style={{ fontFamily: 'monospace' }}
                         />
 
-                        <label>{t('admin.ai.field.language')}</label>
-                        <select
+                        <label>Lenguaje de programación</label>
+                        <LanguageSelect
                           value={manualExerciseForm.languageId}
                           onChange={(e) => {
                             const val = e.target.value;
@@ -1777,13 +1746,8 @@ function InstructorDashboardPage() {
                             setExerciseForm(prev => ({ ...prev, languageId: val }));
                             setLessonForm(prev => ({ ...prev, languageId: val }));
                           }}
-                        >
-                          {JUDGE0_LANGUAGE_OPTIONS.map((option) => (
-                            <option key={option.id} value={option.id}>
-                              {option.icon} {t(option.labelKey)}
-                            </option>
-                          ))}
-                        </select>
+                          t={t}
+                        />
 
                         <label>{t('admin.ai.field.level')}</label>
                         <select
@@ -1861,8 +1825,8 @@ function InstructorDashboardPage() {
                       result={lessonResult}
                       title={lessonResult?.title || t('admin.ai.lesson.untitled')}
                       difficulty={creationMode === 'ai' ? lessonForm.level : manualLessonForm.level}
-                      languageLabel={getLanguageLabel(creationMode === 'ai' ? lessonForm.languageId : manualLessonForm.languageId, t)}
-                      monacoLanguage={monacoFromJudge0Id(creationMode === 'ai' ? lessonForm.languageId : manualLessonForm.languageId)}
+                      languageLabel={getAiLanguageLabel(creationMode === 'ai' ? lessonForm.languageId : manualLessonForm.languageId, t)}
+                      monacoLanguage={getMonacoFromJudge0Id(creationMode === 'ai' ? lessonForm.languageId : manualLessonForm.languageId)}
                       model={creationMode === 'ai' ? lessonForm.model : 'manual'}
                       onSendToValidator={sendLessonToValidator}
                       onDiscard={() => setLessonResult(null)}
@@ -1875,8 +1839,8 @@ function InstructorDashboardPage() {
                       result={exerciseResult}
                       title={t('admin.ai.exercise.generatedTitle', { concept: (creationMode === 'ai' ? exerciseForm.concept : manualExerciseForm.concept) || t('admin.ai.exercise.title') })}
                       difficulty={creationMode === 'ai' ? exerciseForm.difficulty : manualExerciseForm.difficulty}
-                      languageLabel={getLanguageLabel(creationMode === 'ai' ? exerciseForm.languageId : manualExerciseForm.languageId, t)}
-                      monacoLanguage={monacoFromJudge0Id(creationMode === 'ai' ? exerciseForm.languageId : manualExerciseForm.languageId)}
+                      languageLabel={getAiLanguageLabel(creationMode === 'ai' ? exerciseForm.languageId : manualExerciseForm.languageId, t)}
+                      monacoLanguage={getMonacoFromJudge0Id(creationMode === 'ai' ? exerciseForm.languageId : manualExerciseForm.languageId)}
                       model={creationMode === 'ai' ? exerciseForm.model : 'manual'}
                       onSendToValidator={sendExerciseToValidator}
                       onDiscard={() => setExerciseResult(null)}
