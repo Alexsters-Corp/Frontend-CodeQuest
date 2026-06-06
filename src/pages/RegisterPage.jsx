@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { IoMdArrowRoundBack } from 'react-icons/io'
+import LogoCQ from '../components/LogoCQ'
 import { useAuth } from '../context/useAuth'
 import { useLanguage } from '../context/useLanguage'
 import MotionPage from '../components/MotionPage'
@@ -58,7 +60,7 @@ function RegisterPage() {
   }
 
   return (
-    <MotionPage className="auth-page" delay={0.05}>
+    <MotionPage className="auth-page auth-page--register" delay={0.05}>
       <div className="auth-layout auth-layout--register">
         <section className="auth-visual">
           <span className="auth-visual__badge">{t('auth.register.visualBadge')}</span>
@@ -82,9 +84,18 @@ function RegisterPage() {
         </section>
 
         <section className="auth-panel">
+          <div className="auth-panel__topbar">
+            <Link to="/" className="auth-panel__back" aria-label={t('common.backHome')} title={t('common.backHome')}>
+              <IoMdArrowRoundBack />
+            </Link>
+
+            <div className="auth-panel__brand">
+              <LogoCQ height={32} />
+            </div>
+          </div>
+
           <div className="auth-panel__brand">
-            <span>&lt;/&gt;</span>
-            <strong>CodeQuest</strong>
+            <LogoCQ height={34} />
           </div>
 
           <h2>{t('auth.register.title')}</h2>
