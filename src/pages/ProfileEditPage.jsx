@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   IoAtOutline,
+  IoArrowBack,
   IoCheckmarkCircle,
   IoCalendarOutline,
   IoChevronDown,
@@ -301,6 +302,15 @@ function ProfileEditPage() {
         <section className="profile-edit-card profile-edit-card--premium">
           <div className="profile-edit-hero">
             <div className="profile-edit-header">
+              <button
+                type="button"
+                className="profile-edit-header__back"
+                onClick={() => navigate('/profile')}
+                aria-label={t('profile.back')}
+                title={t('profile.back')}
+              >
+                <IoArrowBack />
+              </button>
               <h2>{t('profile.infoTitle')}</h2>
             </div>
           </div>

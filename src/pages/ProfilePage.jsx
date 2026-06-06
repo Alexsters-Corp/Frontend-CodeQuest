@@ -313,7 +313,7 @@ function ProfilePage() {
                     <p className="profile-page-hero__bio">
                       {profile.bio?.trim() || t('profile.noBio')}
                     </p>
-                    <div className="profile-page-hero__meta">
+                    <div className="profile-page-hero__meta profile-page-hero__meta--primary">
                       {profile.countryCode ? (
                         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}>
                           <CountryFlag code={profile.countryCode} label={countryLabel} />
@@ -324,7 +324,7 @@ function ProfilePage() {
                       )}
                       <span className="profile-page-hero__meta-item"><GoPaperclip /> {joinedLabel}</span>
                     </div>
-                    <div className="profile-page-hero__meta">
+                    <div className="profile-page-hero__meta profile-page-hero__meta--secondary">
                       <button type="button" className="profile-page-hero__meta-button" onClick={() => openConnections('followers')}>
                         <span className="profile-page-hero__meta-item"><LuUsersRound /> {t('social.followersCount', { count: followCounts.followers || 0 })}</span>
                       </button>
@@ -544,18 +544,26 @@ function ProfilePage() {
                 </div>
               </div>
               <div className="profile-share-modal__actions">
-                <button type="button" className="profile-follow-btn profile-follow-btn--share" onClick={handleShareProfile}>
-                  <span className="profile-follow-btn__icon" aria-hidden="true">
-                    <FiShare />
-                  </span>
-                  <span>{t('profile.shareAction')}</span>
-                </button>
-                <button type="button" className="profile-follow-btn profile-follow-btn--link" onClick={handleCopyProfileLink}>
-                  <span className="profile-follow-btn__icon" aria-hidden="true">
-                    <FiLink />
-                  </span>
-                  <span>{t('profile.copyLinkAction')}</span>
-                </button>
+                <Button
+                  variant="blue"
+                  size="sm"
+                  compact
+                  icon={<FiShare />}
+                  className="profile-share-modal__action-btn"
+                  onClick={handleShareProfile}
+                >
+                  {t('profile.shareAction')}
+                </Button>
+                <Button
+                  variant="purple"
+                  size="sm"
+                  compact
+                  icon={<FiLink />}
+                  className="profile-share-modal__action-btn"
+                  onClick={handleCopyProfileLink}
+                >
+                  {t('profile.copyLinkAction')}
+                </Button>
               </div>
             </div>
           </div>
