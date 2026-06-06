@@ -61,6 +61,14 @@
   background: transparent;
 }
 
+.sidebar-layout--immersive {
+  gap: 0;
+}
+
+.sidebar-layout--immersive .sidebar-layout__content {
+  width: 100%;
+}
+
 /* ── Sidebar card ── */
 
 .surface-side,
@@ -274,6 +282,26 @@
     overflow-y: visible;
     padding-top: 60px;    /* espacio para header fijo */
     padding-bottom: 92px;
+  }
+
+  .sidebar-layout--immersive .sidebar-layout__content {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .sidebar-layout__content > .lesson-page {
+    min-height: calc(100dvh - 152px);
+    align-items: center;
+    justify-content: center;
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .sidebar-layout--immersive .sidebar-layout__content > .lesson-page,
+  .sidebar-layout--immersive .sidebar-layout__content > .diagnostic-page {
+    min-height: 100dvh;
+    padding-top: 16px;
+    padding-bottom: 16px;
   }
 
   .dashboard-page {

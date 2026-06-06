@@ -5,6 +5,7 @@ import { CiSaveDown1 } from 'react-icons/ci'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
 import MotionPage from '../components/MotionPage'
 import { getDemoLessonContent, submitDemoExercise, executeDemoCode } from '../services/demoApi'
+import { clearSessionAutosaveState, LESSON_AUTOSAVE_DEBOUNCE_MS, loadSessionAutosaveState, saveSessionAutosaveState } from '../utils/lessonAutosave'
 import { buildExecutionSource, normalizeCodeExerciseAnswer } from '../utils/lessonAnswers'
 import { detectLanguageMismatch, getLanguageConfig, getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
 import TheoryContent from '../components/TheoryContent'
@@ -15,46 +16,16 @@ import { normalizeExecutionFeedback } from '../utils/executionErrors'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
 
-const AUTOSAVE_KEY = 'cq:demo:state:v1'
-const AUTOSAVE_DEBOUNCE_MS = 500
-const AUTOSAVE_MAX_AGE_MS = 60 * 60 * 1000 // 1 hora
-
-function loadAutosaveState() {
-  try {
-    const raw = sessionStorage.getItem(AUTOSAVE_KEY)
-    if (!raw) {
-      return null
-    }
-
-    const parsed = JSON.parse(raw)
-    if (!parsed || typeof parsed !== 'object') {
-      return null
-    }
-
-    if (typeof parsed.savedAt !== 'number' || Date.now() - parsed.savedAt > AUTOSAVE_MAX_AGE_MS) {
-      sessionStorage.removeItem(AUTOSAVE_KEY)
-      return null
-    }
-
-    return parsed
-  } catch {
-    return null
-  }
-}
-
-function clearAutosaveState() {
-  try {
-    sessionStorage.removeItem(AUTOSAVE_KEY)
-  } catch {
-    /* ignore */
-  }
-}
+const AUTOSAVE_KEY = 'cq:demo:state:v2'
 
 // Progreso real = ya habia empezado ejercicios, avanzado, o escrito codigo
 function hasRealProgress(saved) {
   if (!saved) return false
   if (saved.currentStep === 'exercise') return true
   if (saved.currentExerciseIdx > 0) return true
+  if (Object.values(saved.selectedAnswerByExercise || {}).some((v) => v !== null && v !== undefined && String(v).trim() !== '')) {
+    return true
+  }
   return Object.values(saved.codeAnswerByExercise || {}).some(
     (v) => typeof v === 'string' && v.trim().length > 0
   )
@@ -71,6 +42,7 @@ function DemoLessonPage() {
   const [currentStep, setCurrentStep] = useState('theory') // theory | exercise
   const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState(null)
+  const [selectedAnswerByExercise, setSelectedAnswerByExercise] = useState({})
   const [codeAnswerByExercise, setCodeAnswerByExercise] = useState({})
   const [consoleOutput, setConsoleOutput] = useState([])
   const [isExecuting, setIsExecuting] = useState(false)
@@ -84,7 +56,7 @@ function DemoLessonPage() {
 
   // Cargar estado autosave antes de montar (una sola vez)
   useEffect(() => {
-    initialAutosaveRef.current = loadAutosaveState()
+    initialAutosaveRef.current = loadSessionAutosaveState(AUTOSAVE_KEY)
   }, [])
 
   const lessonLanguageId = lesson?.lenguaje_id
@@ -128,6 +100,7 @@ function DemoLessonPage() {
         // Restaurar estado guardado si pertenece a la misma leccion
         const saved = initialAutosaveRef.current
         if (saved && Number(saved.lessonId) === Number(data.lessonId)) {
+          setSelectedAnswerByExercise(saved.selectedAnswerByExercise || {})
           setCodeAnswerByExercise(saved.codeAnswerByExercise || {})
           setCurrentExerciseIdx(saved.currentExerciseIdx || 0)
           setCurrentStep(saved.currentStep || 'theory')
@@ -168,32 +141,38 @@ function DemoLessonPage() {
 
     autosaveTimeoutRef.current = setTimeout(() => {
       try {
-        sessionStorage.setItem(
-          AUTOSAVE_KEY,
-          JSON.stringify({
-            lessonId,
-            currentStep,
-            currentExerciseIdx,
-            codeAnswerByExercise,
-            savedAt: Date.now(),
-          })
-        )
+        saveSessionAutosaveState(AUTOSAVE_KEY, {
+          lessonId,
+          currentStep,
+          currentExerciseIdx,
+          selectedAnswerByExercise,
+          codeAnswerByExercise,
+        })
       } catch {
-        /* sessionStorage lleno o deshabilitado, ignoramos */
+        /* ignore */
       }
-    }, AUTOSAVE_DEBOUNCE_MS)
+    }, LESSON_AUTOSAVE_DEBOUNCE_MS)
 
     return () => {
       if (autosaveTimeoutRef.current) {
         clearTimeout(autosaveTimeoutRef.current)
       }
     }
-  }, [lessonId, currentStep, currentExerciseIdx, codeAnswerByExercise, loading])
+  }, [lessonId, currentStep, currentExerciseIdx, selectedAnswerByExercise, codeAnswerByExercise, loading])
 
   const currentExercise = exercises[currentExerciseIdx]
   const currentCodeAnswer = currentExercise
     ? (codeAnswerByExercise[currentExercise.id] ?? currentExercise.codigo_base ?? '')
     : ''
+
+  useEffect(() => {
+    if (!currentExercise) {
+      setSelectedAnswer(null)
+      return
+    }
+
+    setSelectedAnswer(selectedAnswerByExercise[currentExercise.id] ?? null)
+  }, [currentExercise, selectedAnswerByExercise])
 
   const setCurrentCodeAnswer = useCallback(
     (next) => {
@@ -297,7 +276,7 @@ function DemoLessonPage() {
   }
 
   function handleFinishDemo() {
-    clearAutosaveState()
+    clearSessionAutosaveState(AUTOSAVE_KEY)
     navigate(`/demo/complete?language=${encodeURIComponent(selectedLanguageSlug)}`)
   }
 
@@ -424,7 +403,14 @@ function DemoLessonPage() {
                             : ''
                           : ''
                       }`}
-                      onClick={() => !feedback && setSelectedAnswer(opt)}
+                      onClick={() => {
+                        if (feedback) return
+                        setSelectedAnswer(opt)
+                        setSelectedAnswerByExercise((prev) => ({
+                          ...prev,
+                          [currentExercise.id]: opt,
+                        }))
+                      }}
                       type="button"
                       disabled={!!feedback}
                     >
@@ -442,7 +428,6 @@ function DemoLessonPage() {
                       onChange={setCurrentCodeAnswer}
                       language={editorLanguage}
                       languageLabel={editorLanguageLabel}
-                      theme="vs-dark"
                       height="clamp(180px, 28vh, 380px)"
                       readOnly={!!feedback}
                       options={monacoOptions}

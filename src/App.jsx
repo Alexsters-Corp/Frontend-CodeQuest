@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { Navigate, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import { AuthProvider } from './context/AuthContext'
@@ -40,12 +41,6 @@ import DemoLandingPage from './pages/DemoLandingPage'
 import DemoLessonPage from './pages/DemoLessonPage'
 import DemoCompletionPage from './pages/DemoCompletionPage'
 
-const SIDEBAR_ROUTES = [
-  '/dashboard', '/favorites', '/profile', '/ranking',
-  '/social', '/users', '/instructor', '/admin', '/modules',
-  '/lesson', '/diagnostic', '/onboarding', '/dashboard/classes',
-]
-
 function App() {
   return (
     <LanguageProvider>
@@ -59,7 +54,7 @@ function App() {
 function AppContent() {
   const { pathname } = useLocation()
   const { t } = useLanguage()
-  const toastPosition = useToastPosition()
+  const { position: toastPosition, topOffset, bottomOffset } = useToastPosition()
 
   useEffect(() => {
     configureNotifications({
@@ -78,14 +73,20 @@ function AppContent() {
 
   return (
     <>
-        <Toaster
-          position={toastPosition}
-          offset="72px"
-          theme="dark"
-          toastOptions={{
-            className: 'cq-toast',
-          }}
-        />
+        {createPortal(
+          <Toaster
+            position={toastPosition}
+            theme="dark"
+            style={{
+              '--sonner-top-offset': topOffset,
+              '--sonner-bottom-offset': bottomOffset,
+            }}
+            toastOptions={{
+              className: 'cq-toast',
+            }}
+          />,
+          document.body
+        )}
 
         <Routes>
           <Route path="/" element={<HomePage />} />

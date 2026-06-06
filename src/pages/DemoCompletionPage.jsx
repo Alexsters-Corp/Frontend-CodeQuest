@@ -95,6 +95,13 @@ function DemoCompletionPage() {
         <div className="completed-actions">
           <button
             type="button"
+            className="demo__link-btn ui-jitter"
+            onClick={() => navigate('/')}
+          >
+            {t('common.backHome')}
+          </button>
+          <button
+            type="button"
             className="demo__cta-btn ui-jitter"
             onClick={() => navigate('/registro')}
           >

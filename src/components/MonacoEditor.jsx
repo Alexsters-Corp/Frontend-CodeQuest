@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useState } from 'react'
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import PropTypes from 'prop-types'
 import { motion as Motion } from 'framer-motion'
 import Editor from '@monaco-editor/react'
@@ -55,6 +55,10 @@ function MonacoEditor({
 }) {
   const [loaderReady, setLoaderReady] = useState(monacoReady)
   const [loaderError, setLoaderError] = useState(monacoError)
+  const runStateRef = useRef({
+    canRun: false,
+    onRun: null,
+  })
 
   const outputLines = useMemo(() => normalizeConsoleOutput(consoleOutput), [consoleOutput])
 
@@ -65,6 +69,13 @@ function MonacoEditor({
   }), [options, readOnly])
 
   const canRun = typeof onRun === 'function' && !isExecuting && !readOnly
+
+  useEffect(() => {
+    runStateRef.current = {
+      canRun,
+      onRun,
+    }
+  }, [canRun, onRun])
 
   useEffect(() => {
     // Siempre suscribirse: si la promesa ya resolvio, el .then() corre como
@@ -88,15 +99,25 @@ function MonacoEditor({
   }, [onEditorError])
 
   const handleEditorMount = useCallback((editor, monaco) => {
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
-      if (canRun && onRun) {
-        onRun(editor.getValue())
+    const runFromEditor = () => {
+      const { canRun: currentCanRun, onRun: currentOnRun } = runStateRef.current
+      if (currentCanRun && typeof currentOnRun === 'function') {
+        currentOnRun(editor.getValue())
+      }
+    }
+
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, runFromEditor)
+    editor.onKeyDown((event) => {
+      if ((event.ctrlKey || event.metaKey) && event.keyCode === monaco.KeyCode.Enter) {
+        event.preventDefault()
+        event.stopPropagation()
+        runFromEditor()
       }
     })
     editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyA, () => {
       editor.setSelection(editor.getModel().getFullModelRange())
     })
-  }, [canRun, onRun])
+  }, [])
 
   const handleEditorChange = useCallback((nextValue) => {
     onChange(nextValue ?? '')

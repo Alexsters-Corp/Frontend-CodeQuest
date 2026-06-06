@@ -309,27 +309,29 @@ function ModulesPage() {
                             )}
                           </div>
                         </div>
-                        <button
-                          className={`lesson-favorite-btn ${favoriteLessonIds.has(Number(lesson.id)) ? 'active' : ''}`}
-                          onClick={() => handleToggleFavorite({ lesson, module: mod })}
-                          type="button"
-                          aria-label={favoriteLessonIds.has(Number(lesson.id)) ? t('favorites.remove') : t('favorites.add')}
-                          title={favoriteLessonIds.has(Number(lesson.id)) ? t('favorites.remove') : t('favorites.add')}
-                        >
-                          {favoriteLessonIds.has(Number(lesson.id)) ? '★' : '☆'}
-                        </button>
-                        <button
-                          className="lesson-go-btn"
-                          onClick={() => navigate(`/lesson/${lesson.id}`)}
-                          type="button"
-                          disabled={lesson.estado === 'bloqueado'}
-                        >
-                          {lesson.estado === 'completada'
-                            ? t('modules.repeat')
-                            : lesson.estado === 'bloqueado'
-                              ? '🔒'
-                              : t('modules.start')}
-                        </button>
+                        <div className="lesson-actions-inline">
+                          <button
+                            className={`lesson-favorite-btn ${favoriteLessonIds.has(Number(lesson.id)) ? 'active' : ''}`}
+                            onClick={() => handleToggleFavorite({ lesson, module: mod })}
+                            type="button"
+                            aria-label={favoriteLessonIds.has(Number(lesson.id)) ? t('favorites.remove') : t('favorites.add')}
+                            title={favoriteLessonIds.has(Number(lesson.id)) ? t('favorites.remove') : t('favorites.add')}
+                          >
+                            {favoriteLessonIds.has(Number(lesson.id)) ? '★' : '☆'}
+                          </button>
+                          <button
+                            className="lesson-go-btn"
+                            onClick={() => navigate(`/lesson/${lesson.id}`)}
+                            type="button"
+                            disabled={lesson.estado === 'bloqueado'}
+                          >
+                            {lesson.estado === 'completada'
+                              ? t('modules.repeat')
+                              : lesson.estado === 'bloqueado'
+                                ? '🔒'
+                                : t('modules.start')}
+                          </button>
+                        </div>
                       </div>
                     ))
                   )}
