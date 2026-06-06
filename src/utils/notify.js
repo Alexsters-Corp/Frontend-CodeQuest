@@ -12,6 +12,7 @@ const DURATIONS = {
 
 const recentToastByKey = new Map()
 const activeToastByMessage = new Map()
+const activeToastTimers = new Map()
 
 let notificationLabels = {
   close: 'Cerrar',
@@ -51,7 +52,13 @@ function showToast(type, title, options = {}) {
 
   // If a toast with the same key exists, dismiss it first
   if (dedupeKey && activeToastByMessage.has(dedupeKey)) {
-    toast.dismiss(activeToastByMessage.get(dedupeKey))
+    const previousToastId = activeToastByMessage.get(dedupeKey)
+    const previousTimerId = activeToastTimers.get(previousToastId)
+    if (previousTimerId) {
+      window.clearTimeout(previousTimerId)
+      activeToastTimers.delete(previousToastId)
+    }
+    toast.dismiss(previousToastId)
   }
 
   const duration = toastOptions.duration ?? DURATIONS[type]
@@ -72,6 +79,11 @@ function showToast(type, title, options = {}) {
         closeAriaLabel: notificationLabels.closeAria,
         icon,
         onClose: () => {
+          const timerId = activeToastTimers.get(toastId)
+          if (timerId) {
+            window.clearTimeout(timerId)
+            activeToastTimers.delete(toastId)
+          }
           if (dedupeKey) {
             activeToastByMessage.delete(dedupeKey)
           }
@@ -85,6 +97,17 @@ function showToast(type, title, options = {}) {
       ...toastOptions,
     }
   )
+
+  if (Number.isFinite(duration) && duration > 0) {
+    const timerId = window.setTimeout(() => {
+      activeToastTimers.delete(newToastId)
+      if (dedupeKey) {
+        activeToastByMessage.delete(dedupeKey)
+      }
+      toast.dismiss(newToastId)
+    }, duration)
+    activeToastTimers.set(newToastId, timerId)
+  }
 
   return newToastId
 }

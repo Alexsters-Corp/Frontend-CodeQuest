@@ -1,21 +1,39 @@
-import { Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { motion as Motion } from 'framer-motion'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { IoMdArrowRoundBack } from 'react-icons/io'
+import { CiSaveDown1 } from 'react-icons/ci'
 import EditorLoadingSkeleton from '../components/EditorLoadingSkeleton'
 import LoadingSpinner from '../components/LoadingSpinner'
 import MotionPage from '../components/MotionPage'
 import { useLanguage } from '../context/useLanguage'
 import { executeCode } from '../services/codeExecutionService'
 import { getLessonContent, getLessonSolution, submitLessonExercise, submitLessonSolution } from '../services/learningApi'
+import { clearSessionAutosaveState, LESSON_AUTOSAVE_DEBOUNCE_MS, loadSessionAutosaveState, saveSessionAutosaveState } from '../utils/lessonAutosave'
 import { getLanguageLabelFromLesson, getMonacoLanguageFromLesson } from '../utils/languages'
-import { notifyError, notifyInfo } from '../utils/notify'
+import { notifyError, notifyInfo, notifyPending } from '../utils/notify'
 import { normalizeExecutionFeedback } from '../utils/executionErrors'
 
+import CodeViewer from '../components/CodeViewer'
 import SidebarLayout from '../components/SidebarLayout'
 import TheoryContent from '../components/TheoryContent'
 
 const MonacoEditor = lazy(() => import('../components/MonacoEditor'))
+const AUTOSAVE_KEY_PREFIX = 'cq:lesson:state:v1'
+
+function buildAutosaveKey(lessonId) {
+  return `${AUTOSAVE_KEY_PREFIX}:${lessonId}`
+}
+
+function hasRealProgress(saved) {
+  if (!saved) return false
+  if (saved.currentStep === 'exercise') return true
+  if (saved.currentExerciseIdx > 0) return true
+  if (typeof saved.codeAnswer === 'string' && saved.codeAnswer.trim().length > 0) {
+    return true
+  }
+  return saved.selectedAnswer !== null && saved.selectedAnswer !== undefined && String(saved.selectedAnswer).trim() !== ''
+}
 
 function parseBooleanFlag(value, fallback = false) {
   if (value === undefined || value === null || value === '') {
@@ -137,17 +155,28 @@ function LessonPage() {
   const navigate = useNavigate()
   const location = useLocation()
   const { language, t } = useLanguage()
+  const autosaveKey = buildAutosaveKey(lessonId)
+  const [initialAutosave] = useState(() => loadSessionAutosaveState(autosaveKey))
+  const hasValidInitialAutosave = Number(initialAutosave?.lessonId) === Number(lessonId)
+  const resumeToastShownRef = useRef(false)
   const [lesson, setLesson] = useState(null)
   const [exercises, setExercises] = useState([])
-  const [currentStep, setCurrentStep] = useState('theory') // theory | exercise | completed
-  const [currentExerciseIdx, setCurrentExerciseIdx] = useState(0)
-  const [selectedAnswer, setSelectedAnswer] = useState(null)
-  const [codeAnswer, setCodeAnswer] = useState('')
+  const [currentStep, setCurrentStep] = useState(() => (
+    hasValidInitialAutosave ? initialAutosave.currentStep || 'theory' : 'theory'
+  )) // theory | exercise | completed
+  const [currentExerciseIdx, setCurrentExerciseIdx] = useState(() => (
+    hasValidInitialAutosave ? initialAutosave.currentExerciseIdx || 0 : 0
+  ))
+  const [selectedAnswer, setSelectedAnswer] = useState(() => (
+    hasValidInitialAutosave ? initialAutosave.selectedAnswer ?? null : null
+  ))
+  const [codeAnswer, setCodeAnswer] = useState(() => (
+    hasValidInitialAutosave ? initialAutosave.codeAnswer || '' : ''
+  ))
   const [consoleOutput, setConsoleOutput] = useState([])
   const [isExecuting, setIsExecuting] = useState(false)
   const [executionUnavailable, setExecutionUnavailable] = useState(false)
   const [solutionUnavailable, setSolutionUnavailable] = useState(false)
-  const [isMobileFallback, setIsMobileFallback] = useState(false)
   const [editorLoadFailed, setEditorLoadFailed] = useState(false)
   const [runCelebrationTick, setRunCelebrationTick] = useState(0)
   const [feedback, setFeedback] = useState(null)
@@ -157,7 +186,9 @@ function LessonPage() {
   // Estado del intento actual
   const [xpEarned, setXpEarned] = useState(0)
   const [errorsInAttempt, setErrorsInAttempt] = useState(0)
-  const [isRetry, setIsRetry] = useState(false)
+  const [isRetry, setIsRetry] = useState(() => (
+    hasValidInitialAutosave ? Boolean(initialAutosave.isRetry) : false
+  ))
   const [bonusAwarded, setBonusAwarded] = useState(false)
 
   // Estado de la solución oficial
@@ -168,6 +199,9 @@ function LessonPage() {
   const lessonLanguageId = lesson?.lenguaje_id
   const sourceClassId = Number(location.state?.classId)
   const hasSourceClassId = Number.isInteger(sourceClassId) && sourceClassId > 0
+  const shouldUseImmersiveShell =
+    currentStep === 'exercise' ||
+    (loading && hasValidInitialAutosave && initialAutosave?.currentStep === 'exercise')
 
   const handleBackToMyClass = useCallback(() => {
     if (hasSourceClassId) {
@@ -193,7 +227,6 @@ function LessonPage() {
 
   const shouldRenderMonaco =
     FEATURE_CODE_EXECUTION_ENABLED &&
-    !isMobileFallback &&
     !editorLoadFailed
 
   const canExecuteCode = FEATURE_CODE_EXECUTION_ENABLED && !executionUnavailable
@@ -204,28 +237,6 @@ function LessonPage() {
     automaticLayout: true,
     scrollBeyondLastLine: false,
   }), [])
-
-  useEffect(() => {
-    if (typeof window === 'undefined' || typeof window.matchMedia !== 'function') {
-      return undefined
-    }
-
-    const mediaQuery = window.matchMedia('(max-width: 767px)')
-
-    const syncMobileMode = (event) => {
-      setIsMobileFallback(event.matches)
-    }
-
-    setIsMobileFallback(mediaQuery.matches)
-
-    if (typeof mediaQuery.addEventListener === 'function') {
-      mediaQuery.addEventListener('change', syncMobileMode)
-      return () => mediaQuery.removeEventListener('change', syncMobileMode)
-    }
-
-    mediaQuery.addListener(syncMobileMode)
-    return () => mediaQuery.removeListener(syncMobileMode)
-  }, [])
 
   const loadLesson = useCallback(async () => {
     setLoading(true)
@@ -247,6 +258,44 @@ function LessonPage() {
   useEffect(() => {
     loadLesson()
   }, [language, loadLesson])
+
+  useEffect(() => {
+    if (loading || !lesson || currentStep === 'completed') {
+      return undefined
+    }
+
+    const timeoutId = window.setTimeout(() => {
+      saveSessionAutosaveState(autosaveKey, {
+        lessonId: Number(lessonId),
+        currentStep,
+        currentExerciseIdx,
+        codeAnswer,
+        selectedAnswer,
+        isRetry,
+      })
+    }, LESSON_AUTOSAVE_DEBOUNCE_MS)
+
+    return () => window.clearTimeout(timeoutId)
+  }, [autosaveKey, codeAnswer, currentExerciseIdx, currentStep, isRetry, lesson, lessonId, loading, selectedAnswer])
+
+  useEffect(() => {
+    if (!lesson || loading || !hasValidInitialAutosave || resumeToastShownRef.current) {
+      return
+    }
+
+    if (hasRealProgress(initialAutosave)) {
+      resumeToastShownRef.current = true
+      notifyPending(t('lesson.toast.resume'), { icon: <CiSaveDown1 size={22} style={{ display: 'block', flexShrink: 0 }} /> })
+    }
+  }, [hasValidInitialAutosave, initialAutosave, lesson, loading, t])
+
+  useEffect(() => {
+    if (currentStep !== 'completed') {
+      return
+    }
+
+    clearSessionAutosaveState(autosaveKey)
+  }, [autosaveKey, currentStep])
 
   const resetAttempt = () => {
     setCurrentExerciseIdx(0)
@@ -462,7 +511,7 @@ function LessonPage() {
 
   if (loading) {
     return (
-      <SidebarLayout>
+      <SidebarLayout immersive={shouldUseImmersiveShell}>
         <MotionPage className="lesson-page" delay={0.05}>
           <div className="lesson-loading">
             <LoadingSpinner size="large" />
@@ -475,7 +524,7 @@ function LessonPage() {
 
   if (!lesson) {
     return (
-      <SidebarLayout>
+      <SidebarLayout immersive={shouldUseImmersiveShell}>
         <MotionPage className="lesson-page" delay={0.05}>
           <div className="lesson-loading">
             <p>{t('lesson.notFound')}</p>
@@ -490,7 +539,7 @@ function LessonPage() {
     const wasPerfect = errorsInAttempt === 0
 
     return (
-      <SidebarLayout>
+      <SidebarLayout immersive>
         <MotionPage className="lesson-page" delay={0.06}>
           <div className="lesson-completed">
             <div className="completed-icon">{wasPerfect ? '🏆' : '🎉'}</div>
@@ -519,7 +568,7 @@ function LessonPage() {
             <div className="completed-actions">
               {errorsInAttempt > 0 && (
                 <button
-                  className="lesson-solution-btn ui-jitter"
+                  className="lesson-solution-btn btn btn--amber btn--lg ui-jitter"
                   onClick={handleViewSolution}
                   disabled={loadingSolution || solutionUnavailable}
                   type="button"
@@ -528,14 +577,14 @@ function LessonPage() {
                 </button>
               )}
               <button
-                className="lesson-retry-btn ui-jitter"
+                className="lesson-retry-btn btn btn--blue btn--lg ui-jitter"
                 onClick={handleRetryLesson}
                 type="button"
               >
                 🔄 Repetir lección
               </button>
               <button
-                className="lesson-start-btn ui-jitter"
+                className="lesson-start-btn btn btn--primary btn--lg ui-jitter"
                 onClick={handleBackToMyClass}
                 type="button"
               >
@@ -553,9 +602,7 @@ function LessonPage() {
                 {solution.explanation && (
                   <p className="solution-explanation">{solution.explanation}</p>
                 )}
-                <pre className="solution-code">
-                  <code>{solution.solved_code}</code>
-                </pre>
+                <CodeViewer code={solution.solved_code} language={editorLanguage} />
               </div>
             )}
           </div>
@@ -612,17 +659,17 @@ function LessonPage() {
             <div className="lesson-actions">
               {alreadyCompleted ? (
                 <>
-                  <button className="lesson-solution-btn ui-jitter" onClick={handleViewSolution} disabled={loadingSolution || solutionUnavailable} type="button">
+                  <button className="lesson-solution-btn btn btn--amber btn--lg ui-jitter" onClick={handleViewSolution} disabled={loadingSolution || solutionUnavailable} type="button">
                     {loadingSolution ? '⏳ Cargando...' : showSolution ? '🙈 Ocultar solución' : '💡 Ver solución'}
                   </button>
-                  <button className="lesson-start-btn lesson-retry-btn ui-jitter" onClick={handleRetryLesson} type="button">
+                  <button className="lesson-start-btn lesson-retry-btn btn btn--blue btn--lg ui-jitter" onClick={handleRetryLesson} type="button">
                     🔄 Repetir lección
                   </button>
                 </>
               ) : (
-                <button className="lesson-start-btn ui-jitter" onClick={handleStartExercises} type="button">
-                  {exercises.length > 0 ? t('lesson.startExercises') : t('lesson.completeLesson')}
-                </button>
+                  <button className="lesson-start-btn btn btn--primary btn--lg ui-jitter" onClick={handleStartExercises} type="button">
+                    {exercises.length > 0 ? t('lesson.startExercises') : t('lesson.completeLesson')}
+                  </button>
               )}
 
               {solutionUnavailable && (
@@ -635,9 +682,7 @@ function LessonPage() {
                   {solution.explanation && (
                     <p className="solution-explanation">{solution.explanation}</p>
                   )}
-                  <pre className="solution-code">
-                    <code>{solution.solved_code}</code>
-                  </pre>
+                  <CodeViewer code={solution.solved_code} language={editorLanguage} />
                 </div>
               )}
             </div>
@@ -651,7 +696,7 @@ function LessonPage() {
   const options = currentExercise?.opciones || []
 
   return (
-    <SidebarLayout>
+    <SidebarLayout immersive={shouldUseImmersiveShell}>
       <MotionPage className="lesson-page" delay={0.06}>
         <div className="lesson-container">
           <div className="exercise-header">
@@ -682,9 +727,7 @@ function LessonPage() {
             <h2 className="exercise-question">{currentExercise.enunciado}</h2>
 
             {currentExercise.codigo_base && (
-              <pre className="exercise-code">
-                <code>{currentExercise.codigo_base}</code>
-              </pre>
+              <CodeViewer code={currentExercise.codigo_base} language={editorLanguage} />
             )}
 
             {/* Opciones para opcion_multiple y verdadero_falso */}
@@ -728,7 +771,6 @@ function LessonPage() {
                       onChange={setCodeAnswer}
                       language={editorLanguage}
                       languageLabel={editorLanguageLabel}
-                      theme="vs-dark"
                       height="clamp(180px, 28vh, 400px)"
                       readOnly={!!feedback}
                       options={monacoOptions}
@@ -753,9 +795,6 @@ function LessonPage() {
                     <label htmlFor="lesson-code-fallback" className="sr-only">
                       {t('lesson.codeEditorAria')}
                     </label>
-                    {isMobileFallback && FEATURE_CODE_EXECUTION_ENABLED && (
-                      <p className="exercise-editor-flag-note">{t('lesson.mobileFallbackNotice')}</p>
-                    )}
                     {!FEATURE_CODE_EXECUTION_ENABLED && (
                       <p className="exercise-editor-flag-note">{t('lesson.executionDisabled')}</p>
                     )}
@@ -801,6 +840,7 @@ function LessonPage() {
                         >
                           <div className="monaco-console__header">
                             <h3>{t('lesson.outputTitle')}</h3>
+                            <span>{t('lesson.runShortcut')}</span>
                           </div>
                           {consoleOutput.length === 0 ? (
                             <p className="monaco-console-empty">{t('lesson.outputEmpty')}</p>
@@ -831,7 +871,7 @@ function LessonPage() {
           <div className="exercise-actions">
             {!feedback ? (
               <button
-                className="exercise-submit-btn"
+                className="exercise-submit-btn btn btn--blue btn--lg"
                 onClick={handleSubmitExercise}
                 disabled={
                   submitting ||
@@ -851,7 +891,7 @@ function LessonPage() {
                 )}
               </button>
             ) : (
-              <button className="exercise-next-btn" onClick={handleNextExercise} type="button">
+              <button className="exercise-next-btn btn btn--primary btn--lg" onClick={handleNextExercise} type="button">
                 {currentExerciseIdx < exercises.length - 1 ? t('lesson.next') : t('lesson.finish')}
               </button>
             )}

@@ -365,13 +365,14 @@
 
 .lesson-completed--demo h1 {
   font-size: 1.75rem;
-  color: var(--cq-text);
+  color: #f1f7ff;
 }
 
 .lesson-completed--demo h2 {
   margin-bottom: 8px;
-  color: var(--cq-muted);
+  color: #c7d6ea;
   font-size: 1.05rem;
+  line-height: 1.55;
 }
 
 .demo__completion-mascot {
@@ -413,7 +414,7 @@
   margin-top: 6px;
   font-size: 13px;
   font-weight: 500;
-  color: var(--cq-muted);
+  color: #9fb0c9;
 }
 
 .demo-completion__chips {
@@ -450,7 +451,7 @@
   font-weight: 700;
   letter-spacing: 0.02em;
   text-transform: uppercase;
-  color: var(--cq-muted);
+  color: #c7d6ea;
 }
 
 .demo-completion__next ul {
@@ -476,7 +477,9 @@
 .demo-completion__footnote {
   margin: 0;
   font-size: 12px;
-  color: var(--cq-muted);
+  color: #9fb0c9;
+  line-height: 1.55;
+  text-align: center;
 }
 
 /* --- RESPONSIVE --- */
@@ -695,19 +698,48 @@
 
 @media (max-width: 480px) {
   .lesson-completed--demo {
-    padding: 28px 22px;
+    padding: 24px 18px;
+    gap: 16px;
   }
 
   .lesson-completed--demo h1 {
     font-size: 1.5rem;
   }
 
+  .lesson-completed--demo .completed-actions {
+    width: 100%;
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: nowrap;
+  }
+
+  .lesson-completed--demo .completed-actions .demo__link-btn,
+  .lesson-completed--demo .completed-actions .demo__cta-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    padding: 10px 12px;
+    font-size: 0.88rem;
+    white-space: normal;
+    text-align: center;
+  }
+
   .demo-completion__stats {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .demo-completion__stat {
+    padding: 16px 12px;
   }
 
   .demo-completion__stat-number {
-    font-size: 1.75rem;
+    font-size: 1.6rem;
+  }
+
+  .demo-completion__stat-label {
+    font-size: 12px;
   }
 
   .demo-banner {

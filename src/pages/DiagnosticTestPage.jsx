@@ -233,7 +233,7 @@ function DiagnosticTestPage() {
   const progressPercent = ((currentIndex + 1) / exam.questions.length) * 100
 
   return (
-    <SidebarLayout>
+    <SidebarLayout immersive>
       <MotionPage className="diagnostic-page" delay={0.06}>
         <div className="diagnostic-container">
           <div className="diagnostic-header">
